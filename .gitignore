@@ -42,3 +42,8 @@ next-env.d.ts
 
 # superdesign
 .superdesign/
+
+# AI assistant configs
+.cursor/
+.windsurfrules
+CLAUDE.md
