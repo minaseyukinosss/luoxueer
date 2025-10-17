@@ -1,0 +1,78 @@
+/* 移动端音乐播放器专用样式 */
+
+/* 移动端动画 */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 移动端专用优化 */
+@media (max-width: 768px) {
+  /* 增加移动端可点击区域 */
+  button, a, [role="button"] {
+    min-height: 44px; /* iOS 推荐的最小点击尺寸 */
+    min-width: 44px;
+  }
+
+  /* 移动端滚动优化 */
+  .overflow-y-auto, .overflow-x-auto {
+    -webkit-overflow-scrolling: touch; /* iOS 平滑滚动 */
+    overscroll-behavior: contain; /* 防止过度滚动 */
+  }
+
+  /* 移动端字体优化 */
+  body {
+    -webkit-text-size-adjust: 100%; /* 防止字体自动缩放 */
+    text-size-adjust: 100%;
+  }
+  
+  /* 优化移动端的动画性能 */
+  .animate-record-spin {
+    will-change: transform;
+    transform: translateZ(0); /* 开启硬件加速 */
+  }
+
+  /* 移动端进度条更高 */
+  .progress-bar-mobile {
+    height: 4px;
+    touch-action: none;
+  }
+}
+
+/* 移动端安全区域适配 */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* 防止移动端长按选择文本 */
+.no-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}

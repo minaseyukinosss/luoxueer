@@ -1,0 +1,11 @@
+/* 样式模块统一导入文件 */
+
+/* 导入动画样式 */
+@import './animations.css';
+
+/* 导入音乐播放器样式 */
+@import './components/music-player.css';
+@import './components/music-player-controls.css';
+@import './components/music-player-mobile.css';
+@import './components/music-misc.css';
+@import './components/music-animations.css';
