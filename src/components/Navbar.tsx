@@ -29,7 +29,7 @@ export default function Navbar({ locale, setLocale, translations }: NavbarProps)
 
   const navItems = [
     { href: '/', label: translations.home },
-    { href: '/music', label: translations.music },
+    { href: '/musicbox', label: translations.music },
     { href: '/about', label: translations.about },
   ];
 
