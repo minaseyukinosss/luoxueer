@@ -1,0 +1,112 @@
+/* 音乐播放器杂项样式 */
+
+/* 自定义滚动条 */
+.music-player::-webkit-scrollbar {
+  width: 8px;
+}
+
+.music-player::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.music-player::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.music-player::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* 隐藏滚动条但保持滚动功能 */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}
+
+/* MUSIC 标题专用字体 */
+.music-title {
+  font-family: 'Fjalla One', sans-serif;
+}
+
+/* MUSIC 标题专用样式 - 使用指定颜色 */
+.soft-title {
+  background: linear-gradient(135deg,
+    #e7618e 0%,     /* 主色调 */
+    #e7618e 50%,    /* 主色调 */
+    #e7618e 100%    /* 主色调 */
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 0.15em;
+  font-weight: 600;
+  /* 备用颜色 */
+  color: #e7618e;
+}
+
+/* 如果浏览器不支持背景裁剪，显示备用颜色 */
+@supports not (background-clip: text) {
+  .soft-title {
+    color: #e7618e;
+    background: none;
+  }
+}
+
+/* NOW PLAYING 标题专用样式 - 清新彩色渐变 */
+.title-gradient {
+  background: linear-gradient(120deg,
+    #3b82f6 0%,     /* 清新蓝 */
+    #8b5cf6 30%,    /* 优雅紫 */
+    #ec4899 60%,    /* 玫瑰粉 */
+    #f59e0b 100%    /* 温暖橙 */
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* 备用颜色 */
+@supports not (background-clip: text) {
+  .title-gradient {
+    color: #3b82f6;
+    background: none;
+  }
+}
+
+/* 柔和顶部条背景 */
+.soft-header {
+  background: linear-gradient(90deg,
+    color-mix(in oklab, var(--brand-sky) 85%, white) 0%,
+    color-mix(in oklab, var(--brand-lilac) 80%, white) 50%,
+    color-mix(in oklab, var(--brand-cream) 85%, white) 100%
+  );
+}
+
+/* 侧边栏图标悬停效果 */
+.sidebar-icon {
+  transition: all 0.2s ease-in-out;
+}
+
+.sidebar-icon:hover {
+  transform: translateY(-1px);
+}
+
+/* 装饰性动画 */
+@keyframes lineGlow {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scaleX(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scaleX(1.1);
+  }
+}
