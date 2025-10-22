@@ -121,7 +121,57 @@
 }
 
 
-/* 移动端背景优化 - 保持参考图片的柔和风格 */
+/* 响应式布局优化 */
+
+/* 通用宽度设置 - 确保侧边栏有足够宽度 */
+.music-player .glass-container > div:first-child {
+  width: auto !important;
+  min-width: auto !important;
+  flex-shrink: 0;
+}
+
+.music-player .glass-container > div:first-child .w-80 {
+  width: 320px !important;
+}
+
+/* 小型桌面和平板横屏 (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .music-player .glass-container {
+    gap: 0.75rem;
+  }
+  
+  .music-player .glass-container > div:first-child {
+    width: auto !important;
+    min-width: auto !important;
+  }
+  
+  .music-player .glass-container > div:first-child .w-80 {
+    width: 280px !important;
+  }
+}
+
+/* 大型平板和小型桌面 (1025px - 1280px) */
+@media (min-width: 1025px) and (max-width: 1280px) {
+  .music-player .glass-container > div:first-child {
+    width: auto !important;
+    min-width: auto !important;
+  }
+  
+  .music-player .glass-container > div:first-child .w-80 {
+    width: 300px !important;
+  }
+}
+
+/* 确保内容不溢出 */
+.music-player .glass-container {
+  box-sizing: border-box;
+}
+
+.music-player .glass-container > * {
+  box-sizing: border-box;
+  min-width: 0;
+}
+
 @media (max-width: 768px) {
   .music-player::before {
     background: 
@@ -139,7 +189,6 @@
   .music-player::after {
     display: none; /* 移动端隐藏伪元素泡泡 */
   }
-  
   
   .decorative-line {
     display: none;

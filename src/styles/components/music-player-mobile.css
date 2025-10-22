@@ -76,3 +76,165 @@
   -ms-user-select: none;
   user-select: none;
 }
+
+/* 唱片机卡片（参考图） */
+.turntable-card {
+  position: relative;
+  width: 88vw;
+  max-width: 360px;
+  aspect-ratio: 1/1;
+  background: white;
+  border-radius: 24px;
+  margin-top: 8px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+}
+
+.turntable-disc {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 78%;
+  height: 78%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #d1d5db 0%, #9ca3af 35%, #6b7280 55%, #9ca3af 72%, #e5e7eb 100%);
+  box-shadow: inset 0 0 12px rgba(0,0,0,0.15);
+  display: grid;
+  place-items: center;
+}
+
+.turntable-disc-inner {
+  width: 72%;
+  height: 72%;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.18);
+}
+
+.turntable-spindle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  background: white;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.is-rotating {
+  animation: disc-rotate 10s linear infinite;
+}
+
+@keyframes disc-rotate {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* 唱臂 */
+.tonearm {
+  position: absolute;
+  top: 6%;
+  right: 8%;
+  width: 140px;
+  height: 140px;
+  pointer-events: none;
+}
+
+.tonearm-base {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 34px;
+  height: 34px;
+  background: #f3f4f6;
+  border-radius: 50%;
+  box-shadow: inset 0 0 4px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.tonearm-pivot {
+  position: absolute;
+  top: 7px;
+  left: 7px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.tonearm-rod {
+  position: absolute;
+  top: 28px;
+  right: 16px;
+  width: 110px;
+  height: 6px;
+  background: linear-gradient(180deg, #e5e7eb, #cbd5e1);
+  border-radius: 3px;
+  transform-origin: right center;
+}
+
+.tonearm-head {
+  position: absolute;
+  top: 26px;
+  right: -2px;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: white;
+  border: 2px solid #e5e7eb;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.tonearm-on .tonearm-rod {
+  animation: tonearm-on 400ms ease-out forwards;
+}
+.tonearm-off .tonearm-rod {
+  animation: tonearm-off 400ms ease-in forwards;
+}
+
+@keyframes tonearm-on {
+  from { transform: rotate(-28deg); }
+  to { transform: rotate(-10deg); }
+}
+@keyframes tonearm-off {
+  from { transform: rotate(-10deg); }
+  to { transform: rotate(-28deg); }
+}
+
+/* 移动端侧边栏容器样式 */
+.mobile-sidebar-container {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.mobile-sidebar-container .bg-transparent {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.mobile-sidebar-container .space-y-1 {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.mobile-sidebar-container button {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 12px 16px !important;
+  border-radius: 0 !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+}
+
+.mobile-sidebar-container button:first-child {
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+}
+
+.mobile-sidebar-container button:last-child {
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}

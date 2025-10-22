@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import { useMusic } from '@/contexts/MusicContext';
 import { songList, Song } from '@/data/musicData';
@@ -12,6 +12,25 @@ interface MusicSidebarProps {
 const MusicSidebar: React.FC<MusicSidebarProps> = ({ onSongSelect }) => {
   const { currentSong, playSong } = useMusic();
   const [isExpanded, setIsExpanded] = useState(true);
+
+  // 根据窗口宽度自动展开/收缩侧边栏
+  useEffect(() => {
+    const handleResize = () => {
+      const shouldExpand = window.innerWidth >= 1200;
+      setIsExpanded(shouldExpand);
+    };
+
+    // 初始化时检查一次
+    handleResize();
+
+    // 监听窗口大小变化
+    window.addEventListener('resize', handleResize);
+
+    // 清理事件监听器
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   // 使用 useMemo 优化歌曲列表渲染
   const songs = useMemo(() => songList, []);
@@ -25,8 +44,9 @@ const MusicSidebar: React.FC<MusicSidebarProps> = ({ onSongSelect }) => {
   return (
     <div 
       className={`bg-transparent text-gray-800 flex flex-col transition-all duration-300 h-full ${
-        isExpanded ? 'w-64' : 'w-20'
+        isExpanded ? 'w-80' : 'w-16'
       }`}
+      style={isExpanded ? { width: '320px', minWidth: '320px' } : { width: '64px', minWidth: '64px' }}
     >
       {/* 顶部标题和展开按钮 - 桌面端显示 */}
       <div className="hidden md:block p-4 border-b border-gray-200">
@@ -48,7 +68,7 @@ const MusicSidebar: React.FC<MusicSidebarProps> = ({ onSongSelect }) => {
             {/* 图标容器 */}
             <div className="relative z-10 flex items-center justify-center">
               <svg 
-                className={`w-5 h-5 text-gray-600 group-hover:text-indigo-600 transition-all duration-300 ease-out ${
+                className={`w-4 h-4 text-gray-600 group-hover:text-indigo-600 transition-all duration-300 ease-out ${
                   isExpanded ? 'rotate-0' : 'rotate-180'
                 }`} 
                 fill="none" 
@@ -59,7 +79,7 @@ const MusicSidebar: React.FC<MusicSidebarProps> = ({ onSongSelect }) => {
                 <path 
                   strokeLinecap="round" 
                   strokeLinejoin="round" 
-                  d="M15 19l-7-7 7-7" 
+                  d="M9 5l7 7-7 7" 
                 />
               </svg>
             </div>
@@ -78,15 +98,15 @@ const MusicSidebar: React.FC<MusicSidebarProps> = ({ onSongSelect }) => {
           </div>
         )}
         
-        <div className={`space-y-1 ${isExpanded ? 'p-3 md:p-3' : 'p-2'}`} role="list" aria-label="歌曲列表">
+        <div className={`space-y-1 ${isExpanded ? 'p-4 md:p-4' : 'p-2'} md:block`} role="list" aria-label="歌曲列表">
           {songs.map((song, index) => (
             <button
               key={song.id}
             className={`w-full flex items-center py-3 md:py-2 rounded-lg hover:bg-indigo-50 active:bg-indigo-100 transition-all duration-200 ease-out focus:outline-none focus:bg-indigo-50 focus:scale-[1.02] ${
-              isExpanded ? 'space-x-3 px-3' : 'justify-center px-2'
+              isExpanded ? 'space-x-4 px-4' : 'justify-center px-2'
             } ${
               currentSong?.id === song.id ? 'bg-indigo-100 text-indigo-800 hover:bg-indigo-200 focus:bg-indigo-200' : ''
-            }`}
+            } md:mx-0 mx-0`}
               onClick={() => handleSongClick(song)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -99,12 +119,14 @@ const MusicSidebar: React.FC<MusicSidebarProps> = ({ onSongSelect }) => {
               aria-current={currentSong?.id === song.id ? 'true' : 'false'}
               tabIndex={0}
             >
-              <div className="w-12 h-12 md:w-10 md:h-10 rounded-lg overflow-hidden flex-shrink-0">
+              <div className={`rounded-lg overflow-hidden flex-shrink-0 ${
+                isExpanded ? 'w-12 h-12 md:w-10 md:h-10' : 'w-10 h-10'
+              }`}>
                 <Image
                   src={song.cover}
                   alt={`${song.title} 专辑封面`}
-                  width={48}
-                  height={48}
+                  width={isExpanded ? 48 : 40}
+                  height={isExpanded ? 48 : 40}
                   className="w-full h-full object-cover"
                   priority={index < 3} // 前3首歌曲优先加载
                   loading={index < 3 ? 'eager' : 'lazy'}

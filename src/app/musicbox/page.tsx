@@ -19,17 +19,17 @@ export default function MusicPage() {
         <div className="decorative-line"></div>
         
         {/* 桌面端布局 */}
-        <div className="hidden md:block h-full pt-20 px-4 pb-20">
-          <div className="h-full max-w-7xl mx-auto">
+        <div className="hidden md:block h-full pt-20 px-4 pb-20 overflow-hidden">
+          <div className="h-full max-w-7xl mx-auto overflow-hidden">
             {/* 音乐播放器区域 */}
-            <div className="h-full rounded-xl shadow-lg p-4 flex gap-4 glass-container">
+            <div className="h-full rounded-xl shadow-lg p-4 flex gap-4 glass-container overflow-hidden">
               {/* 左侧歌曲列表 */}
               <div className="rounded-xl overflow-hidden h-full">
                 <MusicSidebar />
               </div>
               
               {/* 右侧歌词和播放器 */}
-              <div className="flex-1 flex flex-col gap-4">
+              <div className="flex-1 flex flex-col gap-4 min-w-0 h-full overflow-hidden">
                 {/* NOW PLAYING 标题 */}
                 <div className="soft-header rounded-xl px-4 py-3">
                   <h2 className="text-center text-sm font-bold soft-title tracking-[0.18em] music-title">
@@ -38,12 +38,12 @@ export default function MusicPage() {
                 </div>
                 
                 {/* 上方歌词区域 */}
-                <div className="flex-1 rounded-xl overflow-hidden shadow-sm">
+                <div className="flex-1 rounded-xl overflow-hidden">
                   <MusicLyrics />
                 </div>
                 
                 {/* 下方播放器操作栏 */}
-                <div className="rounded-xl overflow-hidden shadow-sm">
+                <div className="rounded-xl overflow-hidden">
                   <MusicPlayerBar />
                 </div>
               </div>
@@ -53,54 +53,21 @@ export default function MusicPage() {
 
         {/* 移动端布局 */}
         <div className="md:hidden h-full flex flex-col">
-          {/* 顶部菜单按钮 - 考虑全局导航栏的高度 */}
-          <div className="fixed top-16 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm border-b border-gray-200 px-4 py-4 flex items-center justify-between">
-            <h1 className="text-lg font-bold text-gray-900">音乐盒</h1>
-            <button
-              onClick={() => setShowMobileSidebar(true)}
-              className="group relative p-2 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 rounded-xl transition-all duration-300 ease-out transform hover:scale-105 active:scale-95 focus:outline-none focus:bg-gradient-to-r focus:from-indigo-100 focus:to-purple-100"
-              aria-label="打开歌曲列表"
-            >
-              {/* 背景装饰 */}
-              <div className="absolute inset-0 bg-gradient-to-r from-indigo-100 to-purple-100 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              
-              {/* 图标容器 */}
-              <div className="relative z-10 flex items-center justify-center">
-                <svg 
-                  className="w-5 h-5 text-gray-600 group-hover:text-indigo-600 transition-all duration-300 ease-out" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                  strokeWidth={2.5}
-                >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    d="M15 19l-7-7 7-7" 
-                  />
-                </svg>
-              </div>
-              
-              {/* 微妙的阴影效果 */}
-              <div className="absolute inset-0 rounded-xl shadow-sm group-hover:shadow-md transition-shadow duration-300"></div>
-            </button>
-          </div>
-
-          {/* NOW PLAYING 标题 */}
-          <div className="fixed top-28 left-0 right-0 z-20 soft-header px-4 py-3">
+          {/* NOW PLAYING 标题 - 使用PC端样式 */}
+          <div className="fixed top-16 left-0 right-0 z-20 soft-header px-4 py-3">
             <h2 className="text-center text-sm title-gradient music-title">
               NOW PLAYING
             </h2>
           </div>
 
           {/* 歌词区域 */}
-          <div className="flex-1 pt-40 pb-32 overflow-hidden glass-container">
+          <div className="flex-1 pt-28 pb-32 overflow-hidden glass-container">
             <MusicLyrics />
           </div>
 
           {/* 底部固定播放器 */}
           <div className="fixed bottom-0 left-0 right-0 z-20">
-            <MusicPlayerBar />
+            <MusicPlayerBar onOpenQueue={() => setShowMobileSidebar(true)} />
           </div>
 
           {/* 移动端侧边栏 - 从底部弹出 */}
@@ -132,7 +99,11 @@ export default function MusicPage() {
                 
                 {/* 歌曲列表内容 */}
                 <div className="flex-1 overflow-hidden h-full">
-                  <MusicSidebar onSongSelect={() => setShowMobileSidebar(false)} />
+                  <div className="h-full w-full">
+                    <div className="mobile-sidebar-container">
+                      <MusicSidebar onSongSelect={() => setShowMobileSidebar(false)} />
+                    </div>
+                  </div>
                 </div>
               </div>
             </>

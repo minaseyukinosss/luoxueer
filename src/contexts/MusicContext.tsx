@@ -96,11 +96,46 @@ export const MusicProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     songs: songList
   };
 
-  // 初始化播放列表
+  // 初始化播放列表和默认歌曲
   useEffect(() => {
     setCurrentPlaylist(samplePlaylist);
     setQueue(samplePlaylist.songs);
     setOriginalQueue(samplePlaylist.songs);
+    
+    // 默认选择第一首歌曲（但不自动播放）
+    if (samplePlaylist.songs.length > 0) {
+      setCurrentSong(samplePlaylist.songs[0]);
+      setQueueIndex(0);
+      
+      // 创建 Howl 实例但不播放
+      const firstSong = samplePlaylist.songs[0];
+      const howl = new Howl({
+        src: [firstSong.audioUrl],
+        volume: volume,
+        onload: () => {
+          setDuration(howl.duration());
+        },
+        onplay: () => {
+          setIsPlaying(true);
+          startProgressTracking();
+        },
+        onpause: () => {
+          setIsPlaying(false);
+          stopProgressTracking();
+        },
+        onstop: () => {
+          setIsPlaying(false);
+          stopProgressTracking();
+        },
+        onend: () => {
+          handleSongEnd();
+        },
+        onseek: () => {
+          setCurrentTime(howl.seek());
+        }
+      });
+      howlRef.current = howl;
+    }
   }, []);
 
   // 设置全局音量
