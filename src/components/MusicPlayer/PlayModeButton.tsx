@@ -44,7 +44,7 @@ const PlayModeButton: React.FC = () => {
   return (
     <button
       onClick={togglePlayMode}
-      className="text-gray-500 hover:text-gray-700 transition-colors"
+      className="text-gray-600 hover:text-green-600 transition-colors"
       title={getPlayModeInfo().title}
     >
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>

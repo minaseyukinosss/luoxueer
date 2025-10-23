@@ -12,12 +12,15 @@ interface MusicSidebarProps {
 const MusicSidebar: React.FC<MusicSidebarProps> = ({ onSongSelect }) => {
   const { currentSong, playSong } = useMusic();
   const [isExpanded, setIsExpanded] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
 
   // 根据窗口宽度自动展开/收缩侧边栏
   useEffect(() => {
     const handleResize = () => {
       const shouldExpand = window.innerWidth >= 1200;
+      const isMobileDevice = window.innerWidth < 768;
       setIsExpanded(shouldExpand);
+      setIsMobile(isMobileDevice);
     };
 
     // 初始化时检查一次
@@ -98,15 +101,21 @@ const MusicSidebar: React.FC<MusicSidebarProps> = ({ onSongSelect }) => {
           </div>
         )}
         
-        <div className={`space-y-1 ${isExpanded ? 'p-4 md:p-4' : 'p-2'} md:block`} role="list" aria-label="歌曲列表">
+        <div className={`space-y-1 ${isExpanded ? 'p-4 md:p-4' : 'p-2'} ${isMobile ? 'p-0' : ''} md:block`} role="list" aria-label="歌曲列表">
           {songs.map((song, index) => (
             <button
               key={song.id}
-            className={`w-full flex items-center py-3 md:py-2 rounded-lg hover:bg-indigo-50 active:bg-indigo-100 transition-all duration-200 ease-out focus:outline-none focus:bg-indigo-50 focus:scale-[1.02] ${
-              isExpanded ? 'space-x-4 px-4' : 'justify-center px-2'
+            className={`w-full flex items-center transition-colors duration-150 ease-out focus:outline-none ${
+              isExpanded || isMobile ? 'space-x-3 px-4 py-3' : 'justify-center px-2 py-3'
             } ${
-              currentSong?.id === song.id ? 'bg-indigo-100 text-indigo-800 hover:bg-indigo-200 focus:bg-indigo-200' : ''
-            } md:mx-0 mx-0`}
+              currentSong?.id === song.id 
+                ? isMobile 
+                  ? 'bg-indigo-50 text-indigo-900 border-l-4 border-l-indigo-500' 
+                  : 'bg-indigo-100 text-indigo-800'
+                : isMobile 
+                  ? 'hover:bg-gray-50 active:bg-gray-100 border-l-4 border-l-transparent' 
+                  : 'hover:bg-indigo-50 active:bg-indigo-100 focus:bg-indigo-50'
+            } ${isMobile ? 'border-b border-gray-100 last:border-b-0' : 'rounded-lg md:mx-0 mx-0'}`}
               onClick={() => handleSongClick(song)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -120,22 +129,36 @@ const MusicSidebar: React.FC<MusicSidebarProps> = ({ onSongSelect }) => {
               tabIndex={0}
             >
               <div className={`rounded-lg overflow-hidden flex-shrink-0 ${
-                isExpanded ? 'w-12 h-12 md:w-10 md:h-10' : 'w-10 h-10'
+                isExpanded || isMobile ? 'w-12 h-12' : 'w-10 h-10'
               }`}>
                 <Image
                   src={song.cover}
                   alt={`${song.title} 专辑封面`}
-                  width={isExpanded ? 48 : 40}
-                  height={isExpanded ? 48 : 40}
+                  width={isExpanded || isMobile ? 48 : 40}
+                  height={isExpanded || isMobile ? 48 : 40}
                   className="w-full h-full object-cover"
                   priority={index < 3} // 前3首歌曲优先加载
                   loading={index < 3 ? 'eager' : 'lazy'}
                 />
               </div>
-              {isExpanded && (
+              {(isExpanded || isMobile) && (
                 <div className="flex-1 min-w-0 text-left">
-                  <div className="text-base md:text-sm truncate font-medium">{song.title}</div>
-                  <div className="text-sm md:text-xs text-gray-500 truncate">{song.artist}</div>
+                  <div className={`truncate ${
+                    currentSong?.id === song.id 
+                      ? 'font-semibold' 
+                      : 'font-medium'
+                  } ${
+                    isMobile ? 'text-base' : 'text-base md:text-sm'
+                  }`}>{song.title}</div>
+                  <div className={`truncate ${
+                    currentSong?.id === song.id 
+                      ? isMobile 
+                        ? 'text-sm text-indigo-700' 
+                        : 'text-sm md:text-xs text-indigo-600'
+                      : isMobile 
+                        ? 'text-sm text-gray-600' 
+                        : 'text-sm md:text-xs text-gray-500'
+                  }`}>{song.artist}</div>
                 </div>
               )}
             </button>

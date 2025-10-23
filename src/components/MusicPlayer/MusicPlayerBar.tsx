@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { useMusic } from '@/contexts/MusicContext';
 import PlayerControls from './PlayerControls';
 import ProgressBar from './ProgressBar';
@@ -14,7 +15,7 @@ interface MusicPlayerBarProps {
 }
 
 const MusicPlayerBar: React.FC<MusicPlayerBarProps> = ({ onOpenQueue }) => {
-  const { currentSong, currentTime, duration } = useMusic();
+  const { currentSong, currentTime, duration, isMuted, toggleMute } = useMusic();
 
   if (!currentSong) {
     return (
@@ -53,69 +54,99 @@ const MusicPlayerBar: React.FC<MusicPlayerBarProps> = ({ onOpenQueue }) => {
         </div>
       </div>
 
-      {/* 移动端播放器 - 融入背景设计 */}
-      <div className="md:hidden bg-gradient-to-b from-white/95 via-white/90 to-white/85 backdrop-blur-sm border-t border-white/20 rounded-xl safe-area-bottom">
-        {/* 进度条区域 - 融入背景 */}
-        <div className="relative px-4 pt-6 pb-3">
-          <ProgressBar isMobile={true} />
-          {/* 时间显示 - 更柔和的样式 */}
-          <div className="flex justify-between text-[11px] text-gray-400/80 mt-2 font-medium">
-            <span className="tabular-nums">{formatTime(currentTime)}</span>
-            <span className="tabular-nums">{formatTime(duration)}</span>
-          </div>
-        </div>
+      {/* 移动端播放器 - 极简悬浮设计 */}
+      <div className="md:hidden safe-area-bottom">
+        {/* 悬浮播放器容器 */}
+        <div className="fixed bottom-0 left-0 right-0 z-30">
+          {/* 背景模糊层 */}
+          <div className="absolute inset-0 bg-white/80 backdrop-blur-2xl"></div>
+          
+          {/* 主播放器内容 */}
+          <div className="relative px-4 py-3">
+            {/* 歌曲信息行 */}
+            <div className="flex items-center space-x-3 mb-4">
+              {/* 专辑封面 - 圆形设计 */}
+              <div className="w-14 h-14 rounded-full overflow-hidden shadow-lg ring-2 ring-white/60">
+                <Image 
+                  src={currentSong.cover} 
+                  alt={currentSong.title}
+                  width={56}
+                  height={56}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              
+              {/* 歌曲信息 */}
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg font-bold text-gray-900 truncate">{currentSong.title}</h3>
+                <p className="text-sm text-gray-600 truncate">{currentSong.artist}</p>
+              </div>
+              
+              {/* 播放状态 */}
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                <span className="text-xs text-gray-500 font-medium">LIVE</span>
+              </div>
+            </div>
 
-        {/* 操作图标栏 - 融入背景 */}
-        <div className="flex items-center justify-around px-8 py-5">
-          {/* 循环模式按钮 */}
-          <button className="p-3 text-gray-500/70 hover:text-gray-700 hover:bg-white/30 active:scale-95 transition-all relative rounded-full backdrop-blur-sm">
-            <svg className="w-[20px] h-[20px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-              <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span className="absolute -top-1 -left-1 text-[8px] text-gray-300 font-medium">99+</span>
-          </button>
-          
-          {/* 均衡器图标 */}
-          <button className="p-3 text-gray-500/70 hover:text-gray-700 hover:bg-white/30 active:scale-95 transition-all relative rounded-full backdrop-blur-sm">
-            <svg className="w-[20px] h-[20px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-              <path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span className="absolute -top-1 -right-1 bg-red-400/90 text-white text-[8px] px-1.5 py-0.5 rounded-full font-medium shadow-sm backdrop-blur-sm">NEW</span>
-          </button>
-          
-          {/* 下载按钮 */}
-          <button className="p-3 text-gray-500/70 hover:text-gray-700 hover:bg-white/30 active:scale-95 transition-all rounded-full backdrop-blur-sm">
-            <svg className="w-[20px] h-[20px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-              <path d="M12 15V3m0 12l-4-4m4 4l4-4M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
-          
-          {/* 评论按钮 */}
-          <button className="p-3 text-gray-500/70 hover:text-gray-700 hover:bg-white/30 active:scale-95 transition-all relative rounded-full backdrop-blur-sm">
-            <svg className="w-[20px] h-[20px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-              <path d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            <span className="absolute -top-1 -right-1 text-[8px] text-gray-300 font-medium">8w+</span>
-          </button>
-          
-          {/* 更多菜单按钮 */}
-          <button
-            onClick={onOpenQueue}
-            aria-label="打开播放列表"
-            className="p-3 text-gray-500/70 hover:text-gray-700 hover:bg-white/30 active:scale-95 transition-all rounded-full backdrop-blur-sm"
-          >
-            <svg className="w-[20px] h-[20px]" viewBox="0 0 24 24" fill="currentColor">
-              <circle cx="12" cy="5" r="2"/>
-              <circle cx="12" cy="12" r="2"/>
-              <circle cx="12" cy="19" r="2"/>
-            </svg>
-          </button>
-        </div>
+            {/* 进度条 */}
+            <div className="mb-4">
+              <ProgressBar isMobile={true} />
+              <div className="flex justify-between text-xs text-gray-500 mt-1 font-medium">
+                <span className="tabular-nums">{formatTime(currentTime)}</span>
+                <span className="tabular-nums">{formatTime(duration)}</span>
+              </div>
+            </div>
 
-        {/* 播放控制按钮 - 融入背景 */}
-        <div className="flex items-center justify-center pb-6 pt-2">
-          <div className="bg-white/20 backdrop-blur-sm rounded-full p-2">
-            <PlayerControls />
+            {/* 控制区域 */}
+            <div className="flex items-center justify-center">
+              {/* 左侧功能按钮 */}
+              <div className="flex items-center space-x-4">
+                {/* 播放模式 */}
+                <div className="p-2 text-gray-600 hover:text-green-600 transition-colors">
+                  <PlayModeButton />
+                </div>
+                
+                {/* 音量 */}
+                <button 
+                  onClick={toggleMute}
+                  className="p-2 text-gray-600 hover:text-green-600 transition-colors"
+                >
+                  {isMuted ? (
+                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M3.63 3.63a.996.996 0 0 0 0 1.41L7.29 8.7L7 9H4c-.55 0-1 .45-1 1v4c0 .55.45 1 1 1h3l3.29 3.29c.63.63 1.71.18 1.71-.71v-4.17l4.18 4.18c-.49.37-1.02.68-1.6.91c-.36.15-.58.53-.58.92c0 .72.73 1.18 1.39.91c.8-.33 1.55-.77 2.22-1.31l1.34 1.34a.996.996 0 1 0 1.41-1.41L5.05 3.63c-.39-.39-1.02-.39-1.42 0M19 12c0 .82-.15 1.61-.41 2.34l1.53 1.53c.56-1.17.88-2.48.88-3.87c0-3.83-2.4-7.11-5.78-8.4c-.59-.23-1.22.23-1.22.86v.19c0 .38.25.71.61.85C17.18 6.54 19 9.06 19 12m-8.71-6.29l-.17.17L12 7.76V6.41c0-.89-1.08-1.33-1.71-.7M16.5 12A4.5 4.5 0 0 0 14 7.97v1.79l2.48 2.48c.01-.08.02-.16.02-.24"/>
+                    </svg>
+                  ) : (
+                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M18.5 12A4.5 4.5 0 0 0 16 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02M5 10v4c0 .55.45 1 1 1h3l3.29 3.29c.63.63 1.71.18 1.71-.71V6.41c0-.89-1.08-1.34-1.71-.71L9 9H6c-.55 0-1 .45-1 1"/>
+                    </svg>
+                  )}
+                </button>
+              </div>
+
+              {/* 中央播放控制 */}
+              <div className="flex items-center mx-8">
+                <PlayerControls />
+              </div>
+
+              {/* 右侧功能按钮 */}
+              <div className="flex items-center space-x-4">
+                {/* 播放列表 */}
+                <button
+                  onClick={onOpenQueue}
+                  className="p-2 text-gray-600 hover:text-green-600 transition-colors"
+                >
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                    <circle cx="12" cy="5" r="2"/>
+                    <circle cx="12" cy="12" r="2"/>
+                    <circle cx="12" cy="19" r="2"/>
+                  </svg>
+                </button>
+                
+                {/* 占位元素，保持布局平衡 */}
+                <div className="w-9 h-9"></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
