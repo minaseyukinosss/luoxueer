@@ -1,0 +1,228 @@
+/* CSS Variables for custom effects */
+:root {
+  /* Custom gradients that can't be easily replicated with Tailwind */
+  --gradient-primary: linear-gradient(135deg, #6cfadd, #6cdefa);
+  --gradient-highlight: linear-gradient(135deg, #ff6b9d, #f06292, #ff4081);
+  --gradient-secondary: linear-gradient(135deg, #6cfadd, #81c784);
+  --gradient-ripple: radial-gradient(circle, rgba(108, 250, 221, 0.6) 0%, rgba(255, 107, 157, 0.3) 70%, transparent 100%);
+  
+  /* Custom shadows */
+  --shadow-primary: 0 0 20px rgba(108, 250, 221, 0.3);
+  --shadow-highlight: 0 0 30px rgba(255, 107, 157, 0.4);
+  --shadow-secondary: 0 0 25px rgba(108, 250, 221, 0.4);
+}
+
+/* Decorative particles - complex positioning and animation */
+.particle {
+  position: absolute;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  opacity: 0.6;
+  background: linear-gradient(135deg, #6cfadd, #ff6b9d);
+  animation: float 6s ease-in-out infinite;
+}
+
+.particle:nth-child(1) {
+  top: 20%;
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.particle:nth-child(2) {
+  top: 40%;
+  right: 15%;
+  animation-delay: 1s;
+}
+
+.particle:nth-child(3) {
+  bottom: 30%;
+  left: 20%;
+  animation-delay: 2s;
+}
+
+.particle:nth-child(4) {
+  top: 60%;
+  right: 25%;
+  animation-delay: 3s;
+}
+
+.particle:nth-child(5) {
+  bottom: 40%;
+  right: 10%;
+  animation-delay: 4s;
+}
+
+/* Text styles - complex gradients and effects */
+.info-text {
+  font-weight: 600;
+  line-height: 1;
+  margin: 0;
+  z-index: 2;
+  text-align: center;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  letter-spacing: -.01em;
+  background: linear-gradient(to right, #6cfadd, #6cfadd) no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-size: 100%;
+  transition: all cubic-bezier(.1,.5,.5,1) 0.5s;
+}
+
+.info-text.primary {
+  font-size: 4.5rem;
+  color: rgba(108, 222, 250, 0.6);
+  text-shadow: var(--shadow-primary);
+}
+
+.info-text.highlight {
+  font-size: 6rem;
+  color: rgba(255, 107, 157, 0.7);
+  background: linear-gradient(to right, #ff6b9d, #f06292) no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  text-shadow: var(--shadow-highlight);
+  transform: perspective(1000px) rotateX(10deg);
+}
+
+.info-text.secondary {
+  font-size: 2.5rem;
+  font-weight: 400;
+  color: rgba(108, 222, 250, 0.8);
+  letter-spacing: 0.1em;
+}
+
+.info-text span {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  clip-path: polygon(0 50%, 100% 50%, 100% 50%, 0 50%);
+  transform-origin: center;
+  transition: all cubic-bezier(.1,.5,.5,1) 0.4s;
+  backdrop-filter: blur(10px);
+}
+
+.info-text.primary span {
+  background: var(--gradient-primary);
+  box-shadow: 0 0 30px rgba(108, 250, 221, 0.5);
+}
+
+.info-text.highlight span {
+  background: var(--gradient-highlight);
+  box-shadow: 0 0 40px rgba(255, 107, 157, 0.6);
+}
+
+.info-text.secondary span {
+  background: var(--gradient-secondary);
+  box-shadow: 0 0 25px rgba(108, 250, 221, 0.4);
+}
+
+/* Hover effects */
+.info-text:hover {
+  transform: translateY(-5px);
+}
+
+.info-text:hover > span {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+}
+
+.info-text.highlight:hover {
+  transform: perspective(1000px) rotateX(10deg) translateY(-8px) scale(1.05);
+}
+
+/* Responsive Design */
+@media screen and (max-width: 992px) {
+  .info-text.primary {
+    font-size: 3rem;
+  }
+  
+  .info-text.highlight {
+    font-size: 4rem;
+  }
+  
+  .info-text.secondary {
+    font-size: 2.2rem;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .info-text.primary {
+    font-size: 2.8rem;
+  }
+  
+  .info-text.highlight {
+    font-size: 3.2rem;
+    transform: none;
+  }
+  
+  .info-text.secondary {
+    font-size: 2rem;
+  }
+  
+  .info-text.highlight:hover {
+    transform: translateY(-3px) scale(1.02);
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .info-text.primary {
+    font-size: 2.4rem;
+  }
+  
+  .info-text.highlight {
+    font-size: 3rem;
+  }
+  
+  .info-text.secondary {
+    font-size: 1.8rem;
+  }
+}
+
+@media screen and (max-width: 375px) {
+  .info-text.primary {
+    font-size: 2.2rem;
+  }
+  
+  .info-text.highlight {
+    font-size: 2.8rem;
+  }
+  
+  .info-text.secondary {
+    font-size: 1.6rem;
+  }
+}
+
+/* Animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.6;
+  }
+  
+  50% {
+    transform: translateY(-20px) rotate(180deg);
+    opacity: 1;
+  }
+}
+
+/* Ripple effect */
+.ripple-effect {
+  position: fixed;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  background: var(--gradient-ripple);
+}
