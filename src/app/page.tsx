@@ -82,41 +82,47 @@ export default function Home() {
     // 初始化文字入场动画
     const initializeTextAnimations = () => {
       const greetingTexts = document.querySelectorAll('.greeting-container .info-text');
-      gsap.fromTo(greetingTexts, 
-        { opacity: 0, y: 50 },
-        { 
-          opacity: 1, 
-          y: 0, 
-          duration: ANIMATION_CONFIG.TEXT_ENTRANCE.GREETING.DURATION, 
-          stagger: ANIMATION_CONFIG.TEXT_ENTRANCE.GREETING.STAGGER, 
-          ease: ANIMATION_CONFIG.TEXT_ENTRANCE.GREETING.EASE 
-        }
-      );
+      if (greetingTexts.length > 0) {
+        gsap.fromTo(greetingTexts, 
+          { opacity: 0, y: 50 },
+          { 
+            opacity: 1, 
+            y: 0, 
+            duration: ANIMATION_CONFIG.TEXT_ENTRANCE.GREETING.DURATION, 
+            stagger: ANIMATION_CONFIG.TEXT_ENTRANCE.GREETING.STAGGER, 
+            ease: ANIMATION_CONFIG.TEXT_ENTRANCE.GREETING.EASE 
+          }
+        );
+      }
       
       const nameTexts = document.querySelectorAll('.name-container .info-text');
-      gsap.fromTo(nameTexts, 
-        { opacity: 0, scale: 0.8 },
-        { 
-          opacity: 1, 
-          scale: 1, 
-          duration: ANIMATION_CONFIG.TEXT_ENTRANCE.NAME.DURATION, 
-          delay: ANIMATION_CONFIG.TEXT_ENTRANCE.NAME.DELAY, 
-          ease: ANIMATION_CONFIG.TEXT_ENTRANCE.NAME.EASE 
-        }
-      );
+      if (nameTexts.length > 0) {
+        gsap.fromTo(nameTexts, 
+          { opacity: 0, scale: 0.8 },
+          { 
+            opacity: 1, 
+            scale: 1, 
+            duration: ANIMATION_CONFIG.TEXT_ENTRANCE.NAME.DURATION, 
+            delay: ANIMATION_CONFIG.TEXT_ENTRANCE.NAME.DELAY, 
+            ease: ANIMATION_CONFIG.TEXT_ENTRANCE.NAME.EASE 
+          }
+        );
+      }
       
       const wishesTexts = document.querySelectorAll('.wishes-container .info-text');
-      gsap.fromTo(wishesTexts, 
-        { opacity: 0, y: 30 },
-        { 
-          opacity: 1, 
-          y: 0, 
-          duration: ANIMATION_CONFIG.TEXT_ENTRANCE.WISHES.DURATION, 
-          delay: ANIMATION_CONFIG.TEXT_ENTRANCE.WISHES.DELAY, 
-          stagger: ANIMATION_CONFIG.TEXT_ENTRANCE.WISHES.STAGGER, 
-          ease: ANIMATION_CONFIG.TEXT_ENTRANCE.WISHES.EASE 
-        }
-      );
+      if (wishesTexts.length > 0) {
+        gsap.fromTo(wishesTexts, 
+          { opacity: 0, y: 30 },
+          { 
+            opacity: 1, 
+            y: 0, 
+            duration: ANIMATION_CONFIG.TEXT_ENTRANCE.WISHES.DURATION, 
+            delay: ANIMATION_CONFIG.TEXT_ENTRANCE.WISHES.DELAY, 
+            stagger: ANIMATION_CONFIG.TEXT_ENTRANCE.WISHES.STAGGER, 
+            ease: ANIMATION_CONFIG.TEXT_ENTRANCE.WISHES.EASE 
+          }
+        );
+      }
     };
 
     // 移除滚动触发动画，因为现在是一屏展示
@@ -124,6 +130,8 @@ export default function Home() {
     // 初始化悬停效果
     const initializeHoverEffects = () => {
       const allTexts = document.querySelectorAll('.info-text');
+      if (allTexts.length === 0) return;
+      
       const handleMouseEnter = (text: Element) => {
         gsap.to(text, { 
           scale: ANIMATION_CONFIG.HOVER.SCALE, 
@@ -155,10 +163,12 @@ export default function Home() {
 
     // 清理函数
     return () => {
-      hoverEffects.allTexts.forEach((text) => {
-        text.removeEventListener('mouseenter', () => hoverEffects.handleMouseEnter(text));
-        text.removeEventListener('mouseleave', () => hoverEffects.handleMouseLeave(text));
-      });
+      if (hoverEffects) {
+        hoverEffects.allTexts.forEach((text) => {
+          text.removeEventListener('mouseenter', () => hoverEffects.handleMouseEnter(text));
+          text.removeEventListener('mouseleave', () => hoverEffects.handleMouseLeave(text));
+        });
+      }
     };
   }, []);
 
