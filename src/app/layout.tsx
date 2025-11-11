@@ -1,9 +1,11 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Fjalla_One, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import PreLoader from "@/components/PreLoader";
 import { LocaleProvider } from "@/components/LocaleProvider";
 import NavbarWrapper from "@/components/NavbarWrapper";
+import PageTransition from "@/components/PageTransition";
+import LenisProvider from "@/components/LenisProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,12 +27,13 @@ const fjallaOne = Fjalla_One({
 export const metadata: Metadata = {
   title: "Luoxueer",
   description: "Just another design studio",
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
@@ -39,15 +42,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh">
+    <html lang="zh" data-scroll-behavior="smooth">
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${fjallaOne.variable} antialiased`}
       >
-        <PreLoader />
-        <LocaleProvider>
-          <NavbarWrapper />
-          {children}
-        </LocaleProvider>
+        <LenisProvider>
+          <PreLoader />
+          <LocaleProvider>
+            <NavbarWrapper />
+            <PageTransition>{children}</PageTransition>
+          </LocaleProvider>
+        </LenisProvider>
       </body>
     </html>
   );
