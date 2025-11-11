@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fjalla_One, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import PreLoader from "@/components/PreLoader";
 import { LocaleProvider } from "@/components/LocaleProvider";
@@ -13,6 +13,13 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const fjallaOne = Fjalla_One({
+  variable: "--font-fjalla-one",
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -33,13 +40,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Fjalla+One&display=swap" rel="stylesheet" />
-      </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${fjallaOne.variable} antialiased`}
       >
         <PreLoader />
         <LocaleProvider>

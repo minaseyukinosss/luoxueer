@@ -36,6 +36,8 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-background-light: var(--background-light);
+  --color-background-dark: var(--background-dark);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -100,6 +102,18 @@ html {
   --text-muted: #475569;    /* 次要文本 */
   --surface-glass: rgba(255, 255, 255, 0.82);
   --surface-border: rgba(255, 255, 255, 0.28);
+
+  /* 关于页面专用颜色 - 第一种色系搭配 */
+  --background-light: #f8f6f6;
+  --background-dark: #201216;
+  --primary-color: #E77A9A;
+  --secondary-color: #3b82f6;
+  
+  /* 渐变定义 */
+  --gradient-primary: linear-gradient(135deg, #E77A9A 0%, #f598b4 100%);
+  --gradient-secondary: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+  --gradient-card: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%);
+  --gradient-card-dark: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.3) 100%);
 }
 
 .dark {
