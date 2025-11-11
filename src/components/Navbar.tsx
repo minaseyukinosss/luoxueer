@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Locale } from '@/lib/i18n';
+import NavLink from './NavLink';
 
 interface NavbarProps {
   locale: Locale;
@@ -20,6 +21,8 @@ export default function Navbar({ locale, setLocale, translations }: NavbarProps)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLangDropdownOpen, setIsLangDropdownOpen] = useState(false);
   const pathname = usePathname();
+  const isHome = pathname === '/';
+  const isHomeTop = isHome && !isScrolled;
 
   const locales: Array<{ code: Locale; label: string; shortLabel: string; flag: string }> = [
     { code: 'zh', label: '中文', shortLabel: '中', flag: '🇨🇳' },
@@ -65,14 +68,16 @@ export default function Navbar({ locale, setLocale, translations }: NavbarProps)
           isScrolled
             ? 'bg-background/80 backdrop-blur-lg border-b border-foreground/10 shadow-sm'
             : 'bg-transparent'
-        }`}
+        } ${isHomeTop ? 'text-white' : 'text-foreground'}`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 md:h-20">
             {/* Logo */}
             <Link
               href="/"
-              className="font-mono text-xl md:text-2xl font-bold tracking-tight hover:opacity-70 transition-opacity"
+              className={`font-mono text-xl md:text-2xl font-bold tracking-tight hover:opacity-80 transition-opacity ${
+                isHomeTop ? 'text-white' : 'text-foreground'
+              }`}
             >
               Luoxueer
             </Link>
@@ -82,38 +87,38 @@ export default function Navbar({ locale, setLocale, translations }: NavbarProps)
               {/* Nav Links */}
               <div className="flex items-center gap-1">
                 {navItems.map((item) => (
-                  <Link
+                  <NavLink
                     key={item.href}
                     href={item.href}
-                    className={`relative px-4 py-2 text-sm font-medium transition-all duration-300 ${
-                      isActive(item.href)
-                        ? 'text-foreground'
-                        : 'text-foreground/60 hover:text-foreground'
-                    }`}
-                  >
-                    {item.label}
-                    
-                    {/* Active indicator - Clean underline */}
-                    {isActive(item.href) && (
-                      <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 bg-foreground rounded-full transition-all duration-300" />
-                    )}
-                  </Link>
+                    label={item.label}
+                    variant={isHomeTop ? 'light' : 'default'}
+                  />
                 ))}
               </div>
 
               {/* Language Switcher - Globe Icon Dropdown */}
-              <div className="relative pl-6 border-l border-foreground/10 language-dropdown">
+              <div
+                className={`relative pl-6 border-l language-dropdown ${
+                  isHomeTop ? 'border-white/20' : 'border-foreground/10'
+                }`}
+              >
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     setIsLangDropdownOpen(!isLangDropdownOpen);
                   }}
-                  className="group flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-foreground/5 transition-all duration-200"
+                  className={`group flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 ${
+                    isHomeTop ? 'hover:bg-white/10' : 'hover:bg-foreground/5'
+                  }`}
                   aria-label="选择语言"
                 >
                   {/* Globe Icon SVG */}
                   <svg 
-                    className="w-5 h-5 text-foreground/70 group-hover:text-foreground transition-colors" 
+                    className={`w-5 h-5 transition-colors ${
+                      isHomeTop
+                        ? 'text-white/70 group-hover:text-white'
+                        : 'text-foreground/70 group-hover:text-foreground'
+                    }`} 
                     fill="none" 
                     viewBox="0 0 24 24" 
                     stroke="currentColor"
@@ -127,15 +132,19 @@ export default function Navbar({ locale, setLocale, translations }: NavbarProps)
                   </svg>
                   
                   {/* Current Language Code */}
-                  <span className="text-xs font-medium text-foreground/70 group-hover:text-foreground transition-colors uppercase">
+                  <span
+                    className={`text-xs font-medium transition-colors uppercase ${
+                      isHomeTop ? 'text-white/70 group-hover:text-white' : 'text-foreground/70 group-hover:text-foreground'
+                    }`}
+                  >
                     {locale}
                   </span>
 
                   {/* Dropdown Arrow */}
                   <svg
-                    className={`w-3.5 h-3.5 text-foreground/50 transition-transform duration-200 ${
+                    className={`w-3.5 h-3.5 transition-transform duration-200 ${
                       isLangDropdownOpen ? 'rotate-180' : ''
-                    }`}
+                    } ${isHomeTop ? 'text-white/60' : 'text-foreground/50'}`}
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -161,17 +170,31 @@ export default function Navbar({ locale, setLocale, translations }: NavbarProps)
                       }}
                       className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-all duration-150 ${
                         locale === lang.code
-                          ? 'bg-foreground/10 text-foreground'
+                          ? isHomeTop
+                            ? 'bg-white/15 text-white'
+                            : 'bg-foreground/10 text-foreground'
+                          : isHomeTop
+                          ? 'text-white/80 hover:bg-white/10 hover:text-white'
                           : 'text-foreground/70 hover:bg-foreground/5 hover:text-foreground'
                       }`}
                     >
                       <span className="text-xl">{lang.flag}</span>
                       <div className="flex-1 flex items-center justify-between">
                         <span className="font-medium">{lang.label}</span>
-                        <span className="text-xs text-foreground/40 uppercase font-mono">{lang.code}</span>
+                        <span
+                          className={`text-xs uppercase font-mono ${
+                            isHomeTop ? 'text-white/50' : 'text-foreground/40'
+                          }`}
+                        >
+                          {lang.code}
+                        </span>
                       </div>
                       {locale === lang.code && (
-                        <svg className="w-4 h-4 text-foreground" fill="currentColor" viewBox="0 0 20 20">
+                        <svg
+                          className={`w-4 h-4 ${isHomeTop ? 'text-white' : 'text-foreground'}`}
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
                       )}
@@ -184,24 +207,26 @@ export default function Navbar({ locale, setLocale, translations }: NavbarProps)
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-foreground/5 transition-colors"
+              className={`md:hidden p-2 rounded-lg transition-colors ${
+                isHomeTop ? 'hover:bg-white/10' : 'hover:bg-foreground/5'
+              }`}
               aria-label="Toggle menu"
             >
               <div className="w-5 h-4 flex flex-col justify-between">
                 <span
-                  className={`w-full h-0.5 bg-foreground transition-all duration-300 ${
+                  className={`w-full h-0.5 transition-all duration-300 ${
                     isMobileMenuOpen ? 'rotate-45 translate-y-1.5' : ''
-                  }`}
+                  } ${isHomeTop ? 'bg-white' : 'bg-foreground'}`}
                 />
                 <span
-                  className={`w-full h-0.5 bg-foreground transition-all duration-300 ${
+                  className={`w-full h-0.5 transition-all duration-300 ${
                     isMobileMenuOpen ? 'opacity-0' : ''
-                  }`}
+                  } ${isHomeTop ? 'bg-white' : 'bg-foreground'}`}
                 />
                 <span
-                  className={`w-full h-0.5 bg-foreground transition-all duration-300 ${
+                  className={`w-full h-0.5 transition-all duration-300 ${
                     isMobileMenuOpen ? '-rotate-45 -translate-y-1.5' : ''
-                  }`}
+                  } ${isHomeTop ? 'bg-white' : 'bg-foreground'}`}
                 />
               </div>
             </button>
