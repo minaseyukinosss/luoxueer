@@ -30,7 +30,7 @@ const VolumeControl: React.FC = () => {
       {/* 音量图标 */}
       <button
         onClick={toggleMute}
-        className="text-gray-500 hover:text-gray-700 transition-colors"
+        className="text-gray-600 hover:text-emerald-600 transition-colors duration-200 active:scale-95"
         title={isMuted ? '取消静音' : '静音'}
       >
         {isMuted ? (
@@ -48,12 +48,12 @@ const VolumeControl: React.FC = () => {
       <div className="relative w-24">
         {/* 滑块背景 */}
         <div 
-          className="w-full h-1 bg-gray-200 rounded-full cursor-pointer"
+          className="w-full h-1 bg-gray-200/60 rounded-full cursor-pointer"
           onClick={handleVolumeBarClick}
         >
-          {/* 已调节部分 */}
+          {/* 已调节部分 - 使用翠绿色渐变 */}
           <div 
-            className="h-1 bg-[#e7618e] rounded-full"
+            className="h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-full transition-all duration-200 shadow-sm"
             style={{ width: `${isMuted ? 0 : volume * 100}%` }}
           />
         </div>
@@ -70,9 +70,9 @@ const VolumeControl: React.FC = () => {
           className="absolute inset-0 w-full h-1 opacity-0 cursor-pointer"
         />
 
-        {/* 自定义滑块手柄 */}
+        {/* 自定义滑块手柄 - 使用翠绿色主题 */}
         <div
-          className="absolute top-1/2 w-3 h-3 bg-white rounded-full shadow-sm transform -translate-y-1/2 cursor-pointer transition-all duration-150 hover:scale-110 border border-[#e7618e]"
+          className="absolute top-1/2 w-3 h-3 bg-white rounded-full shadow-md transform -translate-y-1/2 cursor-pointer transition-all duration-150 hover:scale-110 border-2 border-emerald-400 hover:border-emerald-500"
           style={{
             left: `calc(${(isMuted ? 0 : volume) * 100}% - 6px)`,
           }}
@@ -80,7 +80,7 @@ const VolumeControl: React.FC = () => {
       </div>
 
       {/* 音量百分比显示 */}
-      <span className="text-xs text-gray-500 w-10 text-right">
+      <span className="text-xs text-gray-600 font-medium w-10 text-right tabular-nums">
         {isMuted ? '0%' : `${Math.round(volume * 100)}%`}
       </span>
     </div>

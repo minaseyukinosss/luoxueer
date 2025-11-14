@@ -9,28 +9,67 @@
   transform: scale(1.05);
 }
 
-/* 进度条柔和闪光动画 */
-@keyframes progress-shine-soft {
-  0% {
-    opacity: 0.4;
-    transform: scaleX(1);
-    box-shadow: 0 0 3px rgba(255,255,255,0.5), 0 0 6px rgba(134,239,172,0.3);
+/* 控制按钮光晕动画 */
+@keyframes button-glow {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
   }
   50% {
-    opacity: 0.7;
-    transform: scaleX(1.2);
-    box-shadow: 0 0 5px rgba(255,255,255,0.7), 0 0 10px rgba(134,239,172,0.4);
-  }
-  100% {
-    opacity: 0.4;
-    transform: scaleX(1);
-    box-shadow: 0 0 3px rgba(255,255,255,0.5), 0 0 6px rgba(134,239,172,0.3);
+    opacity: 0.9;
+    transform: scale(1.05);
   }
 }
 
-/* 播放器进度条样式 */
+/* 按钮点击波纹动画 */
+@keyframes button-ripple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+/* 图标缩放动画 */
+@keyframes icon-bounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* 进度条柔和闪光动画 - 使用翠绿色 */
+@keyframes progress-shine-soft {
+  0% {
+    opacity: 0.5;
+    transform: scaleX(1);
+    box-shadow: 0 0 4px rgba(255,255,255,0.6), 0 0 8px rgba(16,185,129,0.4);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scaleX(1.15);
+    box-shadow: 0 0 6px rgba(255,255,255,0.8), 0 0 12px rgba(16,185,129,0.5);
+  }
+  100% {
+    opacity: 0.5;
+    transform: scaleX(1);
+    box-shadow: 0 0 4px rgba(255,255,255,0.6), 0 0 8px rgba(16,185,129,0.4);
+  }
+}
+
+/* 播放器进度条样式 - 使用翠绿渐变 */
 .progress-bar {
-  background: linear-gradient(90deg, #86efac 0%, #86efac var(--progress, 0%), #4ade80 var(--progress, 0%), #4ade80 100%);
+  background: linear-gradient(90deg, 
+    #10b981 0%,       /* emerald-500 */
+    #14b8a6 var(--progress, 0%),  /* teal-500 */
+    #d1d5db var(--progress, 0%),  /* gray-300 */
+    #e5e7eb 100%      /* gray-200 */
+  );
 }
 
 /* 滑块样式隐藏 */
@@ -47,33 +86,46 @@
   border: none;
 }
 
-/* 音量滑块样式 */
+/* 音量滑块样式 - 使用翠绿渐变 */
 .volume-slider::-webkit-slider-thumb {
   appearance: none;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  background: #4ade80;
+  background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
   cursor: pointer;
-  border: 2px solid #ffffff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  border: 3px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3), 0 4px 12px rgba(16, 185, 129, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.volume-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 3px 8px rgba(16, 185, 129, 0.4), 0 6px 16px rgba(16, 185, 129, 0.3);
 }
 
 .volume-slider::-moz-range-thumb {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  background: #4ade80;
+  background: linear-gradient(135deg, #10b981 0%, #14b8a6 100%);
   cursor: pointer;
-  border: 2px solid #ffffff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  border: 3px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3), 0 4px 12px rgba(16, 185, 129, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* 歌曲列表项悬停效果 */
+.volume-slider::-moz-range-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 3px 8px rgba(16, 185, 129, 0.4), 0 6px 16px rgba(16, 185, 129, 0.3);
+}
+
+/* 歌曲列表项悬停效果 - 使用翠绿色调 */
 .song-item {
-  transition: background-color 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
 }
 
 .song-item:hover {
-  background-color: #f9fafb;
+  background: linear-gradient(to right, #ecfdf5, #f0fdfa);
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.05);
 }
