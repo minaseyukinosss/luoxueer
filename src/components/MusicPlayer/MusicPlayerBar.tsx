@@ -28,7 +28,7 @@ const MusicPlayerBar: React.FC<MusicPlayerBarProps> = ({ onOpenQueue }) => {
   return (
     <>      
       {/* 桌面端播放器 */}
-      <div className="hidden md:block h-24 bg-white border-t border-gray-100 rounded-xl">
+      <div className="hidden md:block h-24 bg-gradient-to-r from-white via-emerald-50/30 to-white border-t border-emerald-100/50 rounded-2xl shadow-sm backdrop-blur-sm">
         <div className="h-full flex items-center px-6 gap-6">
           {/* 左侧：歌曲信息 */}
           <div className="w-48 md:w-52 min-w-0">
@@ -59,14 +59,14 @@ const MusicPlayerBar: React.FC<MusicPlayerBarProps> = ({ onOpenQueue }) => {
         {/* 悬浮播放器容器 */}
         <div className="fixed bottom-0 left-0 right-0 z-30">
           {/* 背景模糊层 */}
-          <div className="absolute inset-0 bg-white/80 backdrop-blur-2xl"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-white/95 via-emerald-50/90 to-white/95 backdrop-blur-3xl border-t border-emerald-100/30"></div>
           
           {/* 主播放器内容 */}
           <div className="relative px-4 py-3">
             {/* 歌曲信息行 */}
             <div className="flex items-center space-x-3 mb-4">
               {/* 专辑封面 - 圆形设计 */}
-              <div className="w-14 h-14 rounded-full overflow-hidden shadow-lg ring-2 ring-white/60">
+              <div className="relative w-14 h-14 rounded-full overflow-hidden shadow-xl ring-4 ring-emerald-100/50 group-hover:ring-emerald-200 transition-all duration-300">
                 <Image 
                   src={currentSong.cover} 
                   alt={currentSong.title}
@@ -74,6 +74,7 @@ const MusicPlayerBar: React.FC<MusicPlayerBarProps> = ({ onOpenQueue }) => {
                   height={56}
                   className="w-full h-full object-cover"
                 />
+                <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent"></div>
               </div>
               
               {/* 歌曲信息 */}
@@ -83,9 +84,9 @@ const MusicPlayerBar: React.FC<MusicPlayerBarProps> = ({ onOpenQueue }) => {
               </div>
               
               {/* 播放状态 */}
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                <span className="text-xs text-gray-500 font-medium">LIVE</span>
+              <div className="flex items-center space-x-2 px-3 py-1 rounded-full bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200/50">
+                <div className="w-2 h-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full animate-pulse shadow-lg shadow-emerald-500/50"></div>
+                <span className="text-xs text-emerald-700 font-bold tracking-wider">LIVE</span>
               </div>
             </div>
 
@@ -103,14 +104,14 @@ const MusicPlayerBar: React.FC<MusicPlayerBarProps> = ({ onOpenQueue }) => {
               {/* 左侧功能按钮 */}
               <div className="flex items-center space-x-4">
                 {/* 播放模式 */}
-                <div className="p-2 text-gray-600 hover:text-green-600 transition-colors">
+                <div className="p-2 text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all duration-200">
                   <PlayModeButton />
                 </div>
                 
                 {/* 音量 */}
                 <button 
                   onClick={toggleMute}
-                  className="p-2 text-gray-600 hover:text-green-600 transition-colors"
+                  className="p-2 text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all duration-200 active:scale-95"
                 >
                   {isMuted ? (
                     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -134,7 +135,7 @@ const MusicPlayerBar: React.FC<MusicPlayerBarProps> = ({ onOpenQueue }) => {
                 {/* 播放列表 */}
                 <button
                   onClick={onOpenQueue}
-                  className="p-2 text-gray-600 hover:text-green-600 transition-colors"
+                  className="p-2 text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all duration-200 active:scale-95"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                     <circle cx="12" cy="5" r="2"/>

@@ -1,5 +1,6 @@
-/* 音乐播放器动画样式 */
+/* 音乐播放器动画样式 - 优化版 */
 
+/* 唱片旋转动画 - 更流畅 */
 @keyframes record-spin {
   from {
     transform: rotate(0deg);
@@ -10,11 +11,40 @@
 }
 
 .animate-record-spin {
-  animation: record-spin 20s linear infinite;
+  animation: record-spin 15s linear infinite;
   animation-play-state: running;
+  will-change: transform;
 }
 
 /* 缩放效果 */
 .scale-104 {
   transform: scale(1.04);
+}
+
+.scale-105 {
+  transform: scale(1.05);
+}
+
+/* 泡泡浮动动画 */
+@keyframes bubbleFloat {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(-20px) scale(1.05);
+    opacity: 0.9;
+  }
+}
+
+/* 线条发光动画 */
+@keyframes lineGlow {
+  0%, 100% {
+    opacity: 0.3;
+    filter: brightness(1);
+  }
+  50% {
+    opacity: 0.6;
+    filter: brightness(1.3);
+  }
 }

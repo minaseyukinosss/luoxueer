@@ -31,8 +31,9 @@ export default function MusicPage() {
               {/* 右侧歌词和播放器 */}
               <div className="flex-1 flex flex-col gap-4 min-w-0 h-full overflow-hidden">
                 {/* NOW PLAYING 标题 */}
-                <div className="soft-header rounded-xl px-4 py-3">
-                  <h2 className="text-center text-sm font-bold soft-title tracking-[0.18em] music-title">
+                <div className="relative overflow-hidden rounded-2xl px-6 py-4 bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 shadow-sm border border-emerald-100/50">
+                  <div className="absolute inset-0 bg-gradient-to-r from-emerald-100/20 to-teal-100/20 animate-pulse"></div>
+                  <h2 className="relative text-center text-sm font-bold tracking-[0.20em] text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600">
                     NOW PLAYING
                   </h2>
                 </div>
@@ -53,11 +54,14 @@ export default function MusicPage() {
 
         {/* 移动端布局 */}
         <div className="md:hidden h-full flex flex-col">
-          {/* NOW PLAYING 标题 - 使用PC端样式 */}
-          <div className="fixed top-16 left-0 right-0 z-20 soft-header px-4 py-3">
-            <h2 className="text-center text-sm title-gradient music-title">
+          {/* NOW PLAYING 标题 - 移动端优化 */}
+          <div className="fixed top-16 left-0 right-0 z-20 px-4 py-3 bg-gradient-to-r from-white/95 via-emerald-50/95 to-white/95 backdrop-blur-lg border-b border-emerald-100/30 shadow-sm">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-emerald-100/20 to-teal-100/20 blur-sm"></div>
+              <h2 className="relative text-center text-sm font-bold tracking-[0.20em] text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600">
               NOW PLAYING
             </h2>
+            </div>
           </div>
 
           {/* 歌词区域 */}
@@ -80,18 +84,18 @@ export default function MusicPage() {
               />
               
               {/* 歌曲列表抽屉 */}
-              <div className="fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-2xl shadow-2xl animate-slide-up max-h-[80vh] flex flex-col">
+              <div className="fixed inset-x-0 bottom-0 z-50 bg-gradient-to-b from-white to-emerald-50/30 rounded-t-3xl shadow-2xl animate-slide-up max-h-[80vh] flex flex-col border-t-2 border-emerald-100">
                 {/* 抽屉顶部 */}
-                <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                <div className="flex items-center justify-between p-4 border-b border-emerald-100/50 bg-gradient-to-r from-emerald-50/50 to-teal-50/50">
                   <h2 className="text-lg font-bold soft-title music-title">
                     MUSIC
                   </h2>
                   <button
                     onClick={() => setShowMobileSidebar(false)}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="p-2 hover:bg-emerald-100 rounded-xl transition-all duration-200 active:scale-95 hover:shadow-sm"
                     aria-label="关闭歌曲列表"
                   >
-                    <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6 text-gray-700 hover:text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>

@@ -61,17 +61,17 @@ const MusicSidebar: React.FC<MusicSidebarProps> = ({ onSongSelect }) => {
           )}
           <button 
             onClick={() => setIsExpanded(!isExpanded)}
-            className="group relative p-2 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 rounded-xl transition-all duration-300 ease-out transform hover:scale-105 active:scale-95 focus:outline-none focus:bg-gradient-to-r focus:from-indigo-100 focus:to-purple-100"
+            className="group relative p-2 hover:bg-gradient-to-br hover:from-emerald-50 hover:to-teal-50 rounded-xl transition-all duration-300 ease-out transform hover:scale-105 active:scale-95 focus:outline-none focus:bg-gradient-to-br focus:from-emerald-100 focus:to-teal-100"
             aria-label={isExpanded ? "收缩侧边栏" : "展开侧边栏"}
             title={isExpanded ? "收缩侧边栏" : "展开侧边栏"}
           >
             {/* 背景装饰 */}
-            <div className="absolute inset-0 bg-gradient-to-r from-indigo-100 to-purple-100 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             
             {/* 图标容器 */}
             <div className="relative z-10 flex items-center justify-center">
               <svg 
-                className={`w-4 h-4 text-gray-600 group-hover:text-indigo-600 transition-all duration-300 ease-out ${
+                className={`w-4 h-4 text-gray-600 group-hover:text-emerald-600 transition-all duration-300 ease-out ${
                   isExpanded ? 'rotate-0' : 'rotate-180'
                 }`} 
                 fill="none" 
@@ -105,17 +105,17 @@ const MusicSidebar: React.FC<MusicSidebarProps> = ({ onSongSelect }) => {
           {songs.map((song, index) => (
             <button
               key={song.id}
-            className={`w-full flex items-center transition-colors duration-150 ease-out focus:outline-none ${
+            className={`w-full flex items-center transition-all duration-200 ease-out focus:outline-none group ${
               isExpanded || isMobile ? 'space-x-3 px-4 py-3' : 'justify-center px-2 py-3'
             } ${
               currentSong?.id === song.id 
                 ? isMobile 
-                  ? 'bg-indigo-50 text-indigo-900 border-l-4 border-l-indigo-500' 
-                  : 'bg-indigo-100 text-indigo-800'
+                  ? 'bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-900 border-l-4 border-l-emerald-500 shadow-sm' 
+                  : 'bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 text-emerald-800 shadow-sm'
                 : isMobile 
                   ? 'hover:bg-gray-50 active:bg-gray-100 border-l-4 border-l-transparent' 
-                  : 'hover:bg-indigo-50 active:bg-indigo-100 focus:bg-indigo-50'
-            } ${isMobile ? 'border-b border-gray-100 last:border-b-0' : 'rounded-lg md:mx-0 mx-0'}`}
+                  : 'hover:bg-gradient-to-br hover:from-emerald-50/50 hover:to-teal-50/50 active:bg-emerald-100 focus:bg-emerald-50/50 hover:shadow-sm'
+            } ${isMobile ? 'border-b border-gray-100 last:border-b-0' : 'rounded-xl md:mx-0 mx-0'}`}
               onClick={() => handleSongClick(song)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -128,7 +128,7 @@ const MusicSidebar: React.FC<MusicSidebarProps> = ({ onSongSelect }) => {
               aria-current={currentSong?.id === song.id ? 'true' : 'false'}
               tabIndex={0}
             >
-              <div className={`rounded-lg overflow-hidden flex-shrink-0 ${
+              <div className={`rounded-xl overflow-hidden flex-shrink-0 shadow-sm group-hover:shadow-md transition-shadow duration-200 ${
                 isExpanded || isMobile ? 'w-12 h-12' : 'w-10 h-10'
               }`}>
                 <Image
@@ -153,11 +153,11 @@ const MusicSidebar: React.FC<MusicSidebarProps> = ({ onSongSelect }) => {
                   <div className={`truncate ${
                     currentSong?.id === song.id 
                       ? isMobile 
-                        ? 'text-sm text-indigo-700' 
-                        : 'text-sm md:text-xs text-indigo-600'
+                        ? 'text-sm text-emerald-700 font-medium' 
+                        : 'text-sm md:text-xs text-emerald-600 font-medium'
                       : isMobile 
                         ? 'text-sm text-gray-600' 
-                        : 'text-sm md:text-xs text-gray-500'
+                        : 'text-sm md:text-xs text-gray-500 group-hover:text-gray-600'
                   }`}>{song.artist}</div>
                 </div>
               )}

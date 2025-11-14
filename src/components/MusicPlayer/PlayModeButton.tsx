@@ -44,10 +44,13 @@ const PlayModeButton: React.FC = () => {
   return (
     <button
       onClick={togglePlayMode}
-      className="text-gray-600 hover:text-green-600 transition-colors"
+      className="group relative p-2 text-gray-600 hover:text-emerald-600 hover:bg-gradient-to-br hover:from-emerald-50 hover:to-teal-50 rounded-xl transition-all duration-200 active:scale-95 hover:shadow-sm"
       title={getPlayModeInfo().title}
     >
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+      {/* 背景动画 */}
+      <div className="absolute inset-0 bg-gradient-to-br from-emerald-100/0 to-teal-100/0 group-hover:from-emerald-100/20 group-hover:to-teal-100/20 rounded-xl transition-all duration-200"></div>
+      
+      <svg className="w-5 h-5 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
         {getPlayModeInfo().icon}
       </svg>
     </button>
