@@ -1,7 +1,7 @@
 'use client';
 
 import { HeroSection } from './components/HeroSection';
-import { SocialSection } from './components/SocialSection';
+import { SocialSectionCarousel } from './components/SocialSectionCarousel';
 import { UpdatesSection } from './components/UpdatesSection';
 import { useAboutData } from './hooks/useAboutData';
 
@@ -39,7 +39,7 @@ export default function AboutPage() {
             traitChips={traitChips}
             heroQuickLinks={heroQuickLinks}
           />
-          <SocialSection
+          <SocialSectionCarousel
             socialStats={socialStats}
             socialLinks={socialLinks}
             handleRefresh={handleRefresh}
