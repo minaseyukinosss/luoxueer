@@ -160,13 +160,6 @@ export const UPDATES: Update[] = [
     image: '/images/live.webp',
     category: 'events',
   },
-  {
-    date: '2025-01-18',
-    title: '旅行记录',
-    description: '完成北海道冬季特别 vlog，记录一路的雪景与歌声。',
-    image: '/images/travel.webp',
-    category: 'vlogs',
-  },
 ];
 
 export const TRAIT_CHIPS = ['梦想追寻者', '旅行爱好者', 'chill vibes', '舞台掌控者'];
