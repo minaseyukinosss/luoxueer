@@ -106,14 +106,14 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: 
-    /* 统一的翠绿色渐变，柔和过渡 */
+  background:
+    /* 更浅更柔的翠绿渐变，偏奶油色调 */
     linear-gradient(135deg,
-      #f0fdf4 0%,      /* emerald-50 极浅翠绿 */
-      #d1fae5 25%,     /* emerald-100 浅翠绿 */
-      #a7f3d0 50%,     /* emerald-200 翠绿 */
-      #6ee7b7 75%,     /* emerald-300 中翠绿 */
-      #d1fae5 100%     /* emerald-100 回到浅翠绿 */
+      #fcfffd 0%,
+      #f2fff8 20%,
+      #e4fff1 45%,
+      #d7ffeb 70%,
+      #eefef6 100%
     );
   z-index: -2;
   animation: backgroundShift 25s ease-in-out infinite;
@@ -199,13 +199,13 @@
 
 @media (max-width: 768px) {
   .music-player::before {
-    background: 
-      /* 移动端统一翠绿渐变 */
-      linear-gradient(135deg, 
-        #f0fdf4 0%,     /* emerald-50 */
-        #d1fae5 30%,    /* emerald-100 */
-        #a7f3d0 60%,    /* emerald-200 */
-        #d1fae5 100%    /* emerald-100 */
+    background:
+      /* 移动端更浅的翠绿渐变 */
+      linear-gradient(135deg,
+        #fcfffd 0%,
+        #f4fff9 35%,
+        #e8fff3 65%,
+        #f3fff8 100%
       );
   }
   
