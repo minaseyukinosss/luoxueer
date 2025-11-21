@@ -6,6 +6,7 @@ import { LocaleProvider } from "@/components/LocaleProvider";
 import NavbarWrapper from "@/components/NavbarWrapper";
 import PageTransition from "@/components/PageTransition";
 import LenisProvider from "@/components/LenisProvider";
+import ConditionalFooter from "@/components/ConditionalFooter";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -50,7 +51,10 @@ export default function RootLayout({
           <PreLoader />
           <LocaleProvider>
             <NavbarWrapper />
-            <PageTransition>{children}</PageTransition>
+            <PageTransition>
+              {children}
+              <ConditionalFooter />
+            </PageTransition>
           </LocaleProvider>
         </LenisProvider>
       </body>
