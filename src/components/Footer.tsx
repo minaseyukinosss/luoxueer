@@ -24,8 +24,8 @@ const Footer: React.FC<FooterProps> = ({ translations }) => {
 
   const navLinks = [
     { href: '/', label: translations.home },
-    { href: '/about', label: translations.about },
     { href: '/musicbox', label: translations.music },
+    { href: '/about', label: translations.about },
   ];
 
   // 使用 CSS 变量中的 --brand-cream 或 --background-light
