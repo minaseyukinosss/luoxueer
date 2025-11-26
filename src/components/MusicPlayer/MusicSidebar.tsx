@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import Image from 'next/image';
 import { useMusic } from '@/contexts/MusicContext';
 import { songList, Song } from '@/data/musicData';
@@ -10,162 +10,73 @@ interface MusicSidebarProps {
 }
 
 const MusicSidebar: React.FC<MusicSidebarProps> = ({ onSongSelect }) => {
-  const { currentSong, playSong } = useMusic();
-  const [isExpanded, setIsExpanded] = useState(true);
-  const [isMobile, setIsMobile] = useState(false);
+  const { currentSong, playSong, isPlaying } = useMusic();
 
-  // 根据窗口宽度自动展开/收缩侧边栏
-  useEffect(() => {
-    const handleResize = () => {
-      const shouldExpand = window.innerWidth >= 1200;
-      const isMobileDevice = window.innerWidth < 768;
-      setIsExpanded(shouldExpand);
-      setIsMobile(isMobileDevice);
-    };
-
-    // 初始化时检查一次
-    handleResize();
-
-    // 监听窗口大小变化
-    window.addEventListener('resize', handleResize);
-
-    // 清理事件监听器
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
-  // 使用 useMemo 优化歌曲列表渲染
   const songs = useMemo(() => songList, []);
 
-  // 使用 useCallback 优化事件处理函数
-  const handleSongClick = useCallback((song: Song) => {
-    playSong(song);
-    onSongSelect?.(); // 选择歌曲后回调（用于关闭移动端抽屉）
-  }, [playSong, onSongSelect]);
-
   return (
-    <div 
-      className={`bg-transparent text-gray-800 flex flex-col transition-all duration-300 h-full ${
-        isExpanded ? 'w-80' : 'w-16'
-      }`}
-      style={isExpanded ? { width: '320px', minWidth: '320px' } : { width: '64px', minWidth: '64px' }}
-    >
-      {/* 顶部标题和展开按钮 - 桌面端显示 */}
-      <div className="hidden md:block p-4 border-b border-gray-200">
-        <div className="flex items-center justify-between">
-          {isExpanded && (
-            <div className="text-2xl font-bold transition-opacity duration-300 soft-title music-title">
-              MUSIC
-            </div>
-          )}
-          <button 
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="group relative p-2 hover:bg-gradient-to-br hover:from-emerald-50 hover:to-teal-50 rounded-xl transition-all duration-300 ease-out transform hover:scale-105 active:scale-95 focus:outline-none focus:bg-gradient-to-br focus:from-emerald-100 focus:to-teal-100"
-            aria-label={isExpanded ? "收缩侧边栏" : "展开侧边栏"}
-            title={isExpanded ? "收缩侧边栏" : "展开侧边栏"}
-          >
-            {/* 背景装饰 */}
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            
-            {/* 图标容器 */}
-            <div className="relative z-10 flex items-center justify-center">
-              <svg 
-                className={`w-4 h-4 text-gray-600 group-hover:text-emerald-600 transition-all duration-300 ease-out ${
-                  isExpanded ? 'rotate-0' : 'rotate-180'
-                }`} 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-                strokeWidth={2.5}
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  d="M9 5l7 7-7 7" 
-                />
-              </svg>
-            </div>
-            
-            {/* 微妙的阴影效果 */}
-            <div className="absolute inset-0 rounded-xl shadow-sm group-hover:shadow-md transition-shadow duration-300"></div>
-          </button>
-        </div>
+    <div className="flex flex-col h-full overflow-hidden pl-6 pr-2 md:px-0">
+      <div className="flex items-center gap-2 mb-6 md:mb-8 px-2">
+        <span className="text-xs font-mono uppercase tracking-widest text-gray-400">Playlist</span>
+        <span className="h-px flex-1 bg-gray-200"></span>
+        <span className="text-xs font-mono text-gray-400">{songs.length.toString().padStart(2, '0')}</span>
       </div>
 
-      {/* 播放列表 */}
-      <div className="flex-1 overflow-y-auto">
-        {isExpanded && (
-          <div className="hidden md:block px-4 py-3 border-b border-gray-200">
-            <span className="text-xs font-medium text-gray-600">播放列表</span>
-          </div>
-        )}
-        
-        <div className={`space-y-1 ${isExpanded ? 'p-4 md:p-4' : 'p-2'} ${isMobile ? 'p-0' : ''} md:block`} role="list" aria-label="歌曲列表">
-          {songs.map((song, index) => (
+      <div className="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-2 pb-24 md:pb-8">
+        {songs.map((song, index) => {
+          const isCurrent = currentSong?.id === song.id;
+          const displayIndex = (index + 1).toString().padStart(2, '0');
+
+          return (
             <button
               key={song.id}
-            className={`w-full flex items-center transition-all duration-200 ease-out focus:outline-none group ${
-              isExpanded || isMobile ? 'space-x-3 px-4 py-3' : 'justify-center px-2 py-3'
-            } ${
-              currentSong?.id === song.id 
-                ? isMobile 
-                  ? 'bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-900 border-l-4 border-l-emerald-500 shadow-sm' 
-                  : 'bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 text-emerald-800 shadow-sm'
-                : isMobile 
-                  ? 'hover:bg-gray-50 active:bg-gray-100 border-l-4 border-l-transparent' 
-                  : 'hover:bg-gradient-to-br hover:from-emerald-50/50 hover:to-teal-50/50 active:bg-emerald-100 focus:bg-emerald-50/50 hover:shadow-sm'
-            } ${isMobile ? 'border-b border-gray-100 last:border-b-0' : 'rounded-xl md:mx-0 mx-0'}`}
-              onClick={() => handleSongClick(song)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  handleSongClick(song);
-                }
+              onClick={() => {
+                playSong(song);
+                onSongSelect?.();
               }}
-              role="listitem"
-              aria-label={`播放 ${song.title} - ${song.artist}`}
-              aria-current={currentSong?.id === song.id ? 'true' : 'false'}
-              tabIndex={0}
+              className={`group w-full flex items-center gap-4 p-3 md:p-4 rounded-none border-l-2 transition-all duration-300 text-left hover:bg-white/40 ${
+                isCurrent 
+                  ? 'border-pink-400 bg-white/60 pl-5' 
+                  : 'border-transparent pl-3 hover:pl-4 hover:border-gray-200'
+              }`}
             >
-              <div className={`rounded-xl overflow-hidden flex-shrink-0 shadow-sm group-hover:shadow-md transition-shadow duration-200 ${
-                isExpanded || isMobile ? 'w-12 h-12' : 'w-10 h-10'
+              {/* 序号 */}
+              <span className={`text-sm font-mono transition-colors ${
+                isCurrent ? 'text-pink-500 font-bold' : 'text-gray-300 group-hover:text-gray-400'
               }`}>
-                <Image
-                  src={song.cover}
-                  alt={`${song.title} 专辑封面`}
-                  width={isExpanded || isMobile ? 48 : 40}
-                  height={isExpanded || isMobile ? 48 : 40}
-                  className="w-full h-full object-cover"
-                  priority={index < 3} // 前3首歌曲优先加载
-                  loading={index < 3 ? 'eager' : 'lazy'}
-                />
-              </div>
-              {(isExpanded || isMobile) && (
-                <div className="flex-1 min-w-0 text-left">
-                  <div className={`truncate ${
-                    currentSong?.id === song.id 
-                      ? 'font-semibold' 
-                      : 'font-medium'
-                  } ${
-                    isMobile ? 'text-base' : 'text-base md:text-sm'
-                  }`}>{song.title}</div>
-                  <div className={`truncate ${
-                    currentSong?.id === song.id 
-                      ? isMobile 
-                        ? 'text-sm text-emerald-700 font-medium' 
-                        : 'text-sm md:text-xs text-emerald-600 font-medium'
-                      : isMobile 
-                        ? 'text-sm text-gray-600' 
-                        : 'text-sm md:text-xs text-gray-500 group-hover:text-gray-600'
-                  }`}>{song.artist}</div>
-                </div>
-              )}
-            </button>
-          ))}
-        </div>
-      </div>
+                {displayIndex}
+              </span>
 
+              {/* 歌曲信息 */}
+              <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+                <span className={`text-lg md:text-xl font-medium tracking-tight truncate transition-colors font-fjalla ${
+                  isCurrent ? 'text-gray-900' : 'text-gray-600 group-hover:text-gray-900'
+                }`}>
+                  {song.title}
+                </span>
+                <span className={`text-xs uppercase tracking-wider truncate ${
+                  isCurrent ? 'text-pink-400' : 'text-gray-400 group-hover:text-gray-500'
+                }`}>
+                  {song.artist}
+                </span>
+              </div>
+
+              {/* 播放状态/时长 */}
+              <div className="w-8 flex justify-center">
+                {isCurrent && isPlaying ? (
+                   <div className="flex gap-[3px] items-end h-4">
+                     <div className="w-[2px] bg-pink-400 animate-music-bar-1 h-full"></div>
+                     <div className="w-[2px] bg-pink-400 animate-music-bar-2 h-2"></div>
+                     <div className="w-[2px] bg-pink-400 animate-music-bar-3 h-3"></div>
+                   </div>
+                ) : (
+                   <div className={`w-2 h-2 rounded-full ${isCurrent ? 'bg-pink-400' : 'bg-gray-200 group-hover:bg-gray-300'}`}></div>
+                )}
+              </div>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 };

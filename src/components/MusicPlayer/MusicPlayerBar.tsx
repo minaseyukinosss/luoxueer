@@ -7,159 +7,108 @@ import PlayerControls from './PlayerControls';
 import ProgressBar from './ProgressBar';
 import VolumeControl from './VolumeControl';
 import PlayModeButton from './PlayModeButton';
-import SongInfo from './SongInfo';
+import { ListMusic } from 'lucide-react';
 
-// 添加样式来隐藏原生滑块手柄
 interface MusicPlayerBarProps {
   onOpenQueue?: () => void;
 }
 
 const MusicPlayerBar: React.FC<MusicPlayerBarProps> = ({ onOpenQueue }) => {
-  const { currentSong, currentTime, duration, isMuted, toggleMute } = useMusic();
+  const { currentSong } = useMusic();
 
   if (!currentSong) {
     return (
-      <div className="h-20 md:h-24 bg-white border-t border-gray-100 flex items-center justify-center">
-        <p className="text-sm text-gray-400">暂无播放</p>
+      <div className="hidden md:flex w-[90%] max-w-[1400px] mx-auto mb-6 h-20 rounded-[2rem] border border-white/40 items-center justify-center bg-white/40 backdrop-blur-xl shadow-sm">
+        <span className="text-xs font-mono text-gray-400 tracking-widest">SELECT MUSIC</span>
       </div>
     );
   }
 
   return (
     <>      
-      {/* 桌面端播放器 */}
-      <div className="hidden md:block h-24 bg-gradient-to-r from-white via-emerald-50/30 to-white border-t border-emerald-100/50 rounded-2xl shadow-sm backdrop-blur-sm">
-        <div className="h-full flex items-center px-6 gap-6">
-          {/* 左侧：歌曲信息 */}
-          <div className="w-48 md:w-52 min-w-0">
-            <SongInfo />
-          </div>
+      {/* Desktop Player Bar - Floating Style */}
+      <div className="hidden md:flex w-[95%] max-w-[1200px] mx-auto mb-6 h-20 bg-white/80 backdrop-blur-xl rounded-[2rem] border border-white/50 items-center px-8 justify-between gap-6 z-50 relative shadow-[0_8px_32px_rgba(0,0,0,0.08)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.12)] transition-all duration-500">
+        
+        {/* Left: Song Info */}
+        <div className="w-[28%] min-w-0 flex items-center gap-4">
+           <div className="relative w-12 h-12 rounded-full overflow-hidden shadow-md border border-white/50 group shrink-0">
+             <Image 
+               src={currentSong.cover} 
+               alt={currentSong.title} 
+               width={48} 
+               height={48} 
+               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+             />
+             {/* Vinyl center dot */}
+             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+               <div className="w-1.5 h-1.5 bg-white/90 rounded-full backdrop-blur-sm shadow-sm"></div>
+             </div>
+           </div>
+           <div className="flex flex-col justify-center min-w-0 gap-0.5">
+             <div className="text-sm font-bold text-gray-800 truncate font-fjalla tracking-wide">{currentSong.title}</div>
+             <div className="text-[10px] font-mono text-gray-500 uppercase tracking-wider truncate opacity-80">{currentSong.artist}</div>
+           </div>
+        </div>
 
-          {/* 中间：播放控制 */}
-          <div className="flex-1 flex flex-col items-center justify-center min-w-0 px-4">
-            {/* 播放控制按钮 */}
-            <div className="mb-2">
-              <PlayerControls />
-            </div>
+        {/* Center: Controls & Progress */}
+        <div className="flex-1 max-w-xl flex flex-col items-center justify-center gap-1">
+           <PlayerControls />
+           <div className="w-full px-2">
+             <ProgressBar />
+           </div>
+        </div>
 
-            {/* 下方：进度条 */}
-            <ProgressBar />
-          </div>
-
-          {/* 右侧：播放模式和音量控制 */}
-          <div className="w-48 md:w-52 flex items-center justify-end gap-4 pr-2">
-            <PlayModeButton />
-            <VolumeControl />
-          </div>
+        {/* Right: Volume & Mode & List Toggle */}
+        <div className="w-[28%] flex items-center justify-end gap-6">
+          <PlayModeButton />
+          <VolumeControl />
         </div>
       </div>
 
-      {/* 移动端播放器 - 极简悬浮设计 */}
-      <div className="md:hidden safe-area-bottom">
-        {/* 悬浮播放器容器 */}
-        <div className="fixed bottom-0 left-0 right-0 z-30">
-          {/* 背景模糊层 */}
-          <div className="absolute inset-0 bg-gradient-to-t from-white/95 via-emerald-50/90 to-white/95 backdrop-blur-3xl border-t border-emerald-100/30"></div>
-          
-          {/* 主播放器内容 */}
-          <div className="relative px-4 py-3">
-            {/* 歌曲信息行 */}
-            <div className="flex items-center space-x-3 mb-4">
-              {/* 专辑封面 - 圆形设计 */}
-              <div className="relative w-14 h-14 rounded-full overflow-hidden shadow-xl ring-4 ring-emerald-100/50 group-hover:ring-emerald-200 transition-all duration-300">
-                <Image 
-                  src={currentSong.cover} 
-                  alt={currentSong.title}
-                  width={56}
-                  height={56}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent"></div>
-              </div>
-              
-              {/* 歌曲信息 */}
-              <div className="flex-1 min-w-0">
-                <h3 className="text-lg font-bold text-gray-900 truncate">{currentSong.title}</h3>
-                <p className="text-sm text-gray-600 truncate">{currentSong.artist}</p>
-              </div>
-              
-              {/* 播放状态 */}
-              <div className="flex items-center space-x-2 px-3 py-1 rounded-full bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200/50">
-                <div className="w-2 h-2 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full animate-pulse shadow-lg shadow-emerald-500/50"></div>
-                <span className="text-xs text-emerald-700 font-bold tracking-wider">LIVE</span>
-              </div>
-            </div>
+      {/* Mobile Player - Floating Capsule Style */}
+      <div className="md:hidden fixed bottom-6 left-4 right-4 z-50">
+        <div 
+          className="bg-white/90 backdrop-blur-2xl rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-white/50 p-3 pr-4 flex items-center gap-3 cursor-pointer ring-1 ring-black/5"
+          onClick={onOpenQueue}
+        >
+           {/* Spinning Cover */}
+           <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 shadow-md border border-gray-100 relative">
+             <Image 
+               src={currentSong.cover} 
+               alt={currentSong.title} 
+               width={48} 
+               height={48} 
+               className="w-full h-full object-cover animate-spin-slow-mobile"
+             />
+             {/* Center dot for vinyl look */}
+             <div className="absolute inset-0 flex items-center justify-center">
+               <div className="w-2 h-2 bg-white rounded-full shadow-sm"></div>
+             </div>
+           </div>
 
-            {/* 进度条 */}
-            <div className="mb-4">
-              <ProgressBar isMobile={true} />
-              <div className="flex justify-between text-xs text-gray-500 mt-1 font-medium">
-                <span className="tabular-nums">{formatTime(currentTime)}</span>
-                <span className="tabular-nums">{formatTime(duration)}</span>
-              </div>
-            </div>
+           {/* Info */}
+           <div className="flex-1 min-w-0 flex flex-col justify-center h-full">
+             <div className="flex items-center gap-2">
+                <span className="text-sm font-bold text-gray-900 truncate font-fjalla">{currentSong.title}</span>
+                <span className="text-xs text-gray-400 truncate font-mono">- {currentSong.artist}</span>
+             </div>
+             {/* Progress Bar integrated */}
+             <div className="w-full mt-2" onClick={(e) => e.stopPropagation()}>
+               <ProgressBar isMobile={true} />
+             </div>
+           </div>
 
-            {/* 控制区域 */}
-            <div className="flex items-center justify-center">
-              {/* 左侧功能按钮 */}
-              <div className="flex items-center space-x-4">
-                {/* 播放模式 */}
-                <div className="p-2 text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all duration-200">
-                  <PlayModeButton />
-                </div>
-                
-                {/* 音量 */}
-                <button 
-                  onClick={toggleMute}
-                  className="p-2 text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all duration-200 active:scale-95"
-                >
-                  {isMuted ? (
-                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M3.63 3.63a.996.996 0 0 0 0 1.41L7.29 8.7L7 9H4c-.55 0-1 .45-1 1v4c0 .55.45 1 1 1h3l3.29 3.29c.63.63 1.71.18 1.71-.71v-4.17l4.18 4.18c-.49.37-1.02.68-1.6.91c-.36.15-.58.53-.58.92c0 .72.73 1.18 1.39.91c.8-.33 1.55-.77 2.22-1.31l1.34 1.34a.996.996 0 1 0 1.41-1.41L5.05 3.63c-.39-.39-1.02-.39-1.42 0M19 12c0 .82-.15 1.61-.41 2.34l1.53 1.53c.56-1.17.88-2.48.88-3.87c0-3.83-2.4-7.11-5.78-8.4c-.59-.23-1.22.23-1.22.86v.19c0 .38.25.71.61.85C17.18 6.54 19 9.06 19 12m-8.71-6.29l-.17.17L12 7.76V6.41c0-.89-1.08-1.33-1.71-.7M16.5 12A4.5 4.5 0 0 0 14 7.97v1.79l2.48 2.48c.01-.08.02-.16.02-.24"/>
-                    </svg>
-                  ) : (
-                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M18.5 12A4.5 4.5 0 0 0 16 7.97v8.05c1.48-.73 2.5-2.25 2.5-4.02M5 10v4c0 .55.45 1 1 1h3l3.29 3.29c.63.63 1.71.18 1.71-.71V6.41c0-.89-1.08-1.34-1.71-.71L9 9H6c-.55 0-1 .45-1 1"/>
-                    </svg>
-                  )}
-                </button>
-              </div>
-
-              {/* 中央播放控制 */}
-              <div className="flex items-center mx-8">
-                <PlayerControls />
-              </div>
-
-              {/* 右侧功能按钮 */}
-              <div className="flex items-center space-x-4">
-                {/* 播放列表 */}
-                <button
-                  onClick={onOpenQueue}
-                  className="p-2 text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-all duration-200 active:scale-95"
-                >
-                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                    <circle cx="12" cy="5" r="2"/>
-                    <circle cx="12" cy="12" r="2"/>
-                    <circle cx="12" cy="19" r="2"/>
-                  </svg>
-                </button>
-                
-                {/* 占位元素，保持布局平衡 */}
-                <div className="w-9 h-9"></div>
-              </div>
-            </div>
-          </div>
+           {/* Controls */}
+           <div className="flex items-center gap-3 shrink-0" onClick={(e) => e.stopPropagation()}>
+             <PlayerControls size="sm" />
+             <button className="p-2 text-gray-400 hover:text-gray-600" onClick={onOpenQueue}>
+               <ListMusic className="w-5 h-5" strokeWidth={1.5} />
+             </button>
+           </div>
         </div>
       </div>
     </>
   );
-};
-
-// 辅助格式化时间的函数
-const formatTime = (time: number): string => {
-  const minutes = Math.floor(time / 60);
-  const seconds = Math.floor(time % 60);
-  return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 };
 
 export default MusicPlayerBar;

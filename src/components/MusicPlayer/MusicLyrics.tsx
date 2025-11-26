@@ -1,187 +1,212 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import Image from 'next/image';
 import { useMusic } from '@/contexts/MusicContext';
 import { songList } from '@/data/musicData';
+import { PlayIcon } from 'lucide-react';
 
 const MusicLyrics: React.FC = () => {
-  const { currentSong, isPlaying, currentTime } = useMusic();
+  const { currentSong, isPlaying, currentTime, seekTo, play } = useMusic();
   const [activeLyricIndex, setActiveLyricIndex] = useState(-1);
   const lyricsContainerRef = useRef<HTMLDivElement>(null);
-  const activeLyricRef = useRef<HTMLDivElement>(null);
+  const lyricsRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const isUserScrollingRef = useRef(false);
+  const isAutoScrollingRef = useRef(false);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout>(undefined);
 
-  // 获取当前歌曲的歌词，如果没有则显示默认歌词
-  const getCurrentLyrics = () => {
+  const getCurrentLyrics = useCallback(() => {
     if (currentSong) {
       const song = songList.find(s => s.id === currentSong.id);
       return song?.lyrics || [];
     }
     return [];
-  };
-
+  }, [currentSong]);
+  
   const lyrics = getCurrentLyrics();
 
-  // 根据当前播放时间高亮对应歌词
+  // Find active lyric index based on context time (coarse update)
   useEffect(() => {
     if (lyrics.length === 0) return;
-
     let activeIndex = -1;
-    
-    // 找到当前时间对应的歌词行
     for (let i = 0; i < lyrics.length; i++) {
       const currentLineTime = lyrics[i].time;
-      const nextLineTime = i < lyrics.length - 1 ? lyrics[i + 1].time : currentLineTime + 3; // 默认3秒显示时间
-      
-      // 如果当前时间在这行歌词的时间范围内
+      const nextLineTime = i < lyrics.length - 1 ? lyrics[i + 1].time : currentLineTime + 5;
       if (currentTime >= currentLineTime && currentTime < nextLineTime) {
         activeIndex = i;
         break;
       }
     }
-    
     setActiveLyricIndex(activeIndex);
   }, [currentTime, lyrics]);
 
-  // 自动滚动到当前歌词
+  // Auto-scroll logic
   useEffect(() => {
-    if (activeLyricRef.current && lyricsContainerRef.current) {
-      const container = lyricsContainerRef.current;
-      const activeElement = activeLyricRef.current;
-      
-      // 获取容器的可视高度
+    if (activeLyricIndex === -1 || isUserScrollingRef.current) return;
+
+    const activeEl = lyricsRefs.current[activeLyricIndex];
+    const container = lyricsContainerRef.current;
+
+    if (activeEl && container) {
       const containerHeight = container.clientHeight;
-      // 获取当前歌词元素相对于容器的位置
-      const elementTop = activeElement.offsetTop;
-      const elementHeight = activeElement.clientHeight;
+      const activeOffset = activeEl.offsetTop;
+      const activeHeight = activeEl.clientHeight;
       
-      // 计算让当前歌词居中需要的滚动位置
-      // 目标：让当前歌词显示在容器的垂直中心
-      const centerPosition = elementTop - (containerHeight / 2) + (elementHeight / 2);
-      
-      // 使用 requestAnimationFrame 确保 DOM 更新后再滚动
-      requestAnimationFrame(() => {
-        container.scrollTo({
-          top: Math.max(0, centerPosition),
-          behavior: 'smooth'
-        });
+      isAutoScrollingRef.current = true;
+      container.scrollTo({
+        top: activeOffset - containerHeight / 2 + activeHeight / 2,
+        behavior: 'smooth',
       });
+      
+      // Reset auto scrolling flag after animation
+      setTimeout(() => {
+        isAutoScrollingRef.current = false;
+      }, 1000);
     }
   }, [activeLyricIndex]);
 
+  const handleScroll = () => {
+    if (isAutoScrollingRef.current) return;
+    
+    isUserScrollingRef.current = true;
+    clearTimeout(scrollTimeoutRef.current);
+    scrollTimeoutRef.current = setTimeout(() => {
+      isUserScrollingRef.current = false;
+    }, 1500);
+  };
+
   if (!currentSong) {
     return (
-      <div className="h-full flex items-center justify-center px-4 relative overflow-hidden" style={{background: 'linear-gradient(to bottom, #ecfdf5 0%, #f0fdf4 70%, #ffffff 100%)'}}>
-        {/* 背景装饰 - 统一翠绿色系 */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-20 left-20 w-32 h-32 bg-emerald-100 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-20 w-40 h-40 bg-emerald-200 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1.5s'}}></div>
-        </div>
-        
-        <div className="text-center relative z-10">
-          <div className="relative group w-20 h-20 md:w-24 md:h-24 mx-auto mb-6 md:mb-8">
-            {/* 光晕 */}
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-teal-400 rounded-full blur-xl opacity-40 group-hover:opacity-60 transition-opacity"></div>
-            
-            {/* 图标容器 */}
-            <div className="relative w-full h-full bg-gradient-to-br from-white via-emerald-50 to-teal-50 rounded-full flex items-center justify-center shadow-xl ring-4 ring-white/50 group-hover:ring-emerald-200/50 transition-all">
-              <svg className="w-10 h-10 md:w-12 md:h-12 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-            </svg>
-            </div>
-          </div>
-          
-          <h3 className="text-xl md:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600 mb-3">选择一首歌曲</h3>
-          <p className="text-sm md:text-base text-gray-600">开始播放查看歌词</p>
-        </div>
+      <div className="h-full flex flex-col items-center justify-center text-gray-300">
+        <div className="text-lg font-mono tracking-widest opacity-50">SELECT A TRACK</div>
       </div>
     );
   }
 
   return (
-    <div className="h-full flex flex-col relative overflow-hidden" style={{background: 'linear-gradient(to bottom, #ecfdf5 0%, #f0fdf4 50%, #ffffff 100%)'}}>
-      {/* 背景装饰 - 统一翠绿色系 */}
-      <div className="absolute inset-0 opacity-25">
-        <div className="absolute top-10 right-10 w-40 h-40 bg-emerald-100 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 left-10 w-32 h-32 bg-emerald-200 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
-      </div>
+    <div className="h-full w-full flex flex-col md:flex-row md:items-center md:justify-center md:gap-16 lg:gap-24 py-4 md:py-0">
       
-      {/* 专辑封面和歌曲信息 */}
-      <div className="flex-shrink-0 p-6 md:p-4 relative z-10">
-        <div className="flex flex-col items-center space-y-4 md:space-y-3">
-          {/* 旋转的专辑封面 */}
-          <div className="relative group">
-            {/* 外圈光晕 */}
-            <div className={`absolute inset-0 rounded-full bg-gradient-to-br from-emerald-400 to-teal-400 blur-2xl transition-all duration-500 ${isPlaying ? 'opacity-40 scale-110' : 'opacity-20 scale-100'}`}></div>
-            
-            {/* 专辑封面 */}
-            <div className={`relative w-48 h-48 md:w-40 md:h-40 rounded-full overflow-hidden shadow-2xl transition-all duration-500 ring-4 ring-white/50 ${isPlaying ? 'animate-record-spin ring-emerald-200/50' : ''}`}>
-              <Image
-                src={currentSong.cover}
-                alt={currentSong.album}
-                width={192}
-                height={192}
-                className="w-full h-full object-cover"
-              />
-              {/* 光泽效果 */}
-              <div className="absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-transparent"></div>
-            </div>
-            
-            {/* 唱片中心圆点 */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className={`w-8 h-8 md:w-6 md:h-6 bg-white rounded-full shadow-lg ring-2 ring-emerald-100 transition-all duration-300 ${isPlaying ? 'animate-pulse scale-105' : ''}`}></div>
-            </div>
-            
-            {/* 唱片外圈装饰 */}
-            <div className="absolute inset-0 rounded-full border-4 border-white/30 group-hover:border-emerald-200/50 transition-colors duration-300"></div>
-          </div>
+      {/* Left Side (PC): Album Art & Info - Smaller & More Elegant */}
+      <div className="flex-shrink-0 flex flex-col items-center md:items-end md:w-auto mb-6 md:mb-0 transition-all duration-500">
+        {/* Album Cover - Enhanced Vinyl Style */}
+        <div className="relative group mb-6">
+           {/* Enhanced Soft Shadow with depth */}
+           <div className={`absolute inset-0 bg-black/8 blur-2xl rounded-full transform translate-y-3 transition-all duration-700 ${isPlaying ? 'opacity-100 scale-105' : 'opacity-60 scale-100'}`}></div>
+           <div className={`absolute inset-0 bg-black/3 blur-xl rounded-full transform translate-y-1 transition-all duration-700 ${isPlaying ? 'opacity-80' : 'opacity-40'}`}></div>
+           
+           {/* Vinyl Disc Container */}
+           <div className={`relative w-40 h-40 md:w-56 md:h-56 lg:w-64 lg:h-64 vinyl-disc-container transition-all duration-500 ${isPlaying ? 'animate-record-spin' : ''}`}>
+             {/* Outer vinyl ring with grooves */}
+             <div className="absolute inset-0 rounded-full vinyl-outer-ring"></div>
+             
+             {/* Album Cover Image */}
+             <div className="absolute inset-[6%] rounded-full overflow-hidden vinyl-cover-shadow">
+               <Image
+                 src={currentSong.cover}
+                 alt={currentSong.album}
+                 width={320}
+                 height={320}
+                 className="w-full h-full object-cover rounded-full"
+                 priority
+               />
+               {/* Subtle overlay for depth */}
+               <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/5 via-transparent to-black/10 pointer-events-none"></div>
+             </div>
+             
+             {/* Vinyl Grooves - Concentric Circles */}
+             <div className="absolute inset-0 rounded-full vinyl-grooves pointer-events-none"></div>
+             
+             {/* Vinyl Texture Overlay */}
+             <div className="absolute inset-0 rounded-full vinyl-texture pointer-events-none"></div>
+             
+             {/* Outer edge highlight */}
+             <div className="absolute inset-0 rounded-full vinyl-edge-highlight pointer-events-none"></div>
+             
+             {/* Center Hole / Label with enhanced styling */}
+             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+               <div className="vinyl-center-label w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14">
+                 {/* Inner groove circles */}
+                 <div className="absolute inset-1.5 rounded-full border border-gray-200/50"></div>
+                 <div className="absolute inset-3 rounded-full border border-gray-200/30"></div>
+                 {/* Center dot */}
+                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 md:w-2 md:h-2 lg:w-2.5 lg:h-2.5 bg-gray-400 rounded-full shadow-[inset_0_1px_2px_rgba(0,0,0,0.3)]"></div>
+               </div>
+             </div>
+             
+             {/* Playing indicator ring */}
+             {isPlaying && (
+               <div className="absolute inset-[-2px] rounded-full vinyl-playing-ring pointer-events-none"></div>
+             )}
+           </div>
+        </div>
 
-          {/* 歌曲信息 */}
-          <div className="text-center">
-            <h1 className="text-xl md:text-lg font-bold text-gray-900">
-              {currentSong.title}
-            </h1>
-          </div>
+        {/* Song Info */}
+        <div className="text-center md:text-right w-full hidden md:block max-w-[280px]">
+           <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 font-fjalla tracking-tight leading-tight mb-2 line-clamp-2">
+             {currentSong.title}
+           </h2>
+           <div className="flex items-center justify-center md:justify-end gap-2 text-gray-500 text-xs font-mono uppercase tracking-widest">
+             <span>{currentSong.artist}</span>
+             <span className="text-gray-300">/</span>
+             <span>{currentSong.album}</span>
+           </div>
         </div>
       </div>
 
-      {/* 歌词内容 */}
-      <div className="flex-1 overflow-hidden px-4 md:px-4 pb-4">
-        <div className="max-w-2xl mx-auto h-full">
-          <div 
-            ref={lyricsContainerRef} 
-            className="h-full overflow-y-auto scroll-smooth hide-scrollbar relative"
-            style={{
-              maskImage: 'linear-gradient(180deg, transparent 0%, #000 8%, #000 92%, transparent 100%)',
-              WebkitMaskImage: 'linear-gradient(180deg, transparent 0%, #000 8%, #000 92%, transparent 100%)'
-            }}
-          >
-            <div className="py-16 px-3 flex flex-col items-center">
-              {lyrics.map((line, index) => {
-                const isActive = index === activeLyricIndex;
-                const isPast = index < activeLyricIndex;
-                
-                return (
-                  <div
-                    key={index}
-                    ref={isActive ? activeLyricRef : null}
-                    className={`w-full flex justify-center min-h-[32px] md:min-h-[28px] items-center transition-all duration-400 ease-out ${
-                      isActive ? 'active' : ''
+      {/* Right Side (PC): Lyrics - Bottom Aligned Layout */}
+      <div className="flex-1 min-h-0 md:h-full overflow-hidden relative w-full max-w-xl flex flex-col justify-end md:justify-center">
+        {/* CSS Mask for fade effect - Expanded area as requested */}
+        <div 
+          className="h-full w-full overflow-y-auto no-scrollbar scroll-smooth relative"
+          ref={lyricsContainerRef}
+          onScroll={handleScroll}
+          style={{
+            maskImage: 'linear-gradient(to bottom, transparent 0%, black 25%, black 75%, transparent 100%)',
+            WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 25%, black 75%, transparent 100%)'
+          }}
+        >
+          <div className="flex flex-col items-center md:items-start py-[40%] md:py-[35%] space-y-3 md:space-y-4 px-4 md:px-0">
+            {lyrics.map((line, index) => {
+              const isActive = index === activeLyricIndex;
+              
+              return (
+                <div
+                  key={index}
+                  ref={el => { lyricsRefs.current[index] = el }}
+                  className={`group relative transition-all duration-500 ease-out flex items-center justify-center md:justify-start w-full text-center md:text-left ${
+                    isActive ? 'opacity-100' : 'opacity-40 hover:opacity-80'
+                  }`}
+                >
+                  <p 
+                    className={`font-medium transition-all duration-300 leading-relaxed tracking-wide cursor-default ${
+                      isActive 
+                        ? 'text-base md:text-xl scale-100 origin-left font-bold text-[#E77A9A]' 
+                        : 'text-xs md:text-sm text-gray-500 scale-100 origin-left'
                     }`}
                   >
-                    <span className={`text-center transition-all duration-400 ease-out ${
-                      isActive 
-                        ? 'text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-lg md:text-base font-semibold transform scale-105 opacity-100 drop-shadow-sm' 
-                        : isPast 
-                          ? 'text-gray-500 text-sm md:text-xs opacity-75' 
-                          : 'text-gray-400 text-sm md:text-xs opacity-65'
-                    }`}>
-                      {line.text}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
+                    {line.text}
+                  </p>
+                  
+                  {/* Play Button on Hover */}
+                  <button
+                    className={`ml-4 p-1.5 rounded-full bg-[#E77A9A]/20 text-[#E77A9A] hover:bg-[#E77A9A] hover:text-white opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all duration-200 ease-out ${isActive ? 'hidden' : 'hidden md:block'}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      seekTo(line.time);
+                      if (!isPlaying) {
+                        play();
+                      }
+                    }}
+                    aria-label="Play from this line"
+                  >
+                    <PlayIcon size={12} fill="currentColor" />
+                  </button>
+                </div>
+              );
+            })}
+            {lyrics.length === 0 && (
+              <p className="text-gray-300 text-xs font-mono uppercase tracking-widest">No Lyrics Available</p>
+            )}
           </div>
         </div>
       </div>

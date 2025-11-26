@@ -161,14 +161,69 @@ html {
 
 /* 浮动动画 */
 @keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-20px);
-  }
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
 }
-
 .animate-float {
   animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translate(0px, 0px); }
+  33% { transform: translate(30px, -50px); }
+  66% { transform: translate(-20px, 20px); }
+}
+.animate-float-slow {
+  animation: float-slow 12s ease-in-out infinite;
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.animate-spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
+.animate-spin-slow-mobile {
+  animation: spin-slow 12s linear infinite;
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.05); }
+}
+.animate-pulse-slow {
+  animation: pulse-slow 6s ease-in-out infinite;
+}
+
+@keyframes music-bar {
+  0%, 100% { height: 20%; }
+  50% { height: 100%; }
+}
+.animate-music-bar-1 { animation: music-bar 0.6s ease-in-out infinite; }
+.animate-music-bar-2 { animation: music-bar 0.8s ease-in-out infinite 0.1s; }
+.animate-music-bar-3 { animation: music-bar 0.5s ease-in-out infinite 0.2s; }
+
+/* 隐藏滚动条但允许滚动 */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* 自定义细滚动条 */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;
 }

@@ -8,152 +8,112 @@ interface ProgressBarProps {
 }
 
 const ProgressBar: React.FC<ProgressBarProps> = ({ isMobile = false }) => {
-  const {
-    currentTime,
-    duration,
-    seekTo
-  } = useMusic();
-  
+  const { currentTime, duration, seekTo } = useMusic();
   const progressBarRef = useRef<HTMLDivElement>(null);
-  
-  // 拖动状态管理
   const [isDragging, setIsDragging] = useState(false);
   const [dragTime, setDragTime] = useState(0);
 
   const formatTime = (time: number): string => {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
-    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!duration || isDragging) return;
-
-    const rect = e.currentTarget.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const newTime = (clickX / rect.width) * duration;
-    seekTo(newTime);
-  };
-
-  // 拖动开始
   const handleDragStart = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!duration) return;
-    
     e.preventDefault();
     setIsDragging(true);
     setDragTime(currentTime);
-    
-    // 阻止事件冒泡，避免触发进度条点击事件
     e.stopPropagation();
-    
-    // 防止文本选择
     document.body.style.userSelect = 'none';
   }, [duration, currentTime]);
 
-  // 拖动过程中
   const handleDragMove = useCallback((e: MouseEvent) => {
     if (!isDragging || !duration || !progressBarRef.current) return;
-    
-    // 直接使用缓存的进度条引用，无需DOM查询
     const rect = progressBarRef.current.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
-    const progressWidth = rect.width;
-    
-    // 计算新的时间位置
-    const newTime = Math.max(0, Math.min(duration, (mouseX / progressWidth) * duration));
+    const newTime = Math.max(0, Math.min(duration, (mouseX / rect.width) * duration));
     setDragTime(newTime);
   }, [isDragging, duration]);
 
-  // 拖动结束
   const handleDragEnd = useCallback(() => {
     if (!isDragging) return;
-    
     setIsDragging(false);
     seekTo(dragTime);
-    
-    // 恢复文本选择
     document.body.style.userSelect = '';
   }, [isDragging, dragTime, seekTo]);
 
-  // 添加全局鼠标事件监听器
   useEffect(() => {
     if (isDragging) {
-      const handleGlobalMouseMove = (e: MouseEvent) => {
-        handleDragMove(e);
-      };
-
-      const handleGlobalMouseUp = () => {
-        handleDragEnd();
-      };
-
-      document.addEventListener('mousemove', handleGlobalMouseMove);
-      document.addEventListener('mouseup', handleGlobalMouseUp);
-
+      window.addEventListener('mousemove', handleDragMove);
+      window.addEventListener('mouseup', handleDragEnd);
       return () => {
-        document.removeEventListener('mousemove', handleGlobalMouseMove);
-        document.removeEventListener('mouseup', handleGlobalMouseUp);
+        window.removeEventListener('mousemove', handleDragMove);
+        window.removeEventListener('mouseup', handleDragEnd);
       };
     }
   }, [isDragging, handleDragMove, handleDragEnd]);
 
+  const progress = duration ? ((isDragging ? dragTime : currentTime) / duration) * 100 : 0;
+
+  // Mobile Slim Bar
+  if (isMobile) {
+    return (
+      <div 
+        className="relative w-full h-1 bg-gray-100 rounded-full cursor-pointer overflow-hidden"
+        onClick={(e) => {
+           e.stopPropagation(); // Prevent opening drawer
+           if (!duration) return;
+           const rect = e.currentTarget.getBoundingClientRect();
+           const newTime = ((e.clientX - rect.left) / rect.width) * duration;
+           seekTo(newTime);
+        }}
+      >
+        <div 
+           className="absolute top-0 left-0 h-full bg-gray-900 rounded-full"
+           style={{ width: `${progress}%` }}
+        />
+      </div>
+    );
+  }
+
+  // Desktop Detailed Bar
   return (
-    <div className="flex items-center gap-3 w-full">
-      {!isMobile && (
-        <span className="text-xs text-gray-500 tabular-nums w-12 text-right font-medium">
-          {formatTime(isDragging ? dragTime : currentTime)}
-        </span>
-      )}
+    <div className="flex items-center gap-3 w-full select-none">
+      <span className="text-[10px] text-gray-400 w-8 text-right font-mono tabular-nums tracking-tight">
+        {formatTime(isDragging ? dragTime : currentTime)}
+      </span>
 
-      <div className="relative w-full h-1 group progress-container" ref={progressBarRef}>
-        {/* 背景进度条 */}
-        <div className="absolute inset-0 h-1 bg-gray-200 rounded-full shadow-inner"></div>
-
-        {/* 播放进度 */}
-        <div
-          className="absolute inset-y-0 left-0 h-1 rounded-full shadow-sm"
-          style={{ 
-            width: duration ? `${((isDragging ? dragTime : currentTime) / duration) * 100}%` : '0%',
-            background: 'linear-gradient(to right, #86efac, #4ade80)'
-          }}
-        >
-          {/* 闪光效果 */}
-          <div 
-            className="absolute right-0 top-0 w-1 h-full rounded-full"
-            style={{
-              background: 'linear-gradient(to right, rgba(255,255,255,0.8), rgba(255,255,255,0.4), transparent)',
-              boxShadow: '0 0 3px rgba(255,255,255,0.5), 0 0 6px rgba(134,239,172,0.3)',
-              animation: 'progress-shine-soft 2s ease-in-out infinite',
-              display: duration && ((isDragging ? dragTime : currentTime) / duration) * 100 > 0 ? 'block' : 'none'
-            }}
-          ></div>
+      <div 
+        className="relative w-full h-4 flex items-center cursor-pointer group" 
+        ref={progressBarRef}
+        onClick={(e) => {
+           if (!duration || isDragging) return;
+           const rect = e.currentTarget.getBoundingClientRect();
+           const newTime = ((e.clientX - rect.left) / rect.width) * duration;
+           seekTo(newTime);
+        }}
+      >
+        {/* Track Background */}
+        <div className="w-full h-[2px] bg-gray-200/80 relative rounded-full overflow-hidden group-hover:h-[4px] transition-all duration-300">
+           {/* Fill */}
+           <div 
+             className="absolute top-0 left-0 h-full bg-gray-800 transition-all duration-100 ease-linear shadow-[0_0_8px_rgba(0,0,0,0.2)]"
+             style={{ width: `${progress}%` }}
+           ></div>
         </div>
 
-        {/* 可点击区域 */}
+        {/* Hover Tooltip / Thumb */}
         <div 
-          className="absolute inset-0 h-6 -top-2 cursor-pointer"
-          onClick={handleProgressClick}
-        ></div>
-
-        {/* 拖动点 */}
-        <div 
-          className={`absolute top-1/2 -translate-y-1/2 bg-white rounded-full border-2 border-green-400 shadow-lg cursor-grab active:cursor-grabbing ${
-            isDragging 
-              ? 'w-4 h-4 opacity-100 scale-110 transition-none' 
-              : 'w-3 h-3 opacity-0 group-hover:opacity-100 hover:scale-110 transition-all duration-200'
-          }`}
-          style={{ 
-            left: `calc(${duration ? ((isDragging ? dragTime : currentTime) / duration) * 100 : 0}% - ${isDragging ? '8px' : '6px'})`,
-            display: duration ? 'block' : 'none'
-          }}
+          className={`absolute w-2.5 h-2.5 bg-gray-900 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-sm ring-2 ring-white cursor-grab active:cursor-grabbing active:scale-125 ${isDragging ? 'opacity-100 scale-125' : 'scale-75 group-hover:scale-100'}`}
+          style={{ left: `${progress}%`, transform: 'translateX(-50%)' }}
           onMouseDown={handleDragStart}
-        ></div>
+        />
       </div>
 
-      {!isMobile && (
-        <span className="text-xs text-gray-500 tabular-nums w-12 font-medium">
-          {formatTime(duration)}
-        </span>
-      )}
+      <span className="text-[10px] text-gray-400 w-8 text-left font-mono tabular-nums tracking-tight">
+        {formatTime(duration)}
+      </span>
     </div>
   );
 };

@@ -8,110 +8,94 @@ import { MusicProvider } from '@/contexts/MusicContext';
 import '@/styles/index.css';
 
 export default function MusicPage() {
-  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
+  // Mobile playlist drawer state
+  const [showMobilePlaylist, setShowMobilePlaylist] = useState(false);
 
   return (
     <MusicProvider>
-      <div className="h-screen music-player">
+      <div className="relative min-h-screen w-full overflow-hidden bg-[#f8f6f6] dark:bg-[#1a1013] font-sans selection:bg-pink-200 selection:text-gray-900">
         
-        {/* 简洁装饰线条 */}
-        <div className="decorative-line"></div>
-        <div className="decorative-line"></div>
-        
-        {/* 桌面端布局 */}
-        <div className="hidden md:block h-full pt-20 px-4 pb-20 overflow-hidden">
-          <div className="h-full max-w-7xl mx-auto overflow-hidden">
-            {/* 音乐播放器区域 */}
-            <div className="h-full rounded-xl shadow-lg p-4 flex gap-4 glass-container overflow-hidden">
-              {/* 左侧歌曲列表 */}
-              <div className="rounded-xl overflow-hidden h-full">
-                <MusicSidebar />
-              </div>
-              
-              {/* 右侧歌词和播放器 */}
-              <div className="flex-1 flex flex-col gap-4 min-w-0 h-full overflow-hidden">
-                {/* NOW PLAYING 标题 */}
-                <div className="relative overflow-hidden rounded-2xl px-6 py-4 bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 shadow-sm border border-emerald-100/50">
-                  <div className="absolute inset-0 bg-gradient-to-r from-emerald-100/20 to-teal-100/20 animate-pulse"></div>
-                  <h2 className="relative text-center text-sm font-bold tracking-[0.20em] text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600">
-                    NOW PLAYING
-                  </h2>
-                </div>
-                
-                {/* 上方歌词区域 */}
-                <div className="flex-1 rounded-xl overflow-hidden">
-                  <MusicLyrics />
-                </div>
-                
-                {/* 下方播放器操作栏 */}
-                <div className="rounded-xl overflow-hidden">
-                  <MusicPlayerBar />
-                </div>
-              </div>
-            </div>
-          </div>
+        {/* Animated Background - Subtle & Dreamy */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <div className="absolute left-[-10%] top-[-10%] h-[45rem] w-[45rem] rounded-full bg-[#f7d8e4]/40 blur-[120px] animate-pulse-slow" />
+          <div className="absolute right-[-5%] bottom-[-5%] h-[35rem] w-[35rem] rounded-full bg-[#d2c3ff]/30 blur-[100px] animate-float-slow" />
+          <div className="absolute left-[20%] bottom-[10%] h-[25rem] w-[25rem] rounded-full bg-blue-100/30 blur-[80px] animate-float" />
         </div>
 
-        {/* 移动端布局 */}
-        <div className="md:hidden h-full flex flex-col">
-          {/* NOW PLAYING 标题 - 移动端优化 */}
-          <div className="fixed top-16 left-0 right-0 z-20 px-4 py-3 bg-gradient-to-r from-white/95 via-emerald-50/95 to-white/95 backdrop-blur-lg border-b border-emerald-100/30 shadow-sm">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-emerald-100/20 to-teal-100/20 blur-sm"></div>
-              <h2 className="relative text-center text-sm font-bold tracking-[0.20em] text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600">
-              NOW PLAYING
-            </h2>
+        {/* Grid Lines - Structure */}
+        <div className="absolute top-0 left-6 md:left-12 bottom-0 w-px bg-black/5 z-0" />
+        <div className="absolute top-0 right-6 md:right-12 bottom-0 w-px bg-black/5 z-0" />
+        
+        {/* Main Container */}
+        <div className="relative z-10 h-[100dvh] flex flex-col">
+          
+          {/* Content Area - Split Layout */}
+          <div className="flex-1 flex flex-col md:flex-row md:gap-12 lg:gap-16 overflow-hidden px-0 md:px-16 lg:px-24 pt-20 md:pt-24 pb-24 md:pb-0 relative">
+            
+            {/* Playlist Sidebar (Desktop) & Drawer (Mobile) */}
+            <div className={`
+              absolute inset-0 z-30 md:relative md:z-auto md:w-[320px] lg:w-[380px] shrink-0
+              bg-[#f8f6f6]/95 md:bg-transparent backdrop-blur-2xl md:backdrop-blur-none
+              transition-all duration-500 cubic-bezier(0.32, 0.72, 0, 1)
+              ${showMobilePlaylist ? 'translate-y-0 opacity-100' : 'translate-y-[110%] opacity-0 md:translate-y-0 md:opacity-100'}
+              flex flex-col border-r border-black/5 md:border-none h-full
+            `}>
+               {/* Desktop Title - Moved here to save vertical space */}
+               <div className="hidden md:block px-2 mb-8">
+                  <h1 className="text-4xl lg:text-5xl font-bold tracking-tighter text-gray-900 font-fjalla leading-none">
+                    MUSIC BOX
+                  </h1>
+                  <div className="flex items-center gap-2 mt-3">
+                     <span className="w-12 h-1 bg-gray-900 rounded-full"></span>
+                     <span className="text-xs font-mono uppercase tracking-widest text-gray-500">Now Playing</span>
+                  </div>
+               </div>
+
+               {/* Mobile Close Button */}
+               <div className="md:hidden p-4 flex justify-end">
+                 <button 
+                   onClick={() => setShowMobilePlaylist(false)}
+                   className="p-2 text-gray-500 bg-white rounded-full shadow-sm"
+                 >
+                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                 </button>
+               </div>
+
+               <div className="flex-1 overflow-hidden px-2 md:px-0">
+                 <MusicSidebar onSongSelect={() => setShowMobilePlaylist(false)} />
+               </div>
+            </div>
+
+            {/* Main Visual & Lyrics Area */}
+            <div className="flex-1 relative flex flex-col min-w-0 h-full overflow-hidden md:pl-6 lg:pl-10">
+               {/* Mobile Title (since we removed the main header) */}
+               <div className="md:hidden px-8 mb-4 shrink-0">
+                 <h1 className="text-3xl font-bold tracking-tighter text-gray-900 font-fjalla leading-none">
+                   MUSIC BOX
+                 </h1>
+               </div>
+
+               {/* Large Decorative Text */}
+               <div className="absolute top-[10%] right-[-5%] text-[10rem] md:text-[15rem] leading-none font-bold text-black/[0.03] pointer-events-none select-none font-fjalla z-0 rotate-90 md:rotate-0">
+                 VINYL
+               </div>
+
+               <div className="relative z-10 flex-1 h-full">
+                 <MusicLyrics />
+               </div>
             </div>
           </div>
 
-          {/* 歌词区域 */}
-          <div className="flex-1 pt-28 pb-32 overflow-hidden glass-container">
-            <MusicLyrics />
+          {/* Player Bar - Fixed at bottom for Desktop, floating handled in component for Mobile */}
+          <div className="hidden md:block shrink-0 z-40">
+            <MusicPlayerBar onOpenQueue={() => setShowMobilePlaylist(true)} />
+          </div>
+          
+          {/* Mobile Floating Player Placeholder is handled inside MusicPlayerBar */}
+          <div className="md:hidden">
+            <MusicPlayerBar onOpenQueue={() => setShowMobilePlaylist(true)} />
           </div>
 
-          {/* 底部固定播放器 */}
-          <div className="fixed bottom-0 left-0 right-0 z-20">
-            <MusicPlayerBar onOpenQueue={() => setShowMobileSidebar(true)} />
-          </div>
-
-          {/* 移动端侧边栏 - 从底部弹出 */}
-          {showMobileSidebar && (
-            <>
-              {/* 遮罩层 */}
-              <div 
-                className="fixed inset-0 bg-black/50 z-40 animate-fade-in"
-                onClick={() => setShowMobileSidebar(false)}
-              />
-              
-              {/* 歌曲列表抽屉 */}
-              <div className="fixed inset-x-0 bottom-0 z-50 bg-gradient-to-b from-white to-emerald-50/30 rounded-t-3xl shadow-2xl animate-slide-up max-h-[80vh] flex flex-col border-t-2 border-emerald-100">
-                {/* 抽屉顶部 */}
-                <div className="flex items-center justify-between p-4 border-b border-emerald-100/50 bg-gradient-to-r from-emerald-50/50 to-teal-50/50">
-                  <h2 className="text-lg font-bold soft-title music-title">
-                    MUSIC
-                  </h2>
-                  <button
-                    onClick={() => setShowMobileSidebar(false)}
-                    className="p-2 hover:bg-emerald-100 rounded-xl transition-all duration-200 active:scale-95 hover:shadow-sm"
-                    aria-label="关闭歌曲列表"
-                  >
-                    <svg className="w-6 h-6 text-gray-700 hover:text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-                
-                {/* 歌曲列表内容 */}
-                <div className="flex-1 overflow-hidden h-full">
-                  <div className="h-full w-full">
-                    <div className="mobile-sidebar-container">
-                      <MusicSidebar onSongSelect={() => setShowMobileSidebar(false)} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
         </div>
       </div>
     </MusicProvider>
