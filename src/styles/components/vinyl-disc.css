@@ -39,36 +39,36 @@
 /* 唱片沟槽 - 同心圆纹理 */
 .vinyl-grooves {
   background-image:
-    /* 外层环形沟槽 */
+    /* 外层环形沟槽 - 更细腻 */
     radial-gradient(circle,
-      transparent 8%,
-      rgba(255, 255, 255, 0.025) 8.2%,
-      transparent 8.4%,
-      transparent 12%,
-      rgba(255, 255, 255, 0.02) 12.2%,
-      transparent 12.4%,
-      transparent 16%,
-      rgba(255, 255, 255, 0.018) 16.2%,
-      transparent 16.4%,
-      transparent 20%,
-      rgba(255, 255, 255, 0.015) 20.2%,
-      transparent 20.4%,
-      transparent 24%,
-      rgba(255, 255, 255, 0.012) 24.2%,
-      transparent 24.4%,
-      transparent 85%,
-      rgba(0, 0, 0, 0.06) 87%,
-      rgba(0, 0, 0, 0.04) 90%,
-      rgba(0, 0, 0, 0.02) 93%,
-      transparent 96%),
-    /* 径向细密线条模拟沟槽 */
+      transparent 10%,
+      rgba(255, 255, 255, 0.03) 10.1%,
+      transparent 10.2%,
+      transparent 14%,
+      rgba(255, 255, 255, 0.025) 14.1%,
+      transparent 14.2%,
+      transparent 18%,
+      rgba(255, 255, 255, 0.02) 18.1%,
+      transparent 18.2%,
+      transparent 22%,
+      rgba(255, 255, 255, 0.015) 22.1%,
+      transparent 22.2%,
+      transparent 26%,
+      rgba(255, 255, 255, 0.01) 26.1%,
+      transparent 26.2%,
+      transparent 88%,
+      rgba(0, 0, 0, 0.08) 89%,
+      rgba(0, 0, 0, 0.05) 92%,
+      rgba(0, 0, 0, 0.03) 95%,
+      transparent 98%),
+    /* 径向细密线条模拟沟槽 - 更强烈的金属感 */
     repeating-conic-gradient(from 0deg at 50% 50%,
       transparent 0deg,
-      rgba(255, 255, 255, 0.015) 0.3deg,
-      transparent 0.6deg,
+      rgba(255, 255, 255, 0.02) 0.2deg,
+      transparent 0.4deg,
       transparent 360deg);
   mix-blend-mode: overlay;
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 /* 唱片纹理 - 增加真实感 */
@@ -137,14 +137,15 @@
 }
 
 .animate-record-spin {
-  animation: record-spin 20s linear infinite;
+  animation: record-spin 8s linear infinite;
+  /* Faster spin for more realism */
   animation-play-state: running;
   will-change: transform;
 }
 
 /* 悬停效果 */
 .vinyl-disc-container:not(.animate-record-spin):hover {
-  transform: scale(1.02);
+  /* transform: scale(1.02); */
   transition: transform 0.3s ease;
 }
 
