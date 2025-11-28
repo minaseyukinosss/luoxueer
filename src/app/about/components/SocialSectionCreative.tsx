@@ -64,7 +64,7 @@ export const SocialSectionCreative = ({
       setCurrentIndex((prev) => (prev + 1) % socialStats.length);
     };
 
-    autoPlayTimerRef.current = setInterval(playNext, 6000);
+    autoPlayTimerRef.current = setInterval(playNext, 10000); // 从 6000ms 增加到 10000ms (10秒)
 
     return () => {
       if (autoPlayTimerRef.current) {
@@ -79,7 +79,7 @@ export const SocialSectionCreative = ({
     setIsAutoPlaying(false);
     // 重新启动自动播放计时器
     if (autoPlayTimerRef.current) clearInterval(autoPlayTimerRef.current);
-    setTimeout(() => setIsAutoPlaying(true), 4000);
+    setTimeout(() => setIsAutoPlaying(true), 6000); // 从 4000ms 增加到 6000ms
   };
 
   if (socialStats.length === 0) return null;
