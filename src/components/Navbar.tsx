@@ -152,22 +152,20 @@ export default function Navbar({
     <>
       {/* Header / Navbar */}
       <header
-        className={`fixed top-0 left-0 right-0 z-50 px-6 md:px-12 h-16 md:h-20 flex items-center justify-between transition-all duration-300 ${
-          isScrolled && !isMenuOpen
+        className={`fixed top-0 left-0 right-0 z-50 px-6 md:px-12 h-16 md:h-20 flex items-center justify-between transition-all duration-300 ${isScrolled && !isMenuOpen
             ? "bg-background/80 backdrop-blur-md border-b border-border/5"
             : "bg-transparent"
-        }`}
+          }`}
       >
         {/* Logo */}
         <Link
           href="/"
-          className={`relative z-50 font-mono text-lg tracking-tighter font-bold transition-colors duration-300 ${
-            isMenuOpen
+          className={`relative z-50 font-mono text-lg tracking-tighter font-bold transition-colors duration-300 ${isMenuOpen
               ? "text-foreground"
               : isHome && !isScrolled
                 ? "text-white"
                 : "text-foreground"
-          }`}
+            }`}
           onClick={() => setIsMenuOpen(false)}
         >
           LUOXUEER
@@ -198,15 +196,14 @@ export default function Navbar({
               <button
                 key={lang.code}
                 onClick={() => setLocale(lang.code)}
-                className={`text-xs font-medium uppercase tracking-wider transition-colors ${
-                  locale === lang.code
+                className={`text-xs font-medium uppercase tracking-wider transition-colors ${locale === lang.code
                     ? isHome && !isScrolled
                       ? "text-white"
                       : "text-foreground"
                     : isHome && !isScrolled
                       ? "text-white/50 hover:text-white"
                       : "text-foreground/50 hover:text-foreground"
-                }`}
+                  }`}
               >
                 {lang.label}
               </button>
@@ -221,41 +218,37 @@ export default function Navbar({
             aria-label={isMenuOpen ? "Close" : "Menu"}
           >
             <div
-              className={`relative w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-300 ${
-                isMenuOpen
+              className={`relative w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-300 ${isMenuOpen
                   ? "bg-foreground/10"
                   : isHome && !isScrolled
                     ? "bg-white/20"
                     : "bg-foreground/5"
-              }`}
+                }`}
             >
               <div className="w-4 h-3 relative flex flex-col justify-between">
                 <span
-                  className={`w-full h-px transition-all duration-300 ${
-                    isMenuOpen
+                  className={`w-full h-px transition-all duration-300 ${isMenuOpen
                       ? "bg-foreground rotate-45 translate-y-[5px]"
                       : isHome && !isScrolled
                         ? "bg-white"
                         : "bg-foreground"
-                  }`}
+                    }`}
                 />
                 <span
-                  className={`w-full h-px transition-all duration-300 ${
-                    isMenuOpen
+                  className={`w-full h-px transition-all duration-300 ${isMenuOpen
                       ? "opacity-0"
                       : isHome && !isScrolled
                         ? "bg-white"
                         : "bg-foreground"
-                  }`}
+                    }`}
                 />
                 <span
-                  className={`w-full h-px transition-all duration-300 ${
-                    isMenuOpen
+                  className={`w-full h-px transition-all duration-300 ${isMenuOpen
                       ? "bg-foreground -rotate-45 -translate-y-[5px]"
                       : isHome && !isScrolled
                         ? "bg-white"
                         : "bg-foreground"
-                  }`}
+                    }`}
                 />
               </div>
             </div>
@@ -312,11 +305,10 @@ export default function Navbar({
                   <button
                     key={lang.code}
                     onClick={() => setLocale(lang.code)}
-                    className={`text-sm font-medium transition-colors ${
-                      locale === lang.code
+                    className={`text-sm font-medium transition-colors ${locale === lang.code
                         ? "text-foreground underline decoration-2 underline-offset-4"
                         : "text-muted-foreground hover:text-foreground"
-                    }`}
+                      }`}
                   >
                     {lang.label}
                   </button>
@@ -395,25 +387,28 @@ export default function Navbar({
                 </div>
               </div>
 
-              <div className="space-y-6 z-10">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="w-8 h-[1px] bg-primary/50"></span>
-                    <span className="text-xs font-mono uppercase tracking-widest text-primary/70">
+              <div className="space-y-6 z-10 relative">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="w-12 h-[2px] bg-primary"></span>
+                    <span className="text-xs font-mono uppercase tracking-[0.2em] text-primary font-bold">
                       {translations.latestRelease || "Latest Release"}
                     </span>
                   </div>
-                  <h4 className="text-3xl font-bold tracking-tight leading-none">
+                  <h4
+                    className="text-5xl font-bold tracking-tighter leading-[0.9] font-fjalla uppercase"
+                    style={{ fontFamily: "var(--font-fjalla-one), sans-serif" }}
+                  >
                     {featuredAlbum.name}
                   </h4>
-                  <p className="text-sm text-muted-foreground line-clamp-2 max-w-[90%]">
+                  <p className="text-sm text-muted-foreground/80 line-clamp-2 max-w-[90%] font-light leading-relaxed">
                     {featuredAlbum.desc}
                   </p>
                 </div>
                 <Link
                   href="/musicbox"
                   onClick={() => setIsMenuOpen(false)}
-                  className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider hover:text-primary transition-colors group"
+                  className="inline-flex items-center gap-3 text-sm font-bold uppercase tracking-widest bg-primary text-primary-foreground px-6 py-3 hover:bg-primary/90 transition-all duration-300 group"
                 >
                   {translations.listenNow || "Listen Now"}
                   <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
