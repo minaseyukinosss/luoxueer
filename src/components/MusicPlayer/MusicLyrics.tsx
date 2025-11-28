@@ -110,7 +110,7 @@ const MusicLyrics: React.FC = () => {
           </div>
 
           {/* Vinyl Disc Container */}
-          <div className={`relative w-64 h-64 md:w-56 md:h-56 lg:w-64 lg:h-64 vinyl-disc-container transition-all duration-500 ${isPlaying ? 'animate-record-spin' : ''}`}>
+          <div className={`relative w-56 h-56 md:w-56 md:h-56 lg:w-64 lg:h-64 vinyl-disc-container transition-all duration-500 ${isPlaying ? 'animate-record-spin' : ''}`}>
             {/* Outer vinyl ring with grooves */}
             <div className="absolute inset-0 rounded-full vinyl-outer-ring"></div>
 
