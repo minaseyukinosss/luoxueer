@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
+import { useLocale } from '@/components/LocaleProvider';
 
 import {
-  FILTER_OPTIONS,
-  HERO_QUICK_LINKS,
   INITIAL_SOCIAL_STATS,
   SOCIAL_LINKS,
-  TRAIT_CHIPS,
-  UPDATES,
+  type FilterOption,
+  type HeroQuickLink,
   type PlatformTheme,
   type SocialStats,
+  type Update,
   type UpdateCategory,
 } from '../constants';
 
@@ -174,19 +174,72 @@ const getPlatformColor = (name: string): PlatformTheme => {
 };
 
 export const useAboutData = () => {
+  const { t } = useLocale();
   const [selectedCategory, setSelectedCategory] = useState<UpdateCategory | 'all'>('all');
   const [socialStats, setSocialStats] = useState<SocialStats[]>(() => INITIAL_SOCIAL_STATS.map((stat) => ({ ...stat })));
+
+  // Localized Data Construction
+  const traitChips = useMemo(() => [...t.aboutPage.traits], [t]);
+
+  const filterOptions: FilterOption[] = useMemo(() => [
+    { label: t.aboutPage.filters.all, value: 'all' },
+    { label: t.aboutPage.filters.music, value: 'music' },
+    { label: t.aboutPage.filters.events, value: 'events' },
+    { label: t.aboutPage.filters.vlogs, value: 'vlogs' },
+  ], [t]);
+
+  const heroQuickLinks: HeroQuickLink[] = useMemo(() => [
+    {
+      label: t.aboutPage.heroLinks.weibo,
+      description: t.aboutPage.heroLinks.weiboDesc,
+      href: SOCIAL_LINKS.Weibo,
+    },
+    {
+      label: t.aboutPage.heroLinks.bilibili,
+      description: t.aboutPage.heroLinks.bilibiliDesc,
+      href: 'https://live.bilibili.com/27047605',
+    },
+    {
+      label: t.aboutPage.heroLinks.douyin,
+      description: t.aboutPage.heroLinks.douyinDesc,
+      href: SOCIAL_LINKS.Douyin,
+    },
+  ], [t]);
+
+  const localizedUpdates: Update[] = useMemo(() => [
+    {
+      date: '2025-04-23',
+      title: t.aboutPage.updates[0].title,
+      description: t.aboutPage.updates[0].desc,
+      image: '/images/album/gelato.webp',
+      category: 'music',
+    },
+    {
+      date: 'Everyday！',
+      title: t.aboutPage.updates[1].title,
+      description: t.aboutPage.updates[1].desc,
+      image: '/images/daily.webp',
+      category: 'events',
+    },
+    {
+      date: '敬请期待...', // Or translation if needed, but keeping simple for now
+      title: t.aboutPage.updates[2].title,
+      description: t.aboutPage.updates[2].desc,
+      image: '/images/live.webp',
+      category: 'events',
+    },
+  ], [t]);
 
   const totalFollowers = useMemo(() => calculateTotalFollowers(socialStats), [socialStats]);
 
   const filteredUpdates = useMemo(() => {
-    if (selectedCategory === 'all') return UPDATES;
-    return UPDATES.filter((update) => update.category === selectedCategory);
-  }, [selectedCategory]);
+    if (selectedCategory === 'all') return localizedUpdates;
+    return localizedUpdates.filter((update) => update.category === selectedCategory);
+  }, [selectedCategory, localizedUpdates]);
 
   const livePlatform = socialStats.find((stat) => stat.extraInfo?.isLive);
   const isLive = Boolean(livePlatform?.extraInfo?.isLive);
-  const nextEvent = useMemo(() => UPDATES.find((item) => item.category === 'events'), []);
+  const nextEvent = useMemo(() => localizedUpdates.find((item) => item.category === 'events'), [localizedUpdates]);
 
   const updateDouyinStat = useCallback(
     (updater: (prev: SocialStats) => SocialStats) => {
@@ -395,9 +448,9 @@ export const useAboutData = () => {
 
   return {
     socialStats,
-    traitChips: TRAIT_CHIPS,
-    heroQuickLinks: HERO_QUICK_LINKS,
-    filterOptions: FILTER_OPTIONS,
+    traitChips,
+    heroQuickLinks,
+    filterOptions,
     socialLinks: SOCIAL_LINKS,
     selectedCategory,
     setSelectedCategory,

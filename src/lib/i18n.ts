@@ -19,6 +19,76 @@ export const translations = {
     latestRelease: '最新发布',
     listenNow: '立即收听',
     newsDescription: '我们刚刚为世界领先的设计会议推出了全新的数字体验。查看我们的案例研究，了解更多关于我们的流程。',
+    aboutPage: {
+      title: '罗雪儿',
+      subtitle: 'Xueer Luo',
+      description: 'Find your own color and be unique.',
+      followers: '粉丝总数',
+      activePlatforms: '活跃平台',
+      annualPlan: '年度计划',
+      annualPlanDesc: '概念专辑 + 全国巡演',
+      followNow: '立即关注',
+      followPlatform: '关注平台',
+      watchLive: '观看直播',
+      selectPlatform: '选择平台',
+      contact: '联系合作',
+      nextLive: '下一场直播',
+      planning: '巡演规划中，敬请期待',
+      liveWarming: '直播预热中',
+      advanceNotice: '提前预约通知',
+      todayInteraction: '今日互动 99+',
+      todayMood: '今日心情：Sunny',
+      latestSingle: '最新单曲《Gelato》',
+      socialDynamics: '社交动态',
+      socialSubtitle: '跨越次元的连接 · 实时数据同步',
+      visitHome: '访问主页',
+      lastSync: '上次同步:',
+      latestUpdates: '最新动态',
+      updatesSubtitle: '记录音乐、旅途与日常的每一个灵感瞬间',
+      noContent: '暂无相关内容',
+      tryFilter: '试试其他筛选条件吧',
+      readMoreBtn: '阅读更多',
+      collect: '+ 收藏',
+      devPending: '功能开发中',
+      filters: {
+        all: '全部',
+        music: '音乐',
+        events: '活动',
+        vlogs: '日志',
+      },
+      traits: ['梦想追寻者', '旅行爱好者', 'chill vibes', '舞台掌控者'],
+      heroLinks: {
+        weibo: '微博',
+        weiboDesc: '@NEKOMIMI_Luna',
+        bilibili: 'B 站',
+        bilibiliDesc: '直播间入口',
+        douyin: '抖音',
+        douyinDesc: '关注罗雪儿',
+      },
+      platformMeta: {
+        weibo: { source: '数据来源：微博', follower: '关注者', badge: 'V 指数' },
+        bilibili: { source: '数据来源：B站', follower: '关注者', badge: '粉丝勋章' },
+        douyin: { source: '数据来源：抖音', follower: '关注者', badge: '直播状态' },
+        default: { source: '数据来源', follower: '关注者' },
+      },
+      updates: [
+        {
+          title: '新歌发布',
+          desc: '全新单曲《Gelato》正式发布，one two three！我想和你去遍世界每个地方在角落，一起留下我们爱最甜的模样！',
+          category: 'music'
+        },
+        {
+          title: '直播预告',
+          desc: '早上10点，锁定抖音罗雪儿直播间！与大家一起分享音乐和快乐时光。',
+          category: 'events'
+        },
+        {
+          title: '演唱会预告',
+          desc: '巡回演唱会正在筹划中，敬请期待！说不定哪天就有了！准备好与我一起狂欢吧。',
+          category: 'events'
+        }
+      ]
+    }
   },
   ja: {
     home: 'ホーム',
@@ -40,6 +110,76 @@ export const translations = {
     latestRelease: '最新リリース',
     listenNow: '今すぐ聴く',
     newsDescription: '世界をリードするデザインカンファレンス向けに、新しいデジタル体験をローンチしました。ケーススタディをチェックして、プロセスについて詳しく学びましょう。',
+    aboutPage: {
+      title: '罗雪儿',
+      subtitle: 'Xueer Luo',
+      description: 'Find your own color and be unique.',
+      followers: 'フォロワー総数',
+      activePlatforms: 'アクティブなプラットフォーム',
+      annualPlan: '年間計画',
+      annualPlanDesc: 'コンセプトアルバム + 全国ツアー',
+      followNow: 'フォローする',
+      followPlatform: 'プラットフォームをフォロー',
+      watchLive: 'ライブを見る',
+      selectPlatform: 'プラットフォームを選択',
+      contact: 'お問い合わせ',
+      nextLive: '次回のライブ',
+      planning: 'ツアー計画中、お楽しみに',
+      liveWarming: 'ライブ準備中',
+      advanceNotice: '事前予約通知',
+      todayInteraction: '今日のインタラクション 99+',
+      todayMood: '今日の気分：Sunny',
+      latestSingle: '最新シングル《Gelato》',
+      socialDynamics: 'ソーシャル更新',
+      socialSubtitle: '次元を超えたつながり・リアルタイムデータ同期',
+      visitHome: 'ホームページへ',
+      lastSync: '最終同期:',
+      latestUpdates: '最新の更新',
+      updatesSubtitle: '音楽、旅、日常のすべてのインスピレーションの瞬間を記録',
+      noContent: '関連コンテンツはありません',
+      tryFilter: '他のフィルタ条件を試してください',
+      readMoreBtn: '続きを読む',
+      collect: '+ お気に入り',
+      devPending: '開発中',
+      filters: {
+        all: 'すべて',
+        music: '音楽',
+        events: 'イベント',
+        vlogs: 'ブログ',
+      },
+      traits: ['夢追い人', '旅行好き', 'chill vibes', 'ステージの支配者'],
+      heroLinks: {
+        weibo: 'Weibo',
+        weiboDesc: '@NEKOMIMI_Luna',
+        bilibili: 'Bilibili',
+        bilibiliDesc: 'ライブルーム入口',
+        douyin: 'Douyin',
+        douyinDesc: 'Luoxueerをフォロー',
+      },
+      platformMeta: {
+        weibo: { source: '出典：Weibo', follower: 'フォロワー', badge: 'V指数' },
+        bilibili: { source: '出典：Bilibili', follower: 'フォロワー', badge: 'ファンバッジ' },
+        douyin: { source: '出典：Douyin', follower: 'フォロワー', badge: 'ライブ状態' },
+        default: { source: '出典', follower: 'フォロワー' },
+      },
+      updates: [
+        {
+          title: '新曲リリース',
+          desc: 'ニューシングル《Gelato》正式リリース、one two three！世界の隅々まであなたと一緒に行き、私たちの愛の最も甘い姿を残したい！',
+          category: 'music'
+        },
+        {
+          title: 'ライブ予告',
+          desc: '朝10時、DouyinのLuoxueerライブルームをチェック！みんなと音楽や楽しい時間を共有しましょう。',
+          category: 'events'
+        },
+        {
+          title: 'コンサート予告',
+          desc: 'ツアーコンサート計画中、お楽しみに！いつか開催されるかもしれません！私と一緒に盛り上がる準備をしてね。',
+          category: 'events'
+        }
+      ]
+    }
   },
   en: {
     home: 'Home',
@@ -61,6 +201,76 @@ export const translations = {
     latestRelease: 'Latest Release',
     listenNow: 'Listen Now',
     newsDescription: 'We just launched a new digital experience for the world\'s leading design conference. Check out our case study to learn more about our process.',
+    aboutPage: {
+      title: '罗雪儿',
+      subtitle: 'Xueer Luo',
+      description: 'Find your own color and be unique.',
+      followers: 'Total Followers',
+      activePlatforms: 'Active Platforms',
+      annualPlan: 'Annual Plan',
+      annualPlanDesc: 'Concept Album + National Tour',
+      followNow: 'Follow Now',
+      followPlatform: 'Follow Platform',
+      watchLive: 'Watch Live',
+      selectPlatform: 'Select Platform',
+      contact: 'Contact',
+      nextLive: 'Next Live',
+      planning: 'Tour planning in progress, stay tuned',
+      liveWarming: 'Live Warming Up',
+      advanceNotice: 'Advance Notice',
+      todayInteraction: 'Today\'s Interaction 99+',
+      todayMood: 'Mood: Sunny',
+      latestSingle: 'Latest Single "Gelato"',
+      socialDynamics: 'Social Dynamics',
+      socialSubtitle: 'Cross-dimensional connection · Real-time data sync',
+      visitHome: 'Visit Homepage',
+      lastSync: 'Last Sync:',
+      latestUpdates: 'Latest Updates',
+      updatesSubtitle: 'Recording every inspiration moment of music, travel, and daily life',
+      noContent: 'No related content',
+      tryFilter: 'Try other filter options',
+      readMoreBtn: 'Read More',
+      collect: '+ Collect',
+      devPending: 'Under Development',
+      filters: {
+        all: 'All',
+        music: 'Music',
+        events: 'Events',
+        vlogs: 'Vlogs',
+      },
+      traits: ['Dream Chaser', 'Travel Lover', 'Chill Vibes', 'Stage Master'],
+      heroLinks: {
+        weibo: 'Weibo',
+        weiboDesc: '@NEKOMIMI_Luna',
+        bilibili: 'Bilibili',
+        bilibiliDesc: 'Live Room Entrance',
+        douyin: 'Douyin',
+        douyinDesc: 'Follow Luoxueer',
+      },
+      platformMeta: {
+        weibo: { source: 'Source: Weibo', follower: 'Followers', badge: 'V Index' },
+        bilibili: { source: 'Source: Bilibili', follower: 'Followers', badge: 'Fan Badge' },
+        douyin: { source: 'Source: Douyin', follower: 'Followers', badge: 'Live Status' },
+        default: { source: 'Source', follower: 'Followers' },
+      },
+      updates: [
+        {
+          title: 'New Song Release',
+          desc: 'New single "Gelato" officially released, one two three! I want to go to every corner of the world with you, leaving the sweetest appearance of our love!',
+          category: 'music'
+        },
+        {
+          title: 'Live Preview',
+          desc: '10 AM, lock in Douyin Luoxueer live room! Share music and happy times with everyone.',
+          category: 'events'
+        },
+        {
+          title: 'Concert Preview',
+          desc: 'Tour concert is being planned, stay tuned! Maybe one day it will happen! Get ready to party with me.',
+          category: 'events'
+        }
+      ]
+    }
   },
 } as const;
 
@@ -70,4 +280,3 @@ export type TranslationKeys = keyof typeof translations.zh;
 export function getTranslation(locale: Locale) {
   return translations[locale] || translations.en;
 }
-

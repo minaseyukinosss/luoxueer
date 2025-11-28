@@ -131,23 +131,28 @@ export default function AboutPage() {
 
         .animate-ping-slow {
           animation: ping-slow 2.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+          will-change: transform, opacity;
         }
 
         .animate-hero-orbit {
           animation: hero-orbit 18s ease-in-out infinite alternate;
+          will-change: transform;
         }
 
         .animate-hero-glow {
           animation: hero-glow 6s ease-in-out infinite alternate;
+          will-change: transform, opacity;
         }
 
         .hero-light {
           filter: blur(80px);
           animation: hero-drift 14s ease-in-out infinite alternate;
+          will-change: transform;
         }
 
         .hero-ribbon {
           animation: hero-sway 18s ease-in-out infinite alternate;
+          will-change: transform;
         }
       `}</style>
     </div>

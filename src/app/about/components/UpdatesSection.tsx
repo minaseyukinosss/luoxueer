@@ -2,6 +2,7 @@
 
 import { useLayoutEffect, useRef, useState } from 'react';
 import Image from 'next/image';
+import { useLocale } from '@/components/LocaleProvider';
 
 import type { FilterOption, Update, UpdateCategory } from '../constants';
 
@@ -18,6 +19,7 @@ export const UpdatesSection = ({
   setSelectedCategory,
   filterOptions,
 }: UpdatesSectionProps) => {
+  const { t } = useLocale();
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerHeight, setContainerHeight] = useState<number | null>(null);
 
@@ -40,8 +42,8 @@ export const UpdatesSection = ({
   <section className="space-y-6">
     <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <h2 className="text-2xl font-semibold text-[#2d1f27] dark:text-white">最新动态</h2>
-        <p className="text-sm text-[#7c6a77] dark:text-white/60">记录音乐、旅途与日常的每一个灵感瞬间</p>
+        <h2 className="text-2xl font-semibold text-[#2d1f27] dark:text-white">{t.aboutPage.latestUpdates}</h2>
+        <p className="text-sm text-[#7c6a77] dark:text-white/60">{t.aboutPage.updatesSubtitle}</p>
       </div>
       <div className="flex flex-wrap gap-3">
         {filterOptions.map((filter) => (
@@ -68,10 +70,10 @@ export const UpdatesSection = ({
         filteredUpdates.map((update, index) => (
           <article
             key={`${update.title}-${index}`}
-            className="group flex h-full flex-col overflow-hidden rounded-2xl border border-white/70 bg-white/80 shadow shadow-[#f598b4]/10 backdrop-blur-md transition-all duration-500 hover:-translate-y-1 hover:shadow-lg dark:border-white/10 dark:bg-white/5"
+            className="group flex h-full flex-col rounded-2xl border border-white/70 bg-white/80 shadow shadow-[#f598b4]/10 backdrop-blur-md transition-all duration-500 hover:-translate-y-1 hover:shadow-lg dark:border-white/10 dark:bg-white/5"
             style={{ animationDelay: `${index * 80}ms` }}
           >
-            <div className="relative h-44 overflow-hidden sm:h-40 lg:h-44">
+            <div className="relative h-44 overflow-hidden rounded-t-2xl sm:h-40 lg:h-44">
               <Image
                 src={update.image}
                 alt={update.title}
@@ -82,7 +84,7 @@ export const UpdatesSection = ({
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/5 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#E77A9A] shadow-sm shadow-[#f598b4]/20">
-                {update.category === 'music' ? '音乐' : update.category === 'events' ? '活动' : '日志'}
+                {t.aboutPage.filters[update.category] || update.category}
               </span>
             </div>
             <div className="flex flex-1 flex-col gap-2.5 p-5">
@@ -95,18 +97,18 @@ export const UpdatesSection = ({
                 <button
                   className="group/btn relative text-xs font-semibold text-[#9b5de5] transition-colors duration-300 hover:text-[#7b48c2] dark:text-[#cbb2ff] cursor-not-allowed"
                   disabled
-                  aria-label="功能开发中"
+                  aria-label={t.aboutPage.devPending}
                 >
-                  阅读更多
+                  {t.aboutPage.readMoreBtn}
                   <span className="absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-gradient-to-r from-[#E77A9A] to-[#f598b4] px-3 py-1.5 text-xs font-medium text-white opacity-0 shadow-lg shadow-[#E77A9A]/40 transition-all duration-300 pointer-events-none group-hover/btn:opacity-100 group-hover/btn:-translate-y-0.5 z-50 backdrop-blur-sm">
-                    功能开发中
+                    {t.aboutPage.devPending}
                     <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-gradient-to-br from-[#E77A9A] to-[#f598b4]"></span>
                   </span>
                 </button>
                 <span className="group/fav relative text-xs text-[#937b87] dark:text-white/60 cursor-not-allowed">
-                  + 收藏
+                  {t.aboutPage.collect}
                   <span className="absolute -top-10 right-0 whitespace-nowrap rounded-lg bg-gradient-to-r from-[#E77A9A] to-[#f598b4] px-3 py-1.5 text-xs font-medium text-white opacity-0 shadow-lg shadow-[#E77A9A]/40 transition-all duration-300 pointer-events-none group-hover/fav:opacity-100 group-hover/fav:-translate-y-0.5 z-50 backdrop-blur-sm">
-                    功能开发中
+                    {t.aboutPage.devPending}
                     <span className="absolute -bottom-1 right-3 w-2 h-2 rotate-45 bg-gradient-to-br from-[#E77A9A] to-[#f598b4]"></span>
                   </span>
                 </span>
@@ -117,8 +119,8 @@ export const UpdatesSection = ({
       ) : (
         <div className="col-span-full flex items-center justify-center" style={{ minHeight: '320px' }}>
           <div className="text-center">
-            <p className="text-lg font-medium text-[#7c6a77] dark:text-white/60">暂无相关内容</p>
-            <p className="mt-2 text-sm text-[#9b8a95] dark:text-white/40">试试其他筛选条件吧</p>
+            <p className="text-lg font-medium text-[#7c6a77] dark:text-white/60">{t.aboutPage.noContent}</p>
+            <p className="mt-2 text-sm text-[#9b8a95] dark:text-white/40">{t.aboutPage.tryFilter}</p>
           </div>
         </div>
       )}

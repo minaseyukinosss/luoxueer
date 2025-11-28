@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import { gsap } from 'gsap';
+import { useLocale } from '@/components/LocaleProvider';
 import { RefreshIcon, WeiboCommunityIcon, BilibiliBadgeIcon, DouyinBadgeIcon } from '@/components/icons';
-import { PLATFORM_META, type PlatformTheme, type SocialStats } from '../constants';
+import { type PlatformTheme, type SocialStats } from '../constants';
 
 interface SocialSectionCreativeProps {
   socialStats: SocialStats[];
@@ -27,6 +28,7 @@ export const SocialSectionCreative = ({
   formatSyncTime,
   getPlatformColor,
 }: SocialSectionCreativeProps) => {
+  const { t } = useLocale();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -84,7 +86,8 @@ export const SocialSectionCreative = ({
 
   const currentStat = socialStats[currentIndex];
   const colors = getPlatformColor(currentStat.name);
-  const meta = PLATFORM_META[currentStat.name] ?? PLATFORM_META.default;
+  const platformKey = currentStat.name.toLowerCase() as keyof typeof t.aboutPage.platformMeta;
+  const meta = t.aboutPage.platformMeta[platformKey] ?? t.aboutPage.platformMeta.default;
   const isDark = colors.mode === 'dark';
 
   return (
@@ -93,10 +96,10 @@ export const SocialSectionCreative = ({
       <div className="mb-8 flex items-center justify-between px-2">
         <div>
           <h2 className="text-3xl font-bold tracking-tight text-[#2d1f27] dark:text-white">
-            社交动态
+            {t.aboutPage.socialDynamics}
           </h2>
           <p className="mt-1 text-sm text-[#7c6a77] dark:text-white/60">
-            跨越次元的连接 · 实时数据同步
+            {t.aboutPage.socialSubtitle}
           </p>
         </div>
         
@@ -242,7 +245,7 @@ export const SocialSectionCreative = ({
                                                 {followers}
                                             </span>
                                             <span className={`text-lg font-medium ${isDark ? 'text-white/60' : 'text-slate-500'}`}>
-                                                {meta.followerLabel}
+                                                {meta.follower}
                                             </span>
                                         </>
                                     )}
@@ -265,7 +268,7 @@ export const SocialSectionCreative = ({
                                     className="group flex items-center gap-2 rounded-full px-8 py-3 text-sm font-bold text-white transition-all hover:gap-3 hover:shadow-lg active:scale-95"
                                     style={{ background: statColors.primary }}
                                 >
-                                    访问主页
+                                    {t.aboutPage.visitHome}
                                     <span className="transition-transform group-hover:translate-x-1">→</span>
                                 </a>
                                 <button
@@ -345,7 +348,7 @@ export const SocialSectionCreative = ({
                             {/* 同步时间 */}
                             {!statIsLoading && stat.lastUpdated && (
                                 <p className={`mt-2 text-xs font-medium ${isDark ? 'text-white/40' : 'text-slate-400'}`}>
-                                    上次同步: {formatSyncTime(stat.lastUpdated)}
+                                    {t.aboutPage.lastSync} {formatSyncTime(stat.lastUpdated)}
                                 </p>
                             )}
                         </div>

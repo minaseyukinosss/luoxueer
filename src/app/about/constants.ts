@@ -180,7 +180,7 @@ export const HERO_QUICK_LINKS: HeroQuickLink[] = [
   {
     label: 'B 站',
     description: '直播间入口',
-    href: 'https://live.bilibili.com/',
+    href: 'https://live.bilibili.com/2704760',
   },
   {
     label: '抖音',
