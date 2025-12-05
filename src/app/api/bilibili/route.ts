@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { FALLBACK_BILIBILI_DATA } from '@/app/about/data/fallbackData';
 
 const BILIBILI_USER_API = 'https://api.bilibili.com/x/web-interface/card?mid=406895348';
 const BILIBILI_LIVE_API =
@@ -56,6 +57,8 @@ interface BilibiliPayload {
     url: string;
   } | null;
   fetchedAt: string;
+  isFallback?: boolean;
+  recordedAt?: string;
 }
 
 const fetchJson = async <T>(url: string): Promise<T> => {
@@ -89,17 +92,35 @@ export async function GET() {
     ]);
 
     if (userRes.status !== 'fulfilled' || !userRes.value || userRes.value.code !== 0) {
+      // 使用静态数据作为fallback
       return NextResponse.json(
-        { message: '获取B站用户数据失败' },
-        { status: 502 },
+        {
+          ...FALLBACK_BILIBILI_DATA,
+          isFallback: true,
+        },
+        {
+          headers: {
+            'Cache-Control': 'no-store',
+            'X-Data-Source': 'fallback',
+          },
+        },
       );
     }
 
     const card = userRes.value.data?.card;
     if (!card) {
+      // 使用静态数据作为fallback
       return NextResponse.json(
-        { message: 'B站用户数据缺失' },
-        { status: 502 },
+        {
+          ...FALLBACK_BILIBILI_DATA,
+          isFallback: true,
+        },
+        {
+          headers: {
+            'Cache-Control': 'no-store',
+            'X-Data-Source': 'fallback',
+          },
+        },
       );
     }
 
@@ -139,13 +160,19 @@ export async function GET() {
         'Cache-Control': 'no-store',
       },
     });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : '未知错误';
+  } catch {
+    // 使用静态数据作为fallback
     return NextResponse.json(
       {
-        message: `获取B站数据失败：${message}`,
+        ...FALLBACK_BILIBILI_DATA,
+        isFallback: true,
       },
-      { status: 502 },
+      {
+        headers: {
+          'Cache-Control': 'no-store',
+          'X-Data-Source': 'fallback',
+        },
+      },
     );
   }
 }

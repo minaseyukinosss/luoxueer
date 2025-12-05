@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { FALLBACK_WEIBO_DATA } from '@/app/about/data/fallbackData';
 
 const WEIBO_PROFILE_API = 'https://weibo.com/ajax/profile/info?uid=6106700809';
 const WEIBO_DETAIL_API = 'https://weibo.com/ajax/profile/detail?uid=6106700809';
@@ -46,6 +47,8 @@ interface WeiboPayload {
   location: string;
   fetchedAt: string;
   highlights: string[];
+  isFallback?: boolean;
+  recordedAt?: string;
 }
 
 const fetchWeiboProfile = async (): Promise<WeiboProfileResponse> => {
@@ -111,24 +114,31 @@ export async function GET() {
     const [profile, detail] = await Promise.all([fetchWeiboProfile(), fetchWeiboDetail()]);
 
     if (!profile || profile.ok !== 1 || !profile.data?.user) {
+      // 使用静态数据作为fallback
       return NextResponse.json(
-        { message: '获取微博数据失败' },
-        { status: 502 },
-      );
-    }
-
-    if (!detail || detail.ok !== 1 || !detail.data) {
-      return NextResponse.json(
-        { message: '获取微博数据失败' },
-        { status: 502 },
+        {
+          ...FALLBACK_WEIBO_DATA,
+          isFallback: true,
+        },
+        {
+          headers: {
+            'Cache-Control': 'no-store',
+            'X-Data-Source': 'fallback',
+          },
+        },
       );
     }
 
     const user = profile.data.user;
-    const highlights =
-      detail.data.label_desc
-        ?.map((item) => item.name?.trim())
-        .filter((name): name is string => Boolean(name && name.length > 0)) ?? [];
+    
+    // 如果detail请求失败，使用空数组作为highlights，但继续使用profile数据
+    let highlights: string[] = [];
+    if (detail && detail.ok === 1 && detail.data) {
+      highlights =
+        detail.data.label_desc
+          ?.map((item) => item.name?.trim())
+          .filter((name): name is string => Boolean(name && name.length > 0)) ?? [];
+    }
 
     const payload: WeiboPayload = {
       nickname: user.screen_name ?? '',
@@ -150,13 +160,19 @@ export async function GET() {
         'Cache-Control': 'no-store',
       },
     });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : '未知错误';
+  } catch {
+    // 使用静态数据作为fallback
     return NextResponse.json(
       {
-        message: `获取微博数据失败：${message}`,
+        ...FALLBACK_WEIBO_DATA,
+        isFallback: true,
       },
-      { status: 502 },
+      {
+        headers: {
+          'Cache-Control': 'no-store',
+          'X-Data-Source': 'fallback',
+        },
+      },
     );
   }
 }

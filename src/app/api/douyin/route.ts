@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { FALLBACK_DOUYIN_DATA } from '@/app/about/data/fallbackData';
 
 const DOUYIN_PROFILE_ENDPOINT =
   'https://douyin.wtf/api/douyin/web/handler_user_profile?sec_user_id=MS4wLjABAAAAqouaurDx80BjbJ2NKG7xNDFnyFVIlrtaPq5RcoVixNO37bOt4NYHgFqvjDsBWXIr';
@@ -30,6 +31,8 @@ interface DouyinPayload {
   isLive: boolean;
   secUid: string;
   lastUpdated: string;
+  isFallback?: boolean;
+  recordedAt?: string;
 }
 
 export const dynamic = 'force-dynamic';
@@ -44,11 +47,18 @@ export async function GET() {
     });
 
     if (!response.ok) {
+      // 使用静态数据作为fallback
       return NextResponse.json(
         {
-          message: '获取抖音数据失败：上游接口响应异常',
+          ...FALLBACK_DOUYIN_DATA,
+          isFallback: true,
         },
-        { status: 502 },
+        {
+          headers: {
+            'Cache-Control': 'no-store',
+            'X-Data-Source': 'fallback',
+          },
+        },
       );
     }
 
@@ -56,11 +66,18 @@ export async function GET() {
     const user = payload.data?.user;
 
     if (!user || payload.code !== 200 || (payload.status_code && payload.status_code !== 0)) {
+      // 使用静态数据作为fallback
       return NextResponse.json(
         {
-          message: '获取抖音数据失败：返回数据缺失',
+          ...FALLBACK_DOUYIN_DATA,
+          isFallback: true,
         },
-        { status: 502 },
+        {
+          headers: {
+            'Cache-Control': 'no-store',
+            'X-Data-Source': 'fallback',
+          },
+        },
       );
     }
 
@@ -82,11 +99,18 @@ export async function GET() {
       },
     });
   } catch {
+    // 使用静态数据作为fallback
     return NextResponse.json(
       {
-        message: '获取抖音数据失败：网络错误',
+        ...FALLBACK_DOUYIN_DATA,
+        isFallback: true,
       },
-      { status: 502 },
+      {
+        headers: {
+          'Cache-Control': 'no-store',
+          'X-Data-Source': 'fallback',
+        },
+      },
     );
   }
 }

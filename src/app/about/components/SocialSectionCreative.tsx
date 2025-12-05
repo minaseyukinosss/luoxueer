@@ -340,7 +340,7 @@ export const SocialSectionCreative = ({
                                         isDark ? 'bg-white/10 text-white' : 'bg-white/70 text-slate-800'
                                     }`}>
                                         <p className="text-xs opacity-60">获赞数</p>
-                                        <p className="font-mono text-lg font-bold">{extraInfo.likes.replace(/\D/g, '')}</p>
+                                        <p className="font-mono text-lg font-bold">{extraInfo.likes.replace(/\s*获赞$/, '')}</p>
                                     </div>
                                 )}
                             </div>
@@ -356,6 +356,13 @@ export const SocialSectionCreative = ({
                 );
             })}
         </div>
+      </div>
+
+      {/* 免责提示 */}
+      <div className="mt-4 px-2">
+        <p className="text-xs text-[#7c6a77]/70 dark:text-white/40 text-center leading-relaxed">
+          {t.aboutPage.dataDisclaimer}
+        </p>
       </div>
     </section>
   );
