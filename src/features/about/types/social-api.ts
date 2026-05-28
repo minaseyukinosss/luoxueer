@@ -4,6 +4,7 @@ export type DouyinStatsPayload = {
   awemeCount: number;
   nickname: string;
   signature: string;
+  avatar: string;
   liveStatus: number;
   isLive: boolean;
   secUid: string;

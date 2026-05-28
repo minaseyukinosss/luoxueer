@@ -21,6 +21,25 @@ const fallbackResponse = () =>
     },
   );
 
+const readAvatarUrlList = (value: unknown): string => {
+  if (!isRecord(value)) return "";
+
+  const urlList = value.url_list;
+  if (!Array.isArray(urlList)) return "";
+
+  const firstUrl = urlList.find((item): item is string => typeof item === "string" && item.length > 0);
+  return firstUrl ?? "";
+};
+
+const readDouyinAvatar = (user: Record<string, unknown>): string => {
+  for (const key of ["avatar_larger", "avatar_medium", "avatar_thumb"]) {
+    const avatar = readAvatarUrlList(user[key]);
+    if (avatar) return avatar;
+  }
+
+  return "";
+};
+
 const parseDouyinPayload = (rawPayload: unknown): DouyinStatsPayload | null => {
   if (!isRecord(rawPayload)) return null;
 
@@ -41,6 +60,7 @@ const parseDouyinPayload = (rawPayload: unknown): DouyinStatsPayload | null => {
     awemeCount: readNumber(user.aweme_count),
     nickname: readString(user.nickname),
     signature: readString(user.signature),
+    avatar: readDouyinAvatar(user),
     liveStatus,
     isLive: liveStatus === 1,
     secUid: readString(user.sec_uid),

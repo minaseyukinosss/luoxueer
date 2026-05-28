@@ -4,6 +4,7 @@ import { HeroSection } from "@/features/about/components/HeroSection";
 import { SocialSectionCreative } from "@/features/about/components/SocialSectionCreative";
 import { UpdatesSection } from "@/features/about/components/UpdatesSection";
 import { useAboutData } from "@/features/about/hooks/useAboutData";
+import "@/features/about/styles/social-orbit.css";
 
 export default function AboutPage() {
   const {
@@ -19,7 +20,6 @@ export default function AboutPage() {
     nextEvent,
     handleRefresh,
     formatSyncTime,
-    getPlatformColor,
     socialLinks,
   } = useAboutData();
 
@@ -44,7 +44,6 @@ export default function AboutPage() {
             socialLinks={socialLinks}
             handleRefresh={handleRefresh}
             formatSyncTime={formatSyncTime}
-            getPlatformColor={getPlatformColor}
           />
           <UpdatesSection
             filteredUpdates={filteredUpdates}

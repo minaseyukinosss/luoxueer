@@ -1,0 +1,206 @@
+@keyframes social-orbit-ambient {
+  0%,
+  100% {
+    opacity: 0.86;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.035);
+  }
+}
+
+@keyframes social-orbit-ring-drift {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes social-orbit-core {
+  0%,
+  100% {
+    box-shadow: 0 12px 32px -28px rgba(245, 152, 180, 0.38);
+  }
+
+  50% {
+    box-shadow: 0 16px 40px -24px rgba(245, 152, 180, 0.48);
+  }
+}
+
+@keyframes social-orbit-core-ring {
+  0% {
+    opacity: 0.56;
+    transform: scale(0.94);
+  }
+
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(1.24);
+  }
+}
+
+@keyframes social-orbit-node {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+
+  50% {
+    translate: 0 -5px;
+  }
+}
+
+@keyframes social-orbit-line {
+  0%,
+  100% {
+    stroke-dashoffset: 150;
+    opacity: 0.14;
+  }
+
+  50% {
+    opacity: 0.95;
+  }
+}
+
+@keyframes social-orbit-beam-pulse {
+  0% {
+    stroke-dashoffset: 120;
+    opacity: 0;
+  }
+
+  35% {
+    opacity: 1;
+  }
+
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+.social-orbit-card {
+  isolation: isolate;
+  transform: translateZ(0);
+}
+
+.social-orbit-ambient {
+  animation: social-orbit-ambient 5.6s ease-in-out infinite;
+  transform-origin: center;
+}
+
+.social-orbit-network {
+  filter: drop-shadow(0 0 8px rgba(242, 111, 159, 0.12));
+}
+
+.social-orbit-svg-ring {
+  fill: none;
+  stroke: rgba(214, 149, 175, 0.34);
+  stroke-width: 0.28;
+  stroke-dasharray: 2.5 2.8;
+  vector-effect: non-scaling-stroke;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: social-orbit-ring-drift 28s linear infinite;
+}
+
+.social-orbit-svg-ring--middle {
+  stroke: rgba(18, 207, 201, 0.28);
+  animation-duration: 22s;
+  animation-direction: reverse;
+}
+
+.social-orbit-svg-ring--inner {
+  stroke: rgba(233, 90, 45, 0.22);
+  animation-duration: 16s;
+}
+
+.social-orbit-beam {
+  fill: none;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.social-orbit-beam--base {
+  stroke: url("#orbitBeamWarm");
+  stroke-width: 0.7;
+  opacity: 0.62;
+}
+
+.social-orbit-beam--pulse {
+  stroke: var(--orbit-accent);
+  stroke-width: 1.2;
+  stroke-dasharray: 18 96;
+  filter: url("#orbitBeamGlow");
+  animation: social-orbit-beam-pulse 2.4s ease-in-out infinite;
+}
+
+.social-orbit-core {
+  animation: social-orbit-core 4.8s ease-in-out infinite;
+}
+
+.social-orbit-core-ring {
+  animation: social-orbit-core-ring 2.8s ease-out infinite;
+}
+
+.social-orbit-core-glow {
+  animation: social-orbit-ambient 4.6s ease-in-out infinite reverse;
+}
+
+.social-orbit-line {
+  animation: social-orbit-line 3.4s ease-in-out infinite;
+}
+
+.social-orbit-node {
+  animation: social-orbit-node 4.8s ease-in-out infinite;
+  box-shadow: 0 10px 30px -18px var(--orbit-accent), inset 0 0 0 1px rgba(255, 255, 255, 0.52);
+}
+
+.social-orbit-node:hover {
+  animation-play-state: paused;
+}
+
+.social-orbit-node::after {
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: 1rem;
+  content: "";
+  opacity: 0;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--orbit-accent) 28%, transparent), transparent 55%);
+  transition: opacity 300ms ease;
+}
+
+.social-orbit-node-ring {
+  border: 1px solid color-mix(in srgb, var(--orbit-accent) 44%, transparent);
+  opacity: 0.72;
+  animation: social-orbit-core-ring 2.8s ease-out infinite;
+}
+
+.social-orbit-node:hover::after {
+  opacity: 1;
+}
+
+@media (max-width: 640px) {
+  .social-orbit-beam--base {
+    stroke-width: 0.55;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .social-orbit-ambient,
+  .social-orbit-svg-ring,
+  .social-orbit-beam--pulse,
+  .social-orbit-core,
+  .social-orbit-core-ring,
+  .social-orbit-core-glow,
+  .social-orbit-line,
+  .social-orbit-node {
+    animation: none;
+  }
+}

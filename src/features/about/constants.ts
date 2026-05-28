@@ -6,6 +6,7 @@ export interface SocialStats {
   shortName: string;
   followers: string;
   username?: string;
+  avatar?: string;
   loading: boolean;
   error: string | null;
   lastUpdated?: Date;
@@ -20,6 +21,7 @@ export interface SocialStats {
     liveTitle?: string;
     liveCover?: string;
     nameplate?: string;
+    level?: number;
     works?: string;
     likes?: string;
     videoDescription?: string;
@@ -111,6 +113,7 @@ export const INITIAL_SOCIAL_STATS: SocialStats[] = [
     name: 'Weibo',
     fullName: '新浪微博',
     shortName: '微博',
+    username: '罗雪儿_',
     followers: '',
     loading: true,
     error: null,
@@ -120,6 +123,7 @@ export const INITIAL_SOCIAL_STATS: SocialStats[] = [
     name: 'Bilibili',
     fullName: '哔哩哔哩',
     shortName: 'B站',
+    username: '罗雪儿_',
     followers: '',
     loading: true,
     error: null,
@@ -129,6 +133,7 @@ export const INITIAL_SOCIAL_STATS: SocialStats[] = [
     name: 'Douyin',
     fullName: '抖音短视频',
     shortName: '抖音',
+    username: '罗雪儿',
     followers: '',
     loading: true,
     error: null,

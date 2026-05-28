@@ -6,7 +6,6 @@ import {
   SOCIAL_LINKS,
   type FilterOption,
   type HeroQuickLink,
-  type PlatformTheme,
   type SocialStats,
   type Update,
   type UpdateCategory,
@@ -29,6 +28,7 @@ const parseDouyinStatsPayload = (value: unknown): DouyinStatsPayload => {
     awemeCount: readNumber(value.awemeCount),
     nickname: readString(value.nickname),
     signature: readString(value.signature),
+    avatar: readString(value.avatar),
     liveStatus: readNumber(value.liveStatus),
     isLive: readBoolean(value.isLive),
     secUid: readString(value.secUid),
@@ -155,107 +155,6 @@ const formatSyncTime = (date: Date): string => {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };
 
-const getPlatformColor = (name: string): PlatformTheme => {
-  switch (name) {
-    case 'Weibo':
-      return {
-        mode: 'light',
-        primary: '#E95A2D',
-        text: '#33231A',
-        muted: 'rgba(87, 64, 50, 0.7)',
-        cardBackground: 'linear-gradient(160deg, #FFF4EB 0%, #FFE3D3 100%)',
-        border: 'rgba(233, 90, 45, 0.32)',
-        cardShadow: '0 18px 32px -24px rgba(233, 90, 45, 0.45)',
-        hoverShadow: '0 24px 40px -28px rgba(233, 90, 45, 0.55)',
-        statBackground: '#E95A2D',
-        badgeBackground: 'rgba(233, 90, 45, 0.08)',
-        badgeText: '#A04220',
-        chipBackground: 'rgba(233, 90, 45, 0.08)',
-        chipText: '#A04220',
-        iconBackground: 'linear-gradient(140deg, rgba(255,255,255,0.9) 0%, rgba(255,221,205,0.9) 100%)',
-        iconShadow: '0 12px 24px -18px rgba(233, 90, 45, 0.55)',
-        button: {
-          background: 'rgba(255, 255, 255, 0.85)',
-          border: 'rgba(233, 90, 45, 0.25)',
-          text: '#A04220',
-          shadow: '0 10px 24px -18px rgba(233, 90, 45, 0.45)',
-        },
-      };
-    case 'Bilibili':
-      return {
-        mode: 'light',
-        primary: '#F26F9F',
-        text: '#34212D',
-        muted: 'rgba(99, 68, 86, 0.68)',
-        cardBackground: 'linear-gradient(155deg, #FFF5FA 0%, #FFE8F1 100%)',
-        border: 'rgba(242, 111, 159, 0.3)',
-        cardShadow: '0 18px 32px -24px rgba(242, 111, 159, 0.4)',
-        hoverShadow: '0 24px 40px -28px rgba(242, 111, 159, 0.48)',
-        statBackground: '#F26F9F',
-        badgeBackground: 'rgba(242, 111, 159, 0.08)',
-        badgeText: '#8F3C5F',
-        chipBackground: 'rgba(242, 111, 159, 0.08)',
-        chipText: '#8F3C5F',
-        iconBackground: 'linear-gradient(145deg, rgba(255,255,255,0.92) 0%, rgba(255,220,236,0.92) 100%)',
-        iconShadow: '0 12px 24px -18px rgba(242, 111, 159, 0.48)',
-        button: {
-          background: 'rgba(255, 255, 255, 0.9)',
-          border: 'rgba(242, 111, 159, 0.25)',
-          text: '#8F3C5F',
-          shadow: '0 10px 24px -18px rgba(242, 111, 159, 0.4)',
-        },
-      };
-    case 'Douyin':
-      return {
-        mode: 'dark',
-        primary: '#0FE0D7',
-        text: '#F5F7FA',
-        muted: 'rgba(198, 206, 220, 0.7)',
-        cardBackground: 'linear-gradient(165deg, #14151D 0%, #1B1C25 100%)',
-        border: 'rgba(15, 224, 215, 0.18)',
-        cardShadow: '0 20px 46px -30px rgba(7, 8, 12, 0.9)',
-        hoverShadow: '0 24px 54px -28px rgba(15, 224, 215, 0.35)',
-        statBackground: 'linear-gradient(120deg, #FF1F85 0%, #0FE0D7 100%)',
-        badgeBackground: 'rgba(15, 224, 215, 0.12)',
-        badgeText: '#E5FDFC',
-        chipBackground: 'rgba(15, 224, 215, 0.08)',
-        chipText: '#E5FDFC',
-        iconBackground: 'linear-gradient(140deg, rgba(28,33,47,0.85) 0%, rgba(37,44,61,0.85) 100%)',
-        iconShadow: '0 14px 28px -18px rgba(15, 224, 215, 0.55)',
-        button: {
-          background: 'rgba(32, 36, 44, 0.85)',
-          border: 'rgba(15, 224, 215, 0.25)',
-          text: '#E5FDFC',
-          shadow: '0 12px 28px -22px rgba(15, 224, 215, 0.45)',
-        },
-      };
-    default:
-      return {
-        mode: 'light',
-        primary: '#DD6D95',
-        text: '#2F1E2A',
-        muted: 'rgba(104, 71, 86, 0.68)',
-        cardBackground: 'linear-gradient(160deg, #FFF4F8 0%, #FFE9F2 100%)',
-        border: 'rgba(221, 109, 149, 0.28)',
-        cardShadow: '0 18px 32px -24px rgba(221, 109, 149, 0.38)',
-        hoverShadow: '0 22px 40px -28px rgba(221, 109, 149, 0.45)',
-        statBackground: '#DD6D95',
-        badgeBackground: 'rgba(221, 109, 149, 0.08)',
-        badgeText: '#8B3D5A',
-        chipBackground: 'rgba(221, 109, 149, 0.08)',
-        chipText: '#8B3D5A',
-        iconBackground: 'linear-gradient(150deg, rgba(255,255,255,0.9) 0%, rgba(255,228,240,0.9) 100%)',
-        iconShadow: '0 12px 26px -20px rgba(221, 109, 149, 0.45)',
-        button: {
-          background: 'rgba(255, 255, 255, 0.88)',
-          border: 'rgba(221, 109, 149, 0.24)',
-          text: '#8B3D5A',
-          shadow: '0 10px 24px -18px rgba(221, 109, 149, 0.42)',
-        },
-      };
-  }
-};
-
 export const useAboutData = () => {
   const { t } = useLocale();
   const [selectedCategory, setSelectedCategory] = useState<UpdateCategory | 'all'>('all');
@@ -377,6 +276,7 @@ export const useAboutData = () => {
         ...stat,
         followers: formatCount(followers),
         username: data.nickname || stat.username,
+        avatar: data.avatar || stat.avatar,
         loading: false,
         lastUpdated: data.lastUpdated ? new Date(data.lastUpdated) : new Date(),
         extraInfo: {
@@ -418,6 +318,7 @@ export const useAboutData = () => {
         ...stat,
         followers: formatCount(followers),
         username: data.nickname || stat.username,
+        avatar: data.avatar || stat.avatar,
         loading: false,
         lastUpdated: data.fetchedAt ? new Date(data.fetchedAt) : new Date(),
         extraInfo: {
@@ -427,6 +328,7 @@ export const useAboutData = () => {
           liveUrl: data.live?.url ?? stat.extraInfo?.liveUrl,
           liveTitle: data.live?.title ?? stat.extraInfo?.liveTitle,
           liveCover: data.live?.cover ?? stat.extraInfo?.liveCover,
+          level: data.level || stat.extraInfo?.level,
           videoDescription: data.signature || stat.extraInfo?.videoDescription,
         },
       }));
@@ -460,12 +362,12 @@ export const useAboutData = () => {
         ...stat,
         followers: formatCount(followers),
         username: data.nickname || stat.username,
+        avatar: data.avatar || stat.avatar,
         loading: false,
         lastUpdated: data.fetchedAt ? new Date(data.fetchedAt) : new Date(),
         extraInfo: {
           ...stat.extraInfo,
           highlights: data.highlights?.length ? data.highlights : stat.extraInfo?.highlights,
-          nameplate: data.verified ? data.verifiedReason || '认证用户' : undefined,
         },
       }));
     } catch (error) {
@@ -510,7 +412,6 @@ export const useAboutData = () => {
     nextEvent,
     handleRefresh,
     formatSyncTime,
-    getPlatformColor,
   };
 };
 

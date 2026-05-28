@@ -36,6 +36,7 @@ export const FALLBACK_DOUYIN_DATA = {
   awemeCount: 0,
   nickname: '罗雪儿',
   signature: '',
+  avatar: '',
   liveStatus: 0,
   isLive: false,
   secUid: 'MS4wLjABAAAAqouaurDx80BjbJ2NKG7xNDFnyFVIlrtaPq5RcoVixNO37bOt4NYHgFqvjDsBWXIr',
