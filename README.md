@@ -29,20 +29,15 @@
 
 ```
 src/
-├── app/                 # App Router 页面与 API
-│   ├── page.tsx         # 首页
-│   ├── musicbox/
-│   ├── about/
-│   └── api/             # bilibili / douyin / weibo
-├── components/          # 导航、预加载、音乐播放器、国际化等
-├── contexts/
-├── data/
-├── lib/
-├── styles/
-└── constants/
+├── app/                 # Next.js App Router 路由入口、layout、API routes
+├── features/            # home / music / about 等业务域模块
+└── shared/              # 跨业务复用的 layout、providers、ui、icons、lib、styles
 public/
-└── images/              # 静态资源（如首页配图）
+├── audio/               # 音频资源
+└── images/              # 静态图片资源
 ```
+
+完整结构规范见 [`docs/project-structure.md`](docs/project-structure.md)，英文版见 [`docs/project-structure.en.md`](docs/project-structure.en.md)。
 
 ## 说明
 

@@ -1,116 +1,68 @@
-import { NextResponse } from 'next/server';
-import { FALLBACK_DOUYIN_DATA } from '@/app/about/data/fallbackData';
+import { NextResponse } from "next/server";
+import { FALLBACK_DOUYIN_DATA } from "@/features/about/data/fallback-data";
+import type { DouyinStatsPayload } from "@/features/about/types/social-api";
+import { fetchJson, isRecord, readNumber, readString } from "@/shared/lib/http";
 
 const DOUYIN_PROFILE_ENDPOINT =
-  'https://douyin.wtf/api/douyin/web/handler_user_profile?sec_user_id=MS4wLjABAAAAqouaurDx80BjbJ2NKG7xNDFnyFVIlrtaPq5RcoVixNO37bOt4NYHgFqvjDsBWXIr';
+  "https://douyin.wtf/api/douyin/web/handler_user_profile?sec_user_id=MS4wLjABAAAAqouaurDx80BjbJ2NKG7xNDFnyFVIlrtaPq5RcoVixNO37bOt4NYHgFqvjDsBWXIr";
 
-interface DouyinApiResponse {
-  code: number;
-  data?: {
-    user?: {
-      follower_count?: number;
-      total_favorited?: number;
-      aweme_count?: number;
-      nickname?: string;
-      signature?: string;
-      live_status?: number;
-      sec_uid?: string;
-    };
+export const dynamic = "force-dynamic";
+
+const fallbackResponse = () =>
+  NextResponse.json(
+    {
+      ...FALLBACK_DOUYIN_DATA,
+      isFallback: true,
+    },
+    {
+      headers: {
+        "Cache-Control": "no-store",
+        "X-Data-Source": "fallback",
+      },
+    },
+  );
+
+const parseDouyinPayload = (rawPayload: unknown): DouyinStatsPayload | null => {
+  if (!isRecord(rawPayload)) return null;
+
+  const code = readNumber(rawPayload.code);
+  const statusCode = rawPayload.status_code === undefined ? 0 : readNumber(rawPayload.status_code, -1);
+  const data = rawPayload.data;
+
+  if (code !== 200 || statusCode !== 0 || !isRecord(data) || !isRecord(data.user)) {
+    return null;
+  }
+
+  const user = data.user;
+  const liveStatus = readNumber(user.live_status);
+
+  return {
+    followers: readNumber(user.follower_count),
+    totalFavorited: readNumber(user.total_favorited),
+    awemeCount: readNumber(user.aweme_count),
+    nickname: readString(user.nickname),
+    signature: readString(user.signature),
+    liveStatus,
+    isLive: liveStatus === 1,
+    secUid: readString(user.sec_uid),
+    lastUpdated: new Date().toISOString(),
   };
-  status_code?: number;
-  status_msg?: string | null;
-}
-
-interface DouyinPayload {
-  followers: number;
-  totalFavorited: number;
-  awemeCount: number;
-  nickname: string;
-  signature: string;
-  liveStatus: number;
-  isLive: boolean;
-  secUid: string;
-  lastUpdated: string;
-  isFallback?: boolean;
-  recordedAt?: string;
-}
-
-export const dynamic = 'force-dynamic';
+};
 
 export async function GET() {
   try {
-    const response = await fetch(DOUYIN_PROFILE_ENDPOINT, {
-      headers: {
-        Accept: 'application/json',
-      },
-      cache: 'no-store',
-    });
+    const payload = parseDouyinPayload(await fetchJson(DOUYIN_PROFILE_ENDPOINT));
 
-    if (!response.ok) {
-      // 使用静态数据作为fallback
-      return NextResponse.json(
-        {
-          ...FALLBACK_DOUYIN_DATA,
-          isFallback: true,
-        },
-        {
-          headers: {
-            'Cache-Control': 'no-store',
-            'X-Data-Source': 'fallback',
-          },
-        },
-      );
+    if (!payload) {
+      return fallbackResponse();
     }
 
-    const payload = (await response.json()) as DouyinApiResponse;
-    const user = payload.data?.user;
-
-    if (!user || payload.code !== 200 || (payload.status_code && payload.status_code !== 0)) {
-      // 使用静态数据作为fallback
-      return NextResponse.json(
-        {
-          ...FALLBACK_DOUYIN_DATA,
-          isFallback: true,
-        },
-        {
-          headers: {
-            'Cache-Control': 'no-store',
-            'X-Data-Source': 'fallback',
-          },
-        },
-      );
-    }
-
-    const body: DouyinPayload = {
-      followers: user.follower_count ?? 0,
-      totalFavorited: user.total_favorited ?? 0,
-      awemeCount: user.aweme_count ?? 0,
-      nickname: user.nickname ?? '',
-      signature: user.signature ?? '',
-      liveStatus: user.live_status ?? 0,
-      isLive: (user.live_status ?? 0) === 1,
-      secUid: user.sec_uid ?? '',
-      lastUpdated: new Date().toISOString(),
-    };
-
-    return NextResponse.json(body, {
+    return NextResponse.json(payload, {
       headers: {
-        'Cache-Control': 'no-store',
+        "Cache-Control": "no-store",
       },
     });
   } catch {
-    // 使用静态数据作为fallback
-    return NextResponse.json(
-      {
-        ...FALLBACK_DOUYIN_DATA,
-        isFallback: true,
-      },
-      {
-        headers: {
-          'Cache-Control': 'no-store',
-          'X-Data-Source': 'fallback',
-        },
-      },
-    );
+    return fallbackResponse();
   }
 }

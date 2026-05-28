@@ -1,178 +1,105 @@
-import { NextResponse } from 'next/server';
-import { FALLBACK_WEIBO_DATA } from '@/app/about/data/fallbackData';
+import { NextResponse } from "next/server";
+import { FALLBACK_WEIBO_DATA } from "@/features/about/data/fallback-data";
+import type { WeiboStatsPayload } from "@/features/about/types/social-api";
+import { fetchJson, isRecord, readBoolean, readNumber, readString } from "@/shared/lib/http";
 
-const WEIBO_PROFILE_API = 'https://weibo.com/ajax/profile/info?uid=6106700809';
-const WEIBO_DETAIL_API = 'https://weibo.com/ajax/profile/detail?uid=6106700809';
+const WEIBO_PROFILE_API = "https://weibo.com/ajax/profile/info?uid=6106700809";
+const WEIBO_DETAIL_API = "https://weibo.com/ajax/profile/detail?uid=6106700809";
 
-const WEIBO_COOKIE =
-  'XSRF-TOKEN=eHT103LCvpKOe1Gdq4Rbkr5H; SUB=_2AkMeTSl0f8NxqwFRmv0XzW3kb41yzQ7EieKoEdivJRMxHRl-yT9xqmgHtRB6Nc0Hm2A1P8S-HsnkwinZdqOgOz-13NHD; SUBP=0033WrSXqPxfM72-Ws9jqgMF55529P9D9WFycbN9MWih_.jGCWL.pcDs; WBPSESS=Hp_nF-gJDcLT7G8YZA6PvWOj8CPtE0bNRiIWkpHPgVXHIwwcsSRQy82Di2h2uH_TXGOJvZOHjnM5Wf5HW-qQBfWuokjqiGJv9_cnAzzL6SBr1ZaXSnuVgYouMJQuIy0E1Y5euvtsOUIkGV7v4G2jVVuaINyKY2GS2AZ8B_OGajY';
+const WEIBO_REQUEST_HEADERS = {
+  Accept: "application/json, text/plain, */*",
+  Cookie:
+    "XSRF-TOKEN=eHT103LCvpKOe1Gdq4Rbkr5H; SUB=_2AkMeTSl0f8NxqwFRmv0XzW3kb41yzQ7EieKoEdivJRMxHRl-yT9xqmgHtRB6Nc0Hm2A1P8S-HsnkwinZdqOgOz-13NHD; SUBP=0033WrSXqPxfM72-Ws9jqgMF55529P9D9WFycbN9MWih_.jGCWL.pcDs; WBPSESS=Hp_nF-gJDcLT7G8YZA6PvWOj8CPtE0bNRiIWkpHPgVXHIwwcsSRQy82Di2h2uH_TXGOJvZOHjnM5Wf5HW-qQBfWuokjqiGJv9_cnAzzL6SBr1ZaXSnuVgYouMJQuIy0E1Y5euvtsOUIkGV7v4G2jVVuaINyKY2GS2AZ8B_OGajY",
+  Referer: "https://weibo.com/",
+  "User-Agent":
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36",
+  "X-Requested-With": "XMLHttpRequest",
+} satisfies HeadersInit;
 
-interface WeiboProfileResponse {
-  ok?: number;
-  data?: {
-    user?: {
-      followers_count?: number;
-      friends_count?: number;
-      statuses_count?: number;
-      screen_name?: string;
-      description?: string;
-      avatar_hd?: string;
-      verified?: boolean;
-      verified_reason?: string;
-      gender?: string;
-      location?: string;
-    };
-  };
-}
+export const dynamic = "force-dynamic";
 
-interface WeiboDetailResponse {
-  ok?: number;
-  data?: {
-    label_desc?: Array<{
-      name?: string;
-    }>;
-  };
-}
-
-interface WeiboPayload {
-  nickname: string;
-  followers: number;
-  follows: number;
-  posts: number;
-  bio: string;
-  avatar: string;
-  verified: boolean;
-  verifiedReason: string;
-  gender: string;
-  location: string;
-  fetchedAt: string;
-  highlights: string[];
-  isFallback?: boolean;
-  recordedAt?: string;
-}
-
-const fetchWeiboProfile = async (): Promise<WeiboProfileResponse> => {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 8000);
-
-  try {
-    const response = await fetch(WEIBO_PROFILE_API, {
-      cache: 'no-store',
+const fallbackResponse = () =>
+  NextResponse.json(
+    {
+      ...FALLBACK_WEIBO_DATA,
+      isFallback: true,
+    },
+    {
       headers: {
-        Accept: 'application/json, text/plain, */*',
-        Cookie: WEIBO_COOKIE,
-        Referer: 'https://weibo.com/',
-        'User-Agent':
-          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36',
-        'X-Requested-With': 'XMLHttpRequest',
+        "Cache-Control": "no-store",
+        "X-Data-Source": "fallback",
       },
-      signal: controller.signal,
-    });
+    },
+  );
 
-    if (!response.ok) {
-      throw new Error(`request failed: ${response.status}`);
-    }
+const fetchWeiboJson = (url: string) =>
+  fetchJson(url, {
+    headers: WEIBO_REQUEST_HEADERS,
+  });
 
-    return (await response.json()) as WeiboProfileResponse;
-  } finally {
-    clearTimeout(timeout);
+const parseHighlights = (rawPayload: unknown): string[] => {
+  if (!isRecord(rawPayload) || readNumber(rawPayload.ok) !== 1 || !isRecord(rawPayload.data)) {
+    return [];
   }
+
+  const labelDesc = rawPayload.data.label_desc;
+  if (!Array.isArray(labelDesc)) {
+    return [];
+  }
+
+  return labelDesc
+    .map((item) => (isRecord(item) ? readString(item.name).trim() : ""))
+    .filter((name) => name.length > 0);
 };
 
-const fetchWeiboDetail = async (): Promise<WeiboDetailResponse> => {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 8000);
-
-  try {
-    const response = await fetch(WEIBO_DETAIL_API, {
-      cache: 'no-store',
-      headers: {
-        Accept: 'application/json, text/plain, */*',
-        Cookie: WEIBO_COOKIE,
-        Referer: 'https://weibo.com/',
-        'User-Agent':
-          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36',
-        'X-Requested-With': 'XMLHttpRequest',
-      },
-      signal: controller.signal,
-    });
-
-    if (!response.ok) {
-      throw new Error(`request failed: ${response.status}`);
-    }
-
-    return (await response.json()) as WeiboDetailResponse;
-  } finally {
-    clearTimeout(timeout);
+const parseWeiboPayload = (rawPayload: unknown, highlights: string[]): WeiboStatsPayload | null => {
+  if (!isRecord(rawPayload) || readNumber(rawPayload.ok) !== 1 || !isRecord(rawPayload.data)) {
+    return null;
   }
-};
 
-export const dynamic = 'force-dynamic';
+  const user = rawPayload.data.user;
+  if (!isRecord(user)) return null;
+
+  return {
+    nickname: readString(user.screen_name),
+    followers: readNumber(user.followers_count),
+    follows: readNumber(user.friends_count),
+    posts: readNumber(user.statuses_count),
+    bio: readString(user.description),
+    avatar: readString(user.avatar_hd),
+    verified: readBoolean(user.verified),
+    verifiedReason: readString(user.verified_reason),
+    gender: readString(user.gender),
+    location: readString(user.location),
+    fetchedAt: new Date().toISOString(),
+    highlights,
+  };
+};
 
 export async function GET() {
   try {
-    const [profile, detail] = await Promise.all([fetchWeiboProfile(), fetchWeiboDetail()]);
+    const [profileResult, detailResult] = await Promise.allSettled([
+      fetchWeiboJson(WEIBO_PROFILE_API),
+      fetchWeiboJson(WEIBO_DETAIL_API),
+    ]);
 
-    if (!profile || profile.ok !== 1 || !profile.data?.user) {
-      // 使用静态数据作为fallback
-      return NextResponse.json(
-        {
-          ...FALLBACK_WEIBO_DATA,
-          isFallback: true,
-        },
-        {
-          headers: {
-            'Cache-Control': 'no-store',
-            'X-Data-Source': 'fallback',
-          },
-        },
-      );
+    if (profileResult.status !== "fulfilled") {
+      return fallbackResponse();
     }
 
-    const user = profile.data.user;
-    
-    // 如果detail请求失败，使用空数组作为highlights，但继续使用profile数据
-    let highlights: string[] = [];
-    if (detail && detail.ok === 1 && detail.data) {
-      highlights =
-        detail.data.label_desc
-          ?.map((item) => item.name?.trim())
-          .filter((name): name is string => Boolean(name && name.length > 0)) ?? [];
-    }
+    const highlights = detailResult.status === "fulfilled" ? parseHighlights(detailResult.value) : [];
+    const payload = parseWeiboPayload(profileResult.value, highlights);
 
-    const payload: WeiboPayload = {
-      nickname: user.screen_name ?? '',
-      followers: user.followers_count ?? 0,
-      follows: user.friends_count ?? 0,
-      posts: user.statuses_count ?? 0,
-      bio: user.description ?? '',
-      avatar: user.avatar_hd ?? '',
-      verified: Boolean(user.verified),
-      verifiedReason: user.verified_reason ?? '',
-      gender: user.gender ?? '',
-      location: user.location ?? '',
-      fetchedAt: new Date().toISOString(),
-      highlights,
-    };
+    if (!payload) {
+      return fallbackResponse();
+    }
 
     return NextResponse.json(payload, {
       headers: {
-        'Cache-Control': 'no-store',
+        "Cache-Control": "no-store",
       },
     });
   } catch {
-    // 使用静态数据作为fallback
-    return NextResponse.json(
-      {
-        ...FALLBACK_WEIBO_DATA,
-        isFallback: true,
-      },
-      {
-        headers: {
-          'Cache-Control': 'no-store',
-          'X-Data-Source': 'fallback',
-        },
-      },
-    );
+    return fallbackResponse();
   }
 }

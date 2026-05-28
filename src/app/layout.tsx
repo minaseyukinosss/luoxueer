@@ -1,12 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { Fjalla_One, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import PreLoader from "@/components/PreLoader";
-import { LocaleProvider } from "@/components/LocaleProvider";
-import NavbarWrapper from "@/components/NavbarWrapper";
-import PageTransition from "@/components/PageTransition";
-import LenisProvider from "@/components/LenisProvider";
-import ConditionalFooter from "@/components/ConditionalFooter";
+import ConditionalFooter from "@/shared/components/layout/ConditionalFooter";
+import AppNavbar from "@/shared/components/layout/AppNavbar";
+import { LocaleProvider } from "@/shared/components/providers/LocaleProvider";
+import LenisProvider from "@/shared/components/providers/LenisProvider";
+import PageTransition from "@/shared/components/transitions/PageTransition";
+import Preloader from "@/shared/components/transitions/Preloader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  width: 'device-width',
+  width: "device-width",
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
@@ -48,9 +48,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${fjallaOne.variable} antialiased`}
       >
         <LenisProvider>
-          <PreLoader />
+          <Preloader />
           <LocaleProvider>
-            <NavbarWrapper />
+            <AppNavbar />
             <PageTransition>
               {children}
               <ConditionalFooter />

@@ -1,178 +1,99 @@
-import { NextResponse } from 'next/server';
-import { FALLBACK_BILIBILI_DATA } from '@/app/about/data/fallbackData';
+import { NextResponse } from "next/server";
+import { FALLBACK_BILIBILI_DATA } from "@/features/about/data/fallback-data";
+import type { BilibiliStatsPayload } from "@/features/about/types/social-api";
+import { fetchJson, isRecord, readNumber, readString } from "@/shared/lib/http";
 
-const BILIBILI_USER_API = 'https://api.bilibili.com/x/web-interface/card?mid=406895348';
+const BILIBILI_USER_API = "https://api.bilibili.com/x/web-interface/card?mid=406895348";
 const BILIBILI_LIVE_API =
-  'https://api.live.bilibili.com/room/v1/Room/getRoomInfoOld?mid=406895348';
+  "https://api.live.bilibili.com/room/v1/Room/getRoomInfoOld?mid=406895348";
 
-interface BilibiliUserResponse {
-  code: number;
-  message?: string;
-  data?: {
-    card?: {
-      fans?: number;
-      name?: string;
-      sign?: string;
-      face?: string;
-      level_info?: {
-        current_level?: number;
-      };
-      vip?: {
-        vipStatus?: number;
-        vipType?: number;
-        nickname_color?: string;
-      };
-    };
-  };
-}
+export const dynamic = "force-dynamic";
 
-interface BilibiliLiveResponse {
-  code: number;
-  message?: string;
-  data?: {
-    liveStatus?: number;
-    roomid?: number;
-    title?: string;
-    cover?: string;
-    url?: string;
-  };
-}
+const fallbackResponse = () =>
+  NextResponse.json(
+    {
+      ...FALLBACK_BILIBILI_DATA,
+      isFallback: true,
+    },
+    {
+      headers: {
+        "Cache-Control": "no-store",
+        "X-Data-Source": "fallback",
+      },
+    },
+  );
 
-interface BilibiliPayload {
-  followers: number;
-  nickname: string;
-  signature: string;
-  avatar: string;
-  level: number;
-  vip: {
-    status: number;
-    type: number;
-    color: string;
-  } | null;
-  live: {
-    status: 'live' | 'offline';
-    roomId: number;
-    title: string;
-    cover: string;
-    url: string;
-  } | null;
-  fetchedAt: string;
-  isFallback?: boolean;
-  recordedAt?: string;
-}
-
-const fetchJson = async <T>(url: string): Promise<T> => {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 8000);
-
-  try {
-    const response = await fetch(url, {
-      cache: 'no-store',
-      headers: { Accept: 'application/json' },
-      signal: controller.signal,
-    });
-
-    if (!response.ok) {
-      throw new Error(`request failed: ${response.status}`);
-    }
-
-    return (await response.json()) as T;
-  } finally {
-    clearTimeout(timeout);
+const parseLivePayload = (rawPayload: unknown): BilibiliStatsPayload["live"] => {
+  if (!isRecord(rawPayload) || readNumber(rawPayload.code, -1) !== 0 || !isRecord(rawPayload.data)) {
+    return null;
   }
+
+  const liveData = rawPayload.data;
+  const roomId = readNumber(liveData.roomid);
+  if (!roomId) return null;
+
+  return {
+    status: readNumber(liveData.liveStatus) === 1 ? "live" : "offline",
+    roomId,
+    title: readString(liveData.title),
+    cover: readString(liveData.cover),
+    url: readString(liveData.url),
+  };
 };
 
-export const dynamic = 'force-dynamic';
+const parseUserPayload = (rawPayload: unknown, live: BilibiliStatsPayload["live"]): BilibiliStatsPayload | null => {
+  if (!isRecord(rawPayload) || readNumber(rawPayload.code, -1) !== 0 || !isRecord(rawPayload.data)) {
+    return null;
+  }
+
+  const card = rawPayload.data.card;
+  if (!isRecord(card)) return null;
+
+  const levelInfo = isRecord(card.level_info) ? card.level_info : null;
+  const vip = isRecord(card.vip)
+    ? {
+        status: readNumber(card.vip.vipStatus),
+        type: readNumber(card.vip.vipType),
+        color: readString(card.vip.nickname_color),
+      }
+    : null;
+
+  return {
+    followers: readNumber(card.fans),
+    nickname: readString(card.name),
+    signature: readString(card.sign),
+    avatar: readString(card.face),
+    level: readNumber(levelInfo?.current_level),
+    vip,
+    live,
+    fetchedAt: new Date().toISOString(),
+  };
+};
 
 export async function GET() {
   try {
-    const [userRes, liveRes] = await Promise.allSettled([
-      fetchJson<BilibiliUserResponse>(BILIBILI_USER_API),
-      fetchJson<BilibiliLiveResponse>(BILIBILI_LIVE_API),
+    const [userResult, liveResult] = await Promise.allSettled([
+      fetchJson(BILIBILI_USER_API),
+      fetchJson(BILIBILI_LIVE_API),
     ]);
 
-    if (userRes.status !== 'fulfilled' || !userRes.value || userRes.value.code !== 0) {
-      // 使用静态数据作为fallback
-      return NextResponse.json(
-        {
-          ...FALLBACK_BILIBILI_DATA,
-          isFallback: true,
-        },
-        {
-          headers: {
-            'Cache-Control': 'no-store',
-            'X-Data-Source': 'fallback',
-          },
-        },
-      );
+    if (userResult.status !== "fulfilled") {
+      return fallbackResponse();
     }
 
-    const card = userRes.value.data?.card;
-    if (!card) {
-      // 使用静态数据作为fallback
-      return NextResponse.json(
-        {
-          ...FALLBACK_BILIBILI_DATA,
-          isFallback: true,
-        },
-        {
-          headers: {
-            'Cache-Control': 'no-store',
-            'X-Data-Source': 'fallback',
-          },
-        },
-      );
-    }
+    const live = liveResult.status === "fulfilled" ? parseLivePayload(liveResult.value) : null;
+    const payload = parseUserPayload(userResult.value, live);
 
-    let live: BilibiliPayload['live'] = null;
-    if (liveRes.status === 'fulfilled' && liveRes.value && liveRes.value.code === 0) {
-      const liveData = liveRes.value.data;
-      if (liveData && liveData.roomid) {
-        live = {
-          status: liveData.liveStatus === 1 ? 'live' : 'offline',
-          roomId: liveData.roomid,
-          title: liveData.title ?? '',
-          cover: liveData.cover ?? '',
-          url: liveData.url ?? '',
-        };
-      }
+    if (!payload) {
+      return fallbackResponse();
     }
-
-    const payload: BilibiliPayload = {
-      followers: card.fans ?? 0,
-      nickname: card.name ?? '',
-      signature: card.sign ?? '',
-      avatar: card.face ?? '',
-      level: card.level_info?.current_level ?? 0,
-      vip: card.vip
-        ? {
-            status: card.vip.vipStatus ?? 0,
-            type: card.vip.vipType ?? 0,
-            color: card.vip.nickname_color ?? '',
-          }
-        : null,
-      live,
-      fetchedAt: new Date().toISOString(),
-    };
 
     return NextResponse.json(payload, {
       headers: {
-        'Cache-Control': 'no-store',
+        "Cache-Control": "no-store",
       },
     });
   } catch {
-    // 使用静态数据作为fallback
-    return NextResponse.json(
-      {
-        ...FALLBACK_BILIBILI_DATA,
-        isFallback: true,
-      },
-      {
-        headers: {
-          'Cache-Control': 'no-store',
-          'X-Data-Source': 'fallback',
-        },
-      },
-    );
+    return fallbackResponse();
   }
 }
