@@ -1,10 +1,10 @@
 /* CSS Variables for custom effects */
 :root {
   /* Custom gradients that can't be easily replicated with Tailwind */
-  --gradient-primary: linear-gradient(135deg, #6cfadd, #6cdefa);
-  --gradient-highlight: linear-gradient(135deg, #ff6b9d, #f06292, #ff4081);
-  --gradient-secondary: linear-gradient(135deg, #6cfadd, #81c784);
-  --gradient-ripple: radial-gradient(circle, rgba(108, 250, 221, 0.6) 0%, rgba(255, 107, 157, 0.3) 70%, transparent 100%);
+  --home-gradient-primary: linear-gradient(135deg, #6cfadd, #6cdefa);
+  --home-gradient-highlight: linear-gradient(135deg, #ff6b9d, #f06292, #ff4081);
+  --home-gradient-secondary: linear-gradient(135deg, #6cfadd, #81c784);
+  --home-gradient-ripple: radial-gradient(circle, rgba(108, 250, 221, 0.6) 0%, rgba(255, 107, 157, 0.3) 70%, transparent 100%);
   
   /* Custom shadows */
   --shadow-primary: 0 0 20px rgba(108, 250, 221, 0.3);
@@ -113,17 +113,17 @@
 }
 
 .info-text.primary span {
-  background: var(--gradient-primary);
+  background: var(--home-gradient-primary);
   box-shadow: 0 0 30px rgba(108, 250, 221, 0.5);
 }
 
 .info-text.highlight span {
-  background: var(--gradient-highlight);
+  background: var(--home-gradient-highlight);
   box-shadow: 0 0 40px rgba(255, 107, 157, 0.6);
 }
 
 .info-text.secondary span {
-  background: var(--gradient-secondary);
+  background: var(--home-gradient-secondary);
   box-shadow: 0 0 25px rgba(108, 250, 221, 0.4);
 }
 
@@ -224,5 +224,5 @@
   pointer-events: none;
   z-index: 9999;
   transform: translate(-50%, -50%);
-  background: var(--gradient-ripple);
+  background: var(--home-gradient-ripple);
 }

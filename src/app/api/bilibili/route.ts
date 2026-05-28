@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { FALLBACK_BILIBILI_DATA } from "@/features/about/data/fallback-data";
 import type { BilibiliStatsPayload } from "@/features/about/types/social-api";
+import { FALLBACK_CACHE_HEADERS, SOCIAL_STATS_CACHE_HEADERS } from "@/shared/lib/api-cache";
 import { fetchJson, isRecord, readNumber, readString } from "@/shared/lib/http";
 
 const BILIBILI_USER_API = "https://api.bilibili.com/x/web-interface/card?mid=406895348";
@@ -8,6 +9,7 @@ const BILIBILI_LIVE_API =
   "https://api.live.bilibili.com/room/v1/Room/getRoomInfoOld?mid=406895348";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 const fallbackResponse = () =>
   NextResponse.json(
@@ -16,10 +18,7 @@ const fallbackResponse = () =>
       isFallback: true,
     },
     {
-      headers: {
-        "Cache-Control": "no-store",
-        "X-Data-Source": "fallback",
-      },
+      headers: FALLBACK_CACHE_HEADERS,
     },
   );
 
@@ -89,9 +88,7 @@ export async function GET() {
     }
 
     return NextResponse.json(payload, {
-      headers: {
-        "Cache-Control": "no-store",
-      },
+      headers: SOCIAL_STATS_CACHE_HEADERS,
     });
   } catch {
     return fallbackResponse();

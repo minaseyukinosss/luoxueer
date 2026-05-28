@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { FALLBACK_DOUYIN_DATA } from "@/features/about/data/fallback-data";
 import type { DouyinStatsPayload } from "@/features/about/types/social-api";
+import { FALLBACK_CACHE_HEADERS, SOCIAL_STATS_CACHE_HEADERS } from "@/shared/lib/api-cache";
 import { fetchJson, isRecord, readNumber, readString } from "@/shared/lib/http";
 
 const DOUYIN_PROFILE_ENDPOINT =
   "https://douyin.wtf/api/douyin/web/handler_user_profile?sec_user_id=MS4wLjABAAAAqouaurDx80BjbJ2NKG7xNDFnyFVIlrtaPq5RcoVixNO37bOt4NYHgFqvjDsBWXIr";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 const fallbackResponse = () =>
   NextResponse.json(
@@ -15,10 +17,7 @@ const fallbackResponse = () =>
       isFallback: true,
     },
     {
-      headers: {
-        "Cache-Control": "no-store",
-        "X-Data-Source": "fallback",
-      },
+      headers: FALLBACK_CACHE_HEADERS,
     },
   );
 
@@ -58,9 +57,7 @@ export async function GET() {
     }
 
     return NextResponse.json(payload, {
-      headers: {
-        "Cache-Control": "no-store",
-      },
+      headers: SOCIAL_STATS_CACHE_HEADERS,
     });
   } catch {
     return fallbackResponse();

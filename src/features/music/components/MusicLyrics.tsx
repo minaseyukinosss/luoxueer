@@ -3,11 +3,12 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import Image from "next/image";
 import { PlayIcon } from "lucide-react";
-import { useMusic } from "@/features/music/context/MusicContext";
+import { useMusic, useMusicProgress } from "@/features/music/context/MusicContext";
 import { songList } from "@/features/music/data/music-data";
 
 export default function MusicLyrics() {
-  const { currentSong, isPlaying, currentTime, seekTo, play } = useMusic();
+  const { currentSong, isPlaying, seekTo, play } = useMusic();
+  const { currentTime } = useMusicProgress();
   const lyricsContainerRef = useRef<HTMLDivElement>(null);
   const lyricsRefs = useRef<(HTMLDivElement | null)[]>([]);
   const isUserScrollingRef = useRef(false);
@@ -177,7 +178,10 @@ export default function MusicLyrics() {
           className="h-full w-full overflow-y-auto no-scrollbar scroll-smooth relative"
           ref={lyricsContainerRef}
           onScroll={handleScroll}
+          data-lenis-prevent-wheel
+          data-lenis-prevent-touch
           style={{
+            overscrollBehavior: 'contain',
             maskImage: 'linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)',
             WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%)'
           }}

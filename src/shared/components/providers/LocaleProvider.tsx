@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useSyncExternalStore, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useMemo, useSyncExternalStore, type ReactNode } from "react";
 import { type Locale, getTranslation } from "@/shared/lib/i18n";
 
 interface LocaleContextType {
@@ -61,21 +61,23 @@ const subscribeToLocale = (onStoreChange: () => void) => {
 
 export function LocaleProvider({ children }: { children: ReactNode }) {
   const locale = useSyncExternalStore(subscribeToLocale, resolveBrowserLocale, () => DEFAULT_LOCALE);
+  const value = useMemo(
+    () => ({
+      locale,
+      setLocale: (newLocale: Locale) => {
+        window.localStorage.setItem("locale", newLocale);
+        window.dispatchEvent(new Event(LOCALE_CHANGE_EVENT));
+      },
+      t: getTranslation(locale),
+    }),
+    [locale],
+  );
 
   useEffect(() => {
     document.documentElement.lang = locale;
   }, [locale]);
 
-  const setLocale = useCallback((newLocale: Locale) => {
-    window.localStorage.setItem("locale", newLocale);
-    window.dispatchEvent(new Event(LOCALE_CHANGE_EVENT));
-  }, []);
-
-  return (
-    <LocaleContext.Provider value={{ locale, setLocale, t: getTranslation(locale) }}>
-      {children}
-    </LocaleContext.Provider>
-  );
+  return <LocaleContext.Provider value={value}>{children}</LocaleContext.Provider>;
 }
 
 export function useLocale() {

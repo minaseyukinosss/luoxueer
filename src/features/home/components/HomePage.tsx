@@ -9,6 +9,9 @@ import "@/features/home/styles/home-page.css";
 
 export default function HomePage() {
   const mainRef = useRef<HTMLDivElement>(null);
+  const greetingRef = useRef<HTMLDivElement>(null);
+  const nameRef = useRef<HTMLDivElement>(null);
+  const wishesRef = useRef<HTMLDivElement>(null);
   const particleSettersRef = useRef<ParticleSetter[]>([]);
 
   const handleMouseMove = useCallback((event: ReactMouseEvent<HTMLDivElement>) => {
@@ -66,7 +69,7 @@ export default function HomePage() {
     };
 
     const initializeTextAnimations = () => {
-      const greetingTexts = document.querySelectorAll(".greeting-container .info-text");
+      const greetingTexts = greetingRef.current?.querySelectorAll(".info-text") ?? [];
       if (greetingTexts.length > 0) {
         gsap.fromTo(
           greetingTexts,
@@ -81,7 +84,7 @@ export default function HomePage() {
         );
       }
 
-      const nameTexts = document.querySelectorAll(".name-container .info-text");
+      const nameTexts = nameRef.current?.querySelectorAll(".info-text") ?? [];
       if (nameTexts.length > 0) {
         gsap.fromTo(
           nameTexts,
@@ -96,7 +99,7 @@ export default function HomePage() {
         );
       }
 
-      const wishesTexts = document.querySelectorAll(".wishes-container .info-text");
+      const wishesTexts = wishesRef.current?.querySelectorAll(".info-text") ?? [];
       if (wishesTexts.length > 0) {
         gsap.fromTo(
           wishesTexts,
@@ -114,7 +117,7 @@ export default function HomePage() {
     };
 
     const initializeHoverEffects = () => {
-      const allTexts = document.querySelectorAll(".info-text");
+      const allTexts = mainRef.current?.querySelectorAll(".info-text") ?? [];
       if (allTexts.length === 0) return;
 
       const cleanupCallbacks: Array<() => void> = [];
@@ -171,16 +174,16 @@ export default function HomePage() {
             ))}
           </div>
           
-          <div className="flex flex-col items-center gap-2 page-transition-element">
+          <div ref={greetingRef} className="flex flex-col items-center gap-2 page-transition-element">
             <span className="info-text primary">HAPPY<span>WISH</span></span>
             <span className="info-text primary">BIRTHDAY<span>HEALTH</span></span>
           </div>
           
-          <div className="flex flex-col items-center my-4 page-transition-element">
+          <div ref={nameRef} className="flex flex-col items-center my-4 page-transition-element">
             <span className="info-text highlight">LUNA XUEYI<span>SUCCESS</span></span>
           </div>
           
-          <div className="flex flex-col items-center gap-3 page-transition-element">
+          <div ref={wishesRef} className="flex flex-col items-center gap-3 page-transition-element">
             <span className="info-text secondary">BRIGHT FUTURE<span>WEALTHY</span></span>
             <span className="info-text secondary">HAPPINESS<span>FOREVER</span></span>
           </div>

@@ -17,7 +17,7 @@ export default function MusicPage() {
 
         {/* Animated Background - Subtle & Dreamy */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-soft-light z-[1]" />
+          <div className="absolute inset-0 bg-[url('/images/noise.svg')] opacity-20 mix-blend-soft-light z-[1]" />
           <div className="absolute left-[-10%] top-[-10%] h-[45rem] w-[45rem] rounded-full bg-[#f7d8e4]/40 blur-[120px] animate-pulse-slow mix-blend-multiply" />
           <div className="absolute right-[-5%] bottom-[-5%] h-[35rem] w-[35rem] rounded-full bg-[#d2c3ff]/30 blur-[100px] animate-float-slow mix-blend-multiply" />
           <div className="absolute left-[20%] bottom-[10%] h-[25rem] w-[25rem] rounded-full bg-blue-100/30 blur-[80px] animate-float mix-blend-multiply" />

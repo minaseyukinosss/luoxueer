@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
-import { useMusic } from "@/features/music/context/MusicContext";
+import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { useMusic, useMusicProgress } from "@/features/music/context/MusicContext";
 
 type ProgressBarProps = {
   isMobile?: boolean;
@@ -14,7 +14,8 @@ const formatTime = (time: number): string => {
 };
 
 export default function ProgressBar({ isMobile = false }: ProgressBarProps) {
-  const { currentTime, duration, seekTo } = useMusic();
+  const { seekTo } = useMusic();
+  const { currentTime, duration } = useMusicProgress();
   const progressBarRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragTime, setDragTime] = useState(0);
@@ -31,46 +32,44 @@ export default function ProgressBar({ isMobile = false }: ProgressBarProps) {
   );
 
   const handleDragStart = useCallback(
-    (event: ReactMouseEvent<HTMLDivElement>) => {
+    (event: ReactPointerEvent<HTMLDivElement>) => {
       if (!duration) return;
 
       event.preventDefault();
       event.stopPropagation();
+      event.currentTarget.setPointerCapture(event.pointerId);
       setIsDragging(true);
-      setDragTime(currentTime);
+      setDragTime(seekFromPointer(event.clientX, event.currentTarget));
       document.body.style.userSelect = "none";
     },
-    [currentTime, duration],
+    [duration, seekFromPointer],
   );
 
   const handleDragMove = useCallback(
-    (event: MouseEvent) => {
+    (event: ReactPointerEvent<HTMLDivElement>) => {
       if (!isDragging || !progressBarRef.current) return;
       setDragTime(seekFromPointer(event.clientX, progressBarRef.current));
     },
     [isDragging, seekFromPointer],
   );
 
-  const handleDragEnd = useCallback(() => {
-    if (!isDragging) return;
+  const handleDragEnd = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      if (!isDragging) return;
 
-    setIsDragging(false);
-    seekTo(dragTime);
-    document.body.style.userSelect = "";
-  }, [dragTime, isDragging, seekTo]);
+      event.currentTarget.releasePointerCapture(event.pointerId);
+      setIsDragging(false);
+      seekTo(dragTime);
+      document.body.style.userSelect = "";
+    },
+    [dragTime, isDragging, seekTo],
+  );
 
   useEffect(() => {
-    if (!isDragging) return;
-
-    window.addEventListener("mousemove", handleDragMove);
-    window.addEventListener("mouseup", handleDragEnd);
-
     return () => {
       document.body.style.userSelect = "";
-      window.removeEventListener("mousemove", handleDragMove);
-      window.removeEventListener("mouseup", handleDragEnd);
     };
-  }, [handleDragEnd, handleDragMove, isDragging]);
+  }, []);
 
   const displayedTime = isDragging ? dragTime : currentTime;
   const progress = duration ? (displayedTime / duration) * 100 : 0;
@@ -79,6 +78,11 @@ export default function ProgressBar({ isMobile = false }: ProgressBarProps) {
     return (
       <div
         className="relative h-1 w-full cursor-pointer overflow-hidden rounded-full bg-gray-100"
+        onPointerDown={(event) => {
+          event.stopPropagation();
+          if (!duration) return;
+          seekTo(seekFromPointer(event.clientX, event.currentTarget));
+        }}
         onClick={(event) => {
           event.stopPropagation();
           if (!duration) return;
@@ -116,7 +120,10 @@ export default function ProgressBar({ isMobile = false }: ProgressBarProps) {
             isDragging ? "scale-125 opacity-100" : "scale-75 group-hover:scale-100"
           }`}
           style={{ left: `${progress}%`, transform: "translateX(-50%)" }}
-          onMouseDown={handleDragStart}
+          onPointerDown={handleDragStart}
+          onPointerMove={handleDragMove}
+          onPointerUp={handleDragEnd}
+          onPointerCancel={handleDragEnd}
         />
       </div>
 

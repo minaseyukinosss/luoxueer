@@ -8,6 +8,7 @@ import React, {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
 } from "react";
 import { Howl, Howler } from "howler";
 import { songList, type Song } from "@/features/music/data/music-data";
@@ -31,8 +32,6 @@ export enum PlayMode {
 interface MusicContextType {
   currentSong: Song | null;
   isPlaying: boolean;
-  currentTime: number;
-  duration: number;
   volume: number;
   playMode: PlayMode;
   isMuted: boolean;
@@ -66,6 +65,54 @@ const DEFAULT_PLAYLIST: Playlist = {
   songs: songList,
 };
 
+const PROGRESS_UPDATE_INTERVAL_MS = 250;
+
+type MusicProgressSnapshot = {
+  currentTime: number;
+  duration: number;
+};
+
+type MusicProgressStore = {
+  getSnapshot: () => MusicProgressSnapshot;
+  subscribe: (listener: () => void) => () => void;
+  setProgress: (progress: Partial<MusicProgressSnapshot>) => void;
+};
+
+const createMusicProgressStore = (): MusicProgressStore => {
+  let snapshot: MusicProgressSnapshot = {
+    currentTime: 0,
+    duration: 0,
+  };
+  const listeners = new Set<() => void>();
+
+  return {
+    getSnapshot: () => snapshot,
+    subscribe: (listener) => {
+      listeners.add(listener);
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+    setProgress: (progress) => {
+      const nextSnapshot = {
+        ...snapshot,
+        ...progress,
+      };
+
+      if (
+        nextSnapshot.currentTime === snapshot.currentTime &&
+        nextSnapshot.duration === snapshot.duration
+      ) {
+        return;
+      }
+
+      snapshot = nextSnapshot;
+      listeners.forEach((listener) => listener());
+    },
+  };
+};
+
+const musicProgressStore = createMusicProgressStore();
 const MusicContext = createContext<MusicContextType | undefined>(undefined);
 
 export const useMusic = () => {
@@ -76,11 +123,16 @@ export const useMusic = () => {
   return context;
 };
 
+export const useMusicProgress = () =>
+  useSyncExternalStore(
+    musicProgressStore.subscribe,
+    musicProgressStore.getSnapshot,
+    musicProgressStore.getSnapshot,
+  );
+
 export const MusicProvider = ({ children }: { children: React.ReactNode }) => {
   const [currentSong, setCurrentSong] = useState<Song | null>(DEFAULT_PLAYLIST.songs[0] ?? null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.7);
   const [playMode, setPlayMode] = useState<PlayMode>(PlayMode.SEQUENCE);
   const [isMuted, setIsMuted] = useState(false);
@@ -93,8 +145,13 @@ export const MusicProvider = ({ children }: { children: React.ReactNode }) => {
   const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const handleSongEndRef = useRef<() => void>(() => {});
 
+  const unloadCurrentHowl = useCallback(() => {
+    howlRef.current?.unload();
+    howlRef.current = null;
+  }, []);
+
   const stopProgressTracking = useCallback(() => {
-    if (progressIntervalRef.current) {
+    if (progressIntervalRef.current !== null) {
       clearInterval(progressIntervalRef.current);
       progressIntervalRef.current = null;
     }
@@ -102,22 +159,32 @@ export const MusicProvider = ({ children }: { children: React.ReactNode }) => {
 
   const startProgressTracking = useCallback(() => {
     stopProgressTracking();
-    progressIntervalRef.current = setInterval(() => {
+
+    const updateProgress = () => {
       if (howlRef.current) {
-        setCurrentTime(howlRef.current.seek());
+        const seek = howlRef.current.seek();
+        musicProgressStore.setProgress({
+          currentTime: typeof seek === "number" ? seek : 0,
+        });
       }
-    }, 100);
+    };
+
+    updateProgress();
+    progressIntervalRef.current = setInterval(updateProgress, PROGRESS_UPDATE_INTERVAL_MS);
   }, [stopProgressTracking]);
 
   const createHowl = useCallback(
     (song: Song) => {
-      howlRef.current?.unload();
+      unloadCurrentHowl();
+      musicProgressStore.setProgress({ currentTime: 0, duration: 0 });
 
       const howl = new Howl({
         src: [song.audioUrl],
+        format: ["mp4"],
+        html5: true,
         volume,
         onload: () => {
-          setDuration(howl.duration());
+          musicProgressStore.setProgress({ duration: howl.duration() });
         },
         onplay: () => {
           setIsPlaying(true);
@@ -135,14 +202,17 @@ export const MusicProvider = ({ children }: { children: React.ReactNode }) => {
           handleSongEndRef.current();
         },
         onseek: () => {
-          setCurrentTime(howl.seek());
+          const seek = howl.seek();
+          musicProgressStore.setProgress({
+            currentTime: typeof seek === "number" ? seek : 0,
+          });
         },
       });
 
       howlRef.current = howl;
       return howl;
     },
-    [startProgressTracking, stopProgressTracking, volume],
+    [startProgressTracking, stopProgressTracking, unloadCurrentHowl, volume],
   );
 
   useEffect(() => {
@@ -158,13 +228,20 @@ export const MusicProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     return () => {
       stopProgressTracking();
-      howlRef.current?.unload();
+      unloadCurrentHowl();
     };
-  }, [stopProgressTracking]);
+  }, [stopProgressTracking, unloadCurrentHowl]);
 
   const play = useCallback(() => {
-    howlRef.current?.play();
-  }, []);
+    if (howlRef.current) {
+      howlRef.current.play();
+      return;
+    }
+
+    if (currentSong) {
+      createHowl(currentSong).play();
+    }
+  }, [createHowl, currentSong]);
 
   const pause = useCallback(() => {
     howlRef.current?.pause();
@@ -185,7 +262,7 @@ export const MusicProvider = ({ children }: { children: React.ReactNode }) => {
 
       setQueueIndex(index);
       setCurrentSong(song);
-      setCurrentTime(0);
+      musicProgressStore.setProgress({ currentTime: 0, duration: 0 });
       createHowl(song).play();
     },
     [createHowl, queue],
@@ -230,7 +307,7 @@ export const MusicProvider = ({ children }: { children: React.ReactNode }) => {
   const seekTo = useCallback((time: number) => {
     if (howlRef.current) {
       howlRef.current.seek(time);
-      setCurrentTime(time);
+      musicProgressStore.setProgress({ currentTime: time });
     }
   }, []);
 
@@ -288,7 +365,7 @@ export const MusicProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       setCurrentSong(song);
-      setCurrentTime(0);
+      musicProgressStore.setProgress({ currentTime: 0, duration: 0 });
       createHowl(song).play();
     },
     [createHowl, queue],
@@ -311,8 +388,6 @@ export const MusicProvider = ({ children }: { children: React.ReactNode }) => {
     () => ({
       currentSong,
       isPlaying,
-      currentTime,
-      duration,
       volume,
       playMode,
       isMuted,
@@ -340,8 +415,6 @@ export const MusicProvider = ({ children }: { children: React.ReactNode }) => {
       addToQueue,
       clearQueue,
       currentSong,
-      currentTime,
-      duration,
       isMuted,
       isPlaying,
       nextSong,

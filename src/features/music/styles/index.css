@@ -3,10 +3,5 @@
 /* 导入动画样式 */
 @import "../../../shared/styles/animations.css";
 
-/* 导入音乐播放器样式 */
-@import './components/music-player.css';
-@import './components/music-player-controls.css';
-@import './components/music-player-mobile.css';
-@import './components/music-misc.css';
-@import './components/music-animations.css';
+/* 导入当前组件真实依赖的黑胶唱片样式 */
 @import './components/vinyl-disc.css';
