@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
+import { SOCIAL_LINKS } from "@/features/about/constants";
 
 type FooterProps = {
   translations: {
@@ -18,35 +20,52 @@ type FooterProps = {
 
 export default function Footer({ translations }: FooterProps) {
   const navLinks = [
-    { href: '/', label: translations.home },
-    { href: '/musicbox', label: translations.music },
-    { href: '/about', label: translations.about },
+    { href: '/', label: translations.home, meta: 'Start here' },
+    { href: '/musicbox', label: translations.music, meta: 'Songs & releases' },
+    { href: '/about', label: translations.about, meta: 'Profile & updates' },
   ];
 
-  // 使用 CSS 变量中的 --brand-cream 或 --background-light
-  const bgColor = 'var(--background-light)'; 
+  const socialLinks = [
+    { label: 'Bilibili', href: SOCIAL_LINKS.Bilibili },
+    { label: 'Douyin', href: SOCIAL_LINKS.Douyin },
+    { label: 'Weibo', href: SOCIAL_LINKS.Weibo },
+  ];
+
+  const bgColor = 'var(--background-light)';
 
   return (
     <footer
-      className="relative w-full text-foreground border-t border-foreground/10"
+      className="relative w-full overflow-hidden text-foreground border-t border-foreground/10"
       style={{
         backgroundColor: bgColor,
         color: 'var(--foreground)',
       }}
     >
+      <div
+        className="pointer-events-none absolute inset-0 opacity-80"
+        style={{
+          background:
+            'radial-gradient(circle at 18% 12%, rgba(141, 212, 232, 0.24), transparent 34%), radial-gradient(circle at 78% 22%, rgba(245, 152, 180, 0.18), transparent 30%), linear-gradient(180deg, rgba(255,255,255,0.72), rgba(248,246,246,0.96))',
+        }}
+      />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/20 to-transparent" />
+
       {/* Upper Section: Split View */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[400px]">
+      <div className="relative grid grid-cols-1 lg:grid-cols-12 min-h-[400px]">
         {/* Left: Brand / Logo Area */}
-        <div className="lg:col-span-8 border-b lg:border-b-0 lg:border-r border-foreground/10 flex items-center justify-center p-12 md:p-20 relative overflow-hidden">
-           {/* Huge Logo / Center Element */}
-           <div className="relative z-10">
-             <h1 className="font-fjalla text-[clamp(4rem,15vw,12rem)] leading-none opacity-90 tracking-tighter">
-                Luoxueer
-             </h1>
-           </div>
-           
-           {/* Decorative background element if needed */}
-           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--brand-sky)_0%,_transparent_70%)] opacity-20 pointer-events-none"></div>
+        <div className="lg:col-span-8 border-b lg:border-b-0 lg:border-r border-foreground/10 flex items-center justify-center p-10 md:p-20 relative overflow-hidden">
+          <div className="relative z-10 w-full">
+            <div className="mb-8 flex items-center justify-between gap-6 text-xs font-mono uppercase tracking-[0.28em] text-foreground/36">
+              <span>{translations.slogan}</span>
+              <span className="hidden sm:inline">Music / Dream / Daily</span>
+            </div>
+            <h2 className="font-fjalla text-[clamp(4rem,15vw,12rem)] leading-none opacity-90 tracking-tighter">
+              Luoxueer
+            </h2>
+          </div>
+
+          <div className="absolute left-1/2 top-1/2 h-[26rem] w-[26rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,_var(--brand-sky)_0%,_transparent_68%)] opacity-45 pointer-events-none" />
+          <div className="absolute bottom-8 left-10 h-16 w-16 rounded-full border border-foreground/10 opacity-60" />
         </div>
 
         {/* Right: Navigation List */}
@@ -55,21 +74,29 @@ export default function Footer({ translations }: FooterProps) {
             <Link
               key={link.label}
               href={link.href}
-              className="flex-1 flex items-center px-8 md:px-12 border-b border-foreground/10 last:border-b-0 hover:bg-foreground/5 transition-colors group"
+              className="flex-1 flex items-center justify-between gap-8 px-8 md:px-12 border-b border-foreground/10 last:border-b-0 hover:bg-white/55 transition-colors group"
             >
-              <span className="font-mono text-xs text-foreground/40 mr-6 pt-1 group-hover:text-foreground/60 transition-colors">
-                0{index + 1}.
+              <span className="flex items-baseline gap-5">
+                <span className="font-mono text-xs text-foreground/34 pt-1 group-hover:text-foreground/58 transition-colors">
+                  0{index + 1}.
+                </span>
+                <span>
+                  <span className="block text-2xl md:text-3xl font-medium tracking-tight group-hover:translate-x-2 transition-transform duration-300">
+                    {link.label}
+                  </span>
+                  <span className="mt-2 block text-xs font-mono uppercase tracking-[0.18em] text-foreground/34">
+                    {link.meta}
+                  </span>
+                </span>
               </span>
-              <span className="text-2xl md:text-3xl font-medium tracking-tight group-hover:translate-x-2 transition-transform duration-300">
-                {link.label}
-              </span>
+              <ArrowUpRight className="h-4 w-4 text-foreground/28 opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:opacity-100" aria-hidden="true" />
             </Link>
           ))}
         </div>
       </div>
 
       {/* Bottom Section: 3-Column Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-t border-foreground/10">
+      <div className="relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-t border-foreground/10">
         
         {/* Col 1: Contact Info */}
         <div className="p-8 md:p-10 border-b md:border-b-0 md:border-r border-foreground/10 flex flex-col justify-between min-h-[200px]">
@@ -83,9 +110,10 @@ export default function Footer({ translations }: FooterProps) {
             </p>
             <a 
               href="mailto:923755084@qq.com" 
-              className="text-sm text-foreground/70 hover:text-foreground transition-colors block"
+              className="group inline-flex items-center gap-2 text-sm text-foreground/72 hover:text-foreground transition-colors"
             >
               923755084@qq.com
+              <ArrowUpRight className="h-3.5 w-3.5 opacity-40 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true" />
             </a>
           </div>
         </div>
@@ -97,39 +125,21 @@ export default function Footer({ translations }: FooterProps) {
             {translations.connect}
           </span>
           <div className="mt-auto flex flex-col gap-2">
-             <a 
-               href="https://bilibili.com" 
-               target="_blank" 
-               rel="noopener noreferrer"
-               className="group text-sm text-foreground/70 hover:text-foreground transition-all duration-300 inline-block"
-             >
-               <span className="relative inline-block group-hover:translate-x-1 transition-transform duration-300">
-                 Bilibili
-                 <span className="absolute bottom-0 left-0 w-0 h-px bg-foreground group-hover:w-full transition-all duration-300"></span>
-               </span>
-             </a>
-             <a 
-               href="https://douyin.com" 
-               target="_blank" 
-               rel="noopener noreferrer"
-               className="group text-sm text-foreground/70 hover:text-foreground transition-all duration-300 inline-block"
-             >
-               <span className="relative inline-block group-hover:translate-x-1 transition-transform duration-300">
-                 Douyin
-                 <span className="absolute bottom-0 left-0 w-0 h-px bg-foreground group-hover:w-full transition-all duration-300"></span>
-               </span>
-             </a>
-             <a 
-               href="https://weibo.com" 
-               target="_blank" 
-               rel="noopener noreferrer"
-               className="group text-sm text-foreground/70 hover:text-foreground transition-all duration-300 inline-block"
-             >
-               <span className="relative inline-block group-hover:translate-x-1 transition-transform duration-300">
-                 Weibo
-                 <span className="absolute bottom-0 left-0 w-0 h-px bg-foreground group-hover:w-full transition-all duration-300"></span>
-               </span>
-             </a>
+            {socialLinks.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex w-fit items-center gap-2 text-sm text-foreground/72 hover:text-foreground transition-all duration-300"
+              >
+                <span className="relative inline-block group-hover:translate-x-1 transition-transform duration-300">
+                  {link.label}
+                  <span className="absolute bottom-0 left-0 w-0 h-px bg-foreground group-hover:w-full transition-all duration-300" />
+                </span>
+                <ArrowUpRight className="h-3.5 w-3.5 opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:opacity-45" aria-hidden="true" />
+              </a>
+            ))}
           </div>
         </div>
 
@@ -140,7 +150,10 @@ export default function Footer({ translations }: FooterProps) {
             {translations.others}
           </span>
           <div className="mt-auto">
-            <div className="text-xs text-foreground/40 font-mono">
+            <p className="mb-4 text-sm leading-6 text-foreground/56">
+              {translations.description}
+            </p>
+            <div className="text-xs text-foreground/42 font-mono">
               {new Date().getFullYear()} Made By{' '}
               <a 
                 href="https://space.bilibili.com/44158364" 
