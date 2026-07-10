@@ -8,9 +8,6 @@ concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: true
 
-permissions:
-  contents: read
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -28,6 +25,17 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
 
+      - name: Package source
+        run: |
+          tar -czf source.tar.gz \
+            --exclude=node_modules \
+            --exclude=.next \
+            --exclude=.git \
+            --exclude=.superdesign \
+            --exclude=.cursor \
+            --exclude='./public/audio' \
+            .
+
       - name: Setup SSH
         env:
           SSH_KEY: ${{ secrets.SSH_KEY }}
@@ -39,28 +47,27 @@ jobs:
           ssh-keygen -y -f ~/.ssh/deploy_key > /dev/null
           ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
 
+      - name: Upload source
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          ssh -i ~/.ssh/deploy_key "${SSH_USER}@${SSH_HOST}" "mkdir -p /www/wwwroot/luoxueer-src"
+          scp -C -i ~/.ssh/deploy_key source.tar.gz "${SSH_USER}@${SSH_HOST}:/www/wwwroot/luoxueer-src/"
+
       - name: Deploy on server
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
           WEIBO_COOKIE: ${{ secrets.WEIBO_COOKIE }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ssh -i ~/.ssh/deploy_key "${SSH_USER}@${SSH_HOST}" bash <<EOF
           set -e
           export WEIBO_COOKIE=$(printf '%q' "$WEIBO_COOKIE")
-          export GH_TOKEN=$(printf '%q' "$GH_TOKEN")
           export PATH="/www/server/nodejs/v24.14.1/bin:\${PATH}"
 
-          REPO_URL="https://x-access-token:\${GH_TOKEN}@github.com/minaseyukinosss/luoxueer.git"
-          REPO_DIR="/www/wwwroot/luoxueer-src"
-
-          if [ ! -d "\${REPO_DIR}/.git" ]; then
-            git clone "\${REPO_URL}" "\${REPO_DIR}"
-          fi
-
-          cd "\${REPO_DIR}"
-          git fetch "\${REPO_URL}" main
-          git reset --hard FETCH_HEAD
+          cd /www/wwwroot/luoxueer-src
+          tar -xzf source.tar.gz
+          rm -f source.tar.gz
           bash scripts/deploy-remote.sh
           EOF

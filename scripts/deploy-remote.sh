@@ -14,6 +14,9 @@ mv .next/standalone "${DEPLOY_DIR}/standalone.new"
 mkdir -p "${DEPLOY_DIR}/standalone.new/.next"
 cp -r .next/static "${DEPLOY_DIR}/standalone.new/.next/static"
 cp -r public "${DEPLOY_DIR}/standalone.new/public"
+if [ -d "${DEPLOY_DIR}/standalone/public/audio" ]; then
+  cp -r "${DEPLOY_DIR}/standalone/public/audio" "${DEPLOY_DIR}/standalone.new/public/"
+fi
 
 printf '%s\n' \
   "NODE_ENV=production" \
