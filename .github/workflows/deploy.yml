@@ -8,6 +8,9 @@ concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -24,11 +27,6 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
-      - run: pnpm build
-
-      - name: Package release
-        run: |
-          tar -czf release.tar.gz .next/standalone .next/static public
 
       - name: Setup SSH
         env:
@@ -41,40 +39,28 @@ jobs:
           ssh-keygen -y -f ~/.ssh/deploy_key > /dev/null
           ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
 
-      - name: Upload to server
-        env:
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_USER: ${{ secrets.SSH_USER }}
-        run: |
-          scp -i ~/.ssh/deploy_key release.tar.gz "${SSH_USER}@${SSH_HOST}:/www/wwwroot/luoxueer/"
-
-      - name: Deploy and restart
+      - name: Deploy on server
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
           WEIBO_COOKIE: ${{ secrets.WEIBO_COOKIE }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ssh -i ~/.ssh/deploy_key "${SSH_USER}@${SSH_HOST}" bash <<EOF
           set -e
-          cd /www/wwwroot/luoxueer
+          export WEIBO_COOKIE=$(printf '%q' "$WEIBO_COOKIE")
+          export GH_TOKEN=$(printf '%q' "$GH_TOKEN")
+          export PATH="/www/server/nodejs/v24.14.1/bin:\${PATH}"
 
-          tar -xzf release.tar.gz
-          rm -rf standalone.new
-          mv .next/standalone standalone.new
-          mkdir -p standalone.new/.next
-          cp -r .next/static standalone.new/.next/static
-          cp -r public standalone.new/public
+          REPO_URL="https://x-access-token:\${GH_TOKEN}@github.com/minaseyukinosss/luoxueer.git"
+          REPO_DIR="/www/wwwroot/luoxueer-src"
 
-          printf '%s\n' \
-            "NODE_ENV=production" \
-            "PORT=3000" \
-            "HOSTNAME=0.0.0.0" \
-            "WEIBO_COOKIE=${WEIBO_COOKIE}" > standalone.new/.env
+          if [ ! -d "\${REPO_DIR}/.git" ]; then
+            git clone "\${REPO_URL}" "\${REPO_DIR}"
+          fi
 
-          rm -rf standalone
-          mv standalone.new standalone
-          rm -f release.tar.gz
-
-          pm2 restart luoxueer || pm2 start standalone/server.js --name luoxueer --cwd /www/wwwroot/luoxueer/standalone
-          pm2 save
+          cd "\${REPO_DIR}"
+          git fetch "\${REPO_URL}" main
+          git reset --hard FETCH_HEAD
+          bash scripts/deploy-remote.sh
           EOF
