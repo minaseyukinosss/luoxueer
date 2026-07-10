@@ -4,11 +4,9 @@ import { useLocale } from '@/shared/components/providers/LocaleProvider';
 import {
   INITIAL_SOCIAL_STATS,
   SOCIAL_LINKS,
-  type FilterOption,
   type HeroQuickLink,
   type SocialStats,
   type Update,
-  type UpdateCategory,
 } from "@/features/about/constants";
 import type {
   BilibiliStatsPayload,
@@ -157,18 +155,10 @@ const formatSyncTime = (date: Date): string => {
 
 export const useAboutData = () => {
   const { t } = useLocale();
-  const [selectedCategory, setSelectedCategory] = useState<UpdateCategory | 'all'>('all');
   const [socialStats, setSocialStats] = useState<SocialStats[]>(() => INITIAL_SOCIAL_STATS.map((stat) => ({ ...stat })));
 
   // Localized Data Construction
   const traitChips = useMemo(() => [...t.aboutPage.traits], [t]);
-
-  const filterOptions: FilterOption[] = useMemo(() => [
-    { label: t.aboutPage.filters.all, value: 'all' },
-    { label: t.aboutPage.filters.music, value: 'music' },
-    { label: t.aboutPage.filters.events, value: 'events' },
-    { label: t.aboutPage.filters.vlogs, value: 'vlogs' },
-  ], [t]);
 
   const heroQuickLinks: HeroQuickLink[] = useMemo(() => [
     {
@@ -213,11 +203,6 @@ export const useAboutData = () => {
   ], [t]);
 
   const totalFollowers = useMemo(() => calculateTotalFollowers(socialStats), [socialStats]);
-
-  const filteredUpdates = useMemo(() => {
-    if (selectedCategory === 'all') return localizedUpdates;
-    return localizedUpdates.filter((update) => update.category === selectedCategory);
-  }, [selectedCategory, localizedUpdates]);
 
   const livePlatform = socialStats.find((stat) => stat.extraInfo?.isLive);
   const isLive = Boolean(livePlatform?.extraInfo?.isLive);
@@ -401,12 +386,9 @@ export const useAboutData = () => {
     socialStats,
     traitChips,
     heroQuickLinks,
-    filterOptions,
     socialLinks: SOCIAL_LINKS,
-    selectedCategory,
-    setSelectedCategory,
     totalFollowers,
-    filteredUpdates,
+    updates: localizedUpdates,
     livePlatform,
     isLive,
     nextEvent,

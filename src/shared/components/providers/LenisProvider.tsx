@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { getScrollProgressState } from '@/shared/lib/scroll-progress';
 
 // 注册 ScrollTrigger
 if (typeof window !== 'undefined') {
@@ -12,49 +13,83 @@ if (typeof window !== 'undefined') {
 
 export default function LenisProvider({ children }: { children: React.ReactNode }) {
   const lenisRef = useRef<Lenis | null>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
+  const isProgressVisibleRef = useRef(false);
+  const [isProgressVisible, setIsProgressVisible] = useState(false);
 
   useEffect(() => {
-    // 初始化 Lenis
     const lenis = new Lenis({
-      duration: 1.2,          // 滚动持续时间
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // 缓动函数
-      orientation: 'vertical', // 垂直滚动
-      gestureOrientation: 'vertical', // 手势方向
-      smoothWheel: true,      // 平滑鼠标滚轮
-      touchMultiplier: 2,     // 触摸灵敏度
-      wheelMultiplier: 1,     // 滚轮灵敏度
-      infinite: false,        // 不启用无限滚动
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: 'vertical',
+      gestureOrientation: 'vertical',
+      smoothWheel: true,
+      touchMultiplier: 2,
+      wheelMultiplier: 1,
+      infinite: false,
     });
 
     lenisRef.current = lenis;
 
-    // 与 GSAP ScrollTrigger 同步
-    lenis.on('scroll', ScrollTrigger.update);
-
-    // RAF 循环
-    const raf = (time: number) => {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    };
-    requestAnimationFrame(raf);
-
-    // GSAP ticker 同步（推荐方式）
-    gsap.ticker.add((time) => {
-      lenis.raf(time * 1000);
-    });
-
-    gsap.ticker.lagSmoothing(0);
-
-    // 清理
-    return () => {
-      lenis.destroy();
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
-      gsap.ticker.remove((time) => {
-        lenis.raf(time * 1000);
+    const updateProgress = () => {
+      const state = getScrollProgressState({
+        scroll: lenis.scroll,
+        limit: lenis.limit,
       });
+
+      progressRef.current?.style.setProperty(
+        '--scroll-progress',
+        state.progress.toString(),
+      );
+
+      if (isProgressVisibleRef.current !== state.isVisible) {
+        isProgressVisibleRef.current = state.isVisible;
+        setIsProgressVisible(state.isVisible);
+      }
+    };
+
+    const onScroll = () => {
+      updateProgress();
+      ScrollTrigger.update();
+    };
+
+    const tick = (time: number) => {
+      lenis.raf(time * 1000);
+    };
+
+    const handleResize = () => {
+      lenis.resize();
+      updateProgress();
+    };
+
+    lenis.on('scroll', onScroll);
+    gsap.ticker.add(tick);
+    gsap.ticker.lagSmoothing(0);
+    updateProgress();
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      lenis.off('scroll', onScroll);
+      gsap.ticker.remove(tick);
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+      lenis.destroy();
+      lenisRef.current = null;
+      isProgressVisibleRef.current = false;
     };
   }, []);
 
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      <div
+        ref={progressRef}
+        className="site-scroll-progress"
+        data-visible={isProgressVisible}
+        aria-hidden="true"
+      >
+        <div className="site-scroll-progress__bar" />
+      </div>
+    </>
+  );
 }
-
