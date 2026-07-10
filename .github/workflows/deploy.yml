@@ -30,45 +30,50 @@ jobs:
         run: |
           tar -czf release.tar.gz .next/standalone .next/static public
 
+      - name: Setup SSH
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
+
       - name: Upload to server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          source: release.tar.gz
-          target: /www/wwwroot/luoxueer
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          scp -i ~/.ssh/deploy_key release.tar.gz "${SSH_USER}@${SSH_HOST}:/www/wwwroot/luoxueer/"
 
       - name: Deploy and restart
-        uses: appleboy/ssh-action@v1.2.0
         env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
           WEIBO_COOKIE: ${{ secrets.WEIBO_COOKIE }}
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          envs: WEIBO_COOKIE
-          script: |
-            set -e
-            cd /www/wwwroot/luoxueer
+        run: |
+          ssh -i ~/.ssh/deploy_key "${SSH_USER}@${SSH_HOST}" bash <<EOF
+          set -e
+          cd /www/wwwroot/luoxueer
 
-            tar -xzf release.tar.gz
-            rm -rf standalone.new
-            mv .next/standalone standalone.new
-            mkdir -p standalone.new/.next
-            cp -r .next/static standalone.new/.next/static
-            cp -r public standalone.new/public
+          tar -xzf release.tar.gz
+          rm -rf standalone.new
+          mv .next/standalone standalone.new
+          mkdir -p standalone.new/.next
+          cp -r .next/static standalone.new/.next/static
+          cp -r public standalone.new/public
 
-            cat > standalone.new/.env << EOF
-            NODE_ENV=production
-            PORT=3000
-            HOSTNAME=0.0.0.0
-            WEIBO_COOKIE=${WEIBO_COOKIE}
-            EOF
+          printf '%s\n' \
+            "NODE_ENV=production" \
+            "PORT=3000" \
+            "HOSTNAME=0.0.0.0" \
+            "WEIBO_COOKIE=${WEIBO_COOKIE}" > standalone.new/.env
 
-            rm -rf standalone
-            mv standalone.new standalone
-            rm -f release.tar.gz
+          rm -rf standalone
+          mv standalone.new standalone
+          rm -f release.tar.gz
 
-            pm2 restart luoxueer || pm2 start standalone/server.js --name luoxueer --cwd /www/wwwroot/luoxueer/standalone
-            pm2 save
+          pm2 restart luoxueer || pm2 start standalone/server.js --name luoxueer --cwd /www/wwwroot/luoxueer/standalone
+          pm2 save
+          EOF
