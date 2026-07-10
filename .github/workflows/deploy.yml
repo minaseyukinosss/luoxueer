@@ -27,14 +27,16 @@ jobs:
 
       - name: Package source
         run: |
-          tar -czf source.tar.gz \
+          mkdir -p /tmp/source
+          rsync -a \
             --exclude=node_modules \
             --exclude=.next \
             --exclude=.git \
             --exclude=.superdesign \
             --exclude=.cursor \
-            --exclude='./public/audio' \
-            .
+            --exclude='public/audio' \
+            ./ /tmp/source/
+          tar -czf source.tar.gz -C /tmp/source .
 
       - name: Setup SSH
         env:
