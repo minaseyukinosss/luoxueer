@@ -7,6 +7,8 @@ export PATH="/www/server/nodejs/v24.14.1/bin:${PATH}"
 corepack enable
 
 pnpm install --frozen-lockfile
+export PLAYWRIGHT_BROWSERS_PATH="${DEPLOY_DIR}/data/browsers"
+pnpm exec playwright install chromium
 pnpm build
 
 rm -rf "${DEPLOY_DIR}/standalone.new"
@@ -22,6 +24,8 @@ printf '%s\n' \
   "NODE_ENV=production" \
   "PORT=3000" \
   "HOSTNAME=0.0.0.0" \
+  "PLAYWRIGHT_BROWSERS_PATH=${PLAYWRIGHT_BROWSERS_PATH}" \
+  "SOCIAL_STATS_DATA_DIR=${DEPLOY_DIR}/data/social-stats" \
   "WEIBO_COOKIE=${WEIBO_COOKIE:-}" > "${DEPLOY_DIR}/standalone.new/.env"
 
 rm -rf "${DEPLOY_DIR}/standalone"

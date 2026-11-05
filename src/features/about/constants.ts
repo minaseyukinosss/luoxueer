@@ -10,6 +10,7 @@ export interface SocialStats {
   loading: boolean;
   error: string | null;
   lastUpdated?: Date;
+  isStale?: boolean;
   extraInfo?: {
     vIndex?: string;
     reads?: string;

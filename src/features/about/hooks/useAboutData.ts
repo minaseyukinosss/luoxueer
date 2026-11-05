@@ -31,6 +31,8 @@ const parseDouyinStatsPayload = (value: unknown): DouyinStatsPayload => {
     isLive: readBoolean(value.isLive),
     secUid: readString(value.secUid),
     lastUpdated: readString(value.lastUpdated),
+    isFallback: readBoolean(value.isFallback),
+    isStale: readBoolean(value.isStale),
   };
 };
 
@@ -155,7 +157,22 @@ const formatSyncTime = (date: Date): string => {
 
 export const useAboutData = () => {
   const { t } = useLocale();
-  const [socialStats, setSocialStats] = useState<SocialStats[]>(() => INITIAL_SOCIAL_STATS.map((stat) => ({ ...stat })));
+  const [{ socialStats, totalFollowers }, setSocialState] = useState(() => ({
+    socialStats: INITIAL_SOCIAL_STATS.map((stat) => ({ ...stat })),
+    totalFollowers: '——',
+  }));
+  const setSocialStats = useCallback((updater: (previous: SocialStats[]) => SocialStats[]) => {
+    setSocialState((previous) => {
+      const socialStats = updater(previous.socialStats);
+      return {
+        socialStats,
+        // Publish a complete total once the pending requests settle; keep the old total during refresh.
+        totalFollowers: socialStats.some((stat) => stat.loading)
+          ? previous.totalFollowers
+          : calculateTotalFollowers(socialStats),
+      };
+    });
+  }, []);
 
   // Localized Data Construction
   const traitChips = useMemo(() => [...t.aboutPage.traits], [t]);
@@ -202,7 +219,7 @@ export const useAboutData = () => {
     },
   ], [t]);
 
-  const totalFollowers = useMemo(() => calculateTotalFollowers(socialStats), [socialStats]);
+  const isTotalFollowersLoading = socialStats.some((stat) => stat.loading);
 
   const livePlatform = socialStats.find((stat) => stat.extraInfo?.isLive);
   const isLive = Boolean(livePlatform?.extraInfo?.isLive);
@@ -214,7 +231,7 @@ export const useAboutData = () => {
         prevStats.map((stat) => (stat.name === 'Douyin' ? updater(stat) : stat)),
       );
     },
-    [],
+    [setSocialStats],
   );
 
   const updateBilibiliStat = useCallback(
@@ -223,7 +240,7 @@ export const useAboutData = () => {
         prevStats.map((stat) => (stat.name === 'Bilibili' ? updater(stat) : stat)),
       );
     },
-    [],
+    [setSocialStats],
   );
 
   const updateWeiboStat = useCallback(
@@ -232,12 +249,15 @@ export const useAboutData = () => {
         prevStats.map((stat) => (stat.name === 'Weibo' ? updater(stat) : stat)),
       );
     },
-    [],
+    [setSocialStats],
   );
 
   const initialFetchRef = useRef(false);
+  const douyinRequestRef = useRef(false);
 
   const fetchDouyinStats = useCallback(async () => {
+    if (douyinRequestRef.current) return;
+    douyinRequestRef.current = true;
     updateDouyinStat((stat) => ({
       ...stat,
       loading: true,
@@ -252,6 +272,7 @@ export const useAboutData = () => {
       }
 
       const data = parseDouyinStatsPayload(await response.json());
+      if (data.isFallback) throw new Error('抖音数据暂不可用');
 
       const followers = Number.isFinite(data.followers) ? data.followers : 0;
       const totalFavorited = Number.isFinite(data.totalFavorited) ? data.totalFavorited : 0;
@@ -263,11 +284,12 @@ export const useAboutData = () => {
         username: data.nickname || stat.username,
         avatar: data.avatar || stat.avatar,
         loading: false,
-        lastUpdated: data.lastUpdated ? new Date(data.lastUpdated) : new Date(),
+        lastUpdated: data.lastUpdated ? new Date(data.lastUpdated) : undefined,
+        isStale: data.isStale,
         extraInfo: {
           ...stat.extraInfo,
-          isLive: data.isLive,
-          liveStatus: data.isLive ? '直播中' : '未开播',
+          isLive: !data.isStale && data.isLive,
+          liveStatus: data.isStale || data.liveStatus === -1 ? undefined : data.isLive ? '直播中' : '未开播',
           works: `${awemeCount.toLocaleString()} 作品`,
           likes: `${formatCount(totalFavorited)} 获赞`,
         },
@@ -276,8 +298,12 @@ export const useAboutData = () => {
       updateDouyinStat((stat) => ({
         ...stat,
         loading: false,
-        error: error instanceof Error ? error.message : '未知错误',
+        error: stat.followers ? null : error instanceof Error ? error.message : '未知错误',
+        isStale: Boolean(stat.followers),
+        extraInfo: { ...stat.extraInfo, isLive: false, liveStatus: undefined },
       }));
+    } finally {
+      douyinRequestRef.current = false;
     }
   }, [updateDouyinStat]);
 
@@ -306,6 +332,7 @@ export const useAboutData = () => {
         avatar: data.avatar || stat.avatar,
         loading: false,
         lastUpdated: data.fetchedAt ? new Date(data.fetchedAt) : new Date(),
+        isStale: false,
         extraInfo: {
           ...stat.extraInfo,
           isLive: data.live?.status === 'live',
@@ -321,7 +348,9 @@ export const useAboutData = () => {
       updateBilibiliStat((stat) => ({
         ...stat,
         loading: false,
-        error: error instanceof Error ? error.message : '未知错误',
+        error: stat.followers ? null : error instanceof Error ? error.message : '未知错误',
+        isStale: Boolean(stat.followers),
+        extraInfo: { ...stat.extraInfo, isLive: false, liveStatus: undefined },
       }));
     }
   }, [updateBilibiliStat]);
@@ -350,6 +379,7 @@ export const useAboutData = () => {
         avatar: data.avatar || stat.avatar,
         loading: false,
         lastUpdated: data.fetchedAt ? new Date(data.fetchedAt) : new Date(),
+        isStale: false,
         extraInfo: {
           ...stat.extraInfo,
           highlights: data.highlights?.length ? data.highlights : stat.extraInfo?.highlights,
@@ -359,7 +389,9 @@ export const useAboutData = () => {
       updateWeiboStat((stat) => ({
         ...stat,
         loading: false,
-        error: error instanceof Error ? error.message : '未知错误',
+        error: stat.followers ? null : error instanceof Error ? error.message : '未知错误',
+        isStale: Boolean(stat.followers),
+        extraInfo: { ...stat.extraInfo, isLive: false, liveStatus: undefined },
       }));
     }
   }, [updateWeiboStat]);
@@ -372,6 +404,18 @@ export const useAboutData = () => {
     hasFetchedRef.current = true;
     void Promise.all([fetchDouyinStats(), fetchBilibiliStats(), fetchWeiboStats()]);
   }, [fetchDouyinStats, fetchBilibiliStats, fetchWeiboStats, initialFetchRef]);
+
+  useEffect(() => {
+    const refreshVisibleDouyin = () => {
+      if (document.visibilityState === 'visible') void fetchDouyinStats();
+    };
+    const timer = window.setInterval(refreshVisibleDouyin, 120_000);
+    document.addEventListener('visibilitychange', refreshVisibleDouyin);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener('visibilitychange', refreshVisibleDouyin);
+    };
+  }, [fetchDouyinStats]);
 
   const handleRefresh = useCallback(
     (event: MouseEvent<HTMLButtonElement>) => {
@@ -388,6 +432,7 @@ export const useAboutData = () => {
     heroQuickLinks,
     socialLinks: SOCIAL_LINKS,
     totalFollowers,
+    isTotalFollowersLoading,
     updates: localizedUpdates,
     livePlatform,
     isLive,

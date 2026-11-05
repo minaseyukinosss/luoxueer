@@ -204,3 +204,9 @@
     animation: none;
   }
 }
+
+/* Keep the orbit's decorative effects idle when its canvas is off screen. */
+.social-orbit-card[data-animating="false"] *,
+.social-orbit-card[data-animating="false"] *::after {
+  animation-play-state: paused;
+}

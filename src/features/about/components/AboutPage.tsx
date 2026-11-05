@@ -12,6 +12,7 @@ export default function AboutPage() {
     traitChips,
     heroQuickLinks,
     totalFollowers,
+    isTotalFollowersLoading,
     updates,
     isLive,
     nextEvent,
@@ -26,10 +27,11 @@ export default function AboutPage() {
         <div className="absolute left-[-20%] top-[-20%] h-80 w-80 rounded-full bg-[#f7d8e4]/40 blur-3xl" />
         <div className="absolute right-[-15%] bottom-[-10%] h-96 w-96 rounded-full bg-[#d2c3ff]/30 blur-3xl" />
       </div>
-      <main className="relative z-10 flex flex-1 justify-center px-4 py-10 sm:px-6 md:px-10 lg:px-16 xl:px-20">
+      <main className="relative z-10 flex flex-1 justify-center px-4 pt-10 sm:px-6 md:px-10 lg:px-16 xl:px-20">
         <div className="flex w-full max-w-[1200px] flex-col gap-10 md:gap-14">
           <HeroSection
             totalFollowers={totalFollowers}
+            totalFollowersLoading={isTotalFollowersLoading}
             socialCount={socialStats.length}
             isLive={isLive}
             nextEvent={nextEvent}

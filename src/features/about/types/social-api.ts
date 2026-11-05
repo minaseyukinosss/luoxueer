@@ -9,6 +9,7 @@ export type DouyinStatsPayload = {
   isLive: boolean;
   secUid: string;
   lastUpdated: string;
+  isStale?: boolean;
   isFallback?: boolean;
   recordedAt?: string;
 };

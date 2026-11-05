@@ -2,12 +2,15 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
+import { ArrowUpRight, ChevronDown, LoaderCircle, Mail, Radio } from 'lucide-react';
+import { SocialSkeleton } from './SocialSkeleton';
 import { useLocale } from '@/shared/components/providers/LocaleProvider';
 
 import type { HeroQuickLink, Update } from "@/features/about/constants";
 
 interface HeroSectionProps {
   totalFollowers: string;
+  totalFollowersLoading: boolean;
   socialCount: number;
   isLive: boolean;
   nextEvent?: Update;
@@ -27,15 +30,16 @@ const MenuOption = ({
   <button
     type="button"
     onClick={onClick}
-    className={`${className} inline-flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm font-medium text-[#E77A9A] transition-colors duration-200 hover:bg-[#fde9f0]/80 hover:text-[#b85673] focus-visible:ring-2 focus-visible:ring-[#f598b4]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:text-[#f8a3bf] dark:hover:bg-white/10 dark:focus-visible:ring-offset-[#1f1a22]`}
+    className={`${className} inline-flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm font-medium text-[#6b5260] transition-colors duration-200 hover:bg-[#f26f9f]/10 hover:text-[#e77a9a] focus-visible:ring-2 focus-visible:ring-[#f598b4]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:text-white/80 dark:hover:bg-white/10 dark:hover:text-white dark:focus-visible:ring-offset-[#1f1a22]`}
   >
     <span>{label}</span>
-    <span className="text-xs">→</span>
+    <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
   </button>
 );
 
 export const HeroSection = ({
   totalFollowers,
+  totalFollowersLoading,
   socialCount,
   isLive,
   nextEvent,
@@ -136,70 +140,28 @@ export const HeroSection = ({
   }, [isFollowMenuOpen, isLiveMenuOpen]);
 
   return (
-    <section className="relative mt-4 overflow-hidden rounded-[40px] border border-white/60 bg-white/80 p-4 shadow-md shadow-[#f598b4]/10 backdrop-blur-2xl transition-all duration-700 dark:border-white/10 dark:bg-white/5 sm:mt-6 sm:p-5 md:mt-8 md:p-6 lg:mt-10 lg:p-7">
-    <div className="pointer-events-none absolute inset-0">
-      <div className="absolute left-[-18%] top-[-20%] h-56 w-56 rounded-full bg-[#f7bfd3]/35 blur-3xl" />
-      <div className="absolute right-[-15%] bottom-[-25%] h-64 w-64 rounded-full bg-[#c8b7ff]/25 blur-[120px]" />
-      <div className="hero-light absolute left-[20%] top-[10%] h-28 w-28 rounded-full bg-gradient-to-br from-[#f598b4]/40 to-[#9b5de5]/30" />
-      <div className="hero-ribbon absolute right-[18%] top-[15%] h-48 w-12 rotate-12 rounded-full bg-gradient-to-b from-[#f5d0ea]/40 to-[#d9d0ff]/20 opacity-75" />
-      <div className="hero-ribbon absolute left-[10%] bottom-[12%] h-44 w-12 -rotate-6 rounded-full bg-gradient-to-b from-[#f5d0ea]/30 to-transparent opacity-65" />
-    </div>
-
-    <div className="relative grid gap-6 lg:grid-cols-[1.05fr,0.95fr] lg:items-center">
-      <div className="flex flex-col gap-[18px]">
-        <div className="relative mx-auto flex h-40 w-40 items-center justify-center sm:h-48 sm:w-48">
-          <div className="absolute inset-0 animate-hero-orbit rounded-full border border-white/40 bg-gradient-to-br from-[#fcdde9]/70 via-[#f1d6ff]/50 to-[#d8fff5]/40 shadow-[0_0_60px_rgba(249,152,180,0.25)] backdrop-blur-xl dark:border-white/10" />
-          <div className="absolute -inset-2 animate-hero-glow rounded-[28px] bg-gradient-to-br from-[#f598b4]/35 via-transparent to-transparent blur-lg" />
-          <div className="relative h-full w-full overflow-hidden rounded-full border-[4px] border-white shadow-xl shadow-[#f598b4]/25 dark:border-white/20">
-            <Image
-              src="/images/avatar.webp"
-              alt="罗雪儿"
-              fill
-              className="object-cover"
-              priority
-              sizes="(max-width: 768px) 220px, 256px"
-            />
+    <section aria-labelledby="about-hero-title" className="relative mt-4 rounded-[24px] border border-white/70 bg-[linear-gradient(135deg,rgba(255,255,255,0.84),rgba(255,255,255,0.72)),radial-gradient(circle_at_16%_18%,rgba(242,111,159,0.16),transparent_34%),radial-gradient(circle_at_86%_12%,rgba(18,207,201,0.1),transparent_28%),radial-gradient(circle_at_78%_88%,rgba(233,90,45,0.08),transparent_26%)] shadow-[0_16px_48px_-36px_rgba(50,24,38,0.28)] backdrop-blur-xl sm:mt-6 lg:mt-8 dark:border-white/10 dark:bg-white/[0.06] dark:bg-none">
+      <div className="relative grid grid-cols-[104px_minmax(0,1fr)] gap-x-5 gap-y-6 px-5 py-7 sm:grid-cols-[150px_minmax(0,1fr)] sm:gap-x-8 sm:px-8 sm:py-8 lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-x-12 lg:gap-y-4 lg:px-10 lg:py-10">
+        <div className="relative isolate col-start-1 row-start-1 self-center lg:row-span-2">
+          <div className="absolute inset-0 -rotate-[5deg] rounded-t-[100px] rounded-b-2xl bg-[#f26f9f]/30 dark:bg-[#f26f9f]/30" aria-hidden="true" />
+          <div className="relative aspect-[4/5] overflow-hidden rounded-t-[100px] rounded-b-2xl border-[3px] border-white bg-[#fde9f0] shadow-[0_16px_32px_-22px_rgba(69,38,56,0.4)] dark:border-white/15">
+            <Image src="/images/avatar.webp" alt="罗雪儿" fill priority sizes="(min-width: 1024px) 280px, (min-width: 640px) 150px, 104px" className="object-cover object-[45%_55%]" />
           </div>
         </div>
 
-        <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
-          <div className="rounded-2xl bg-gradient-to-br from-white to-[#fdf1f5] p-3 text-center shadow-sm shadow-[#f598b4]/20 dark:from-white/10 dark:to-white/5">
-            <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[#b18da7] dark:text-white/50">{t.aboutPage.followers}</p>
-            <p className="mt-1 text-xl font-semibold text-[#9b5de5] sm:text-2xl">{totalFollowers}</p>
-          </div>
-          <div className="rounded-2xl bg-gradient-to-br from-white to-[#eef6ff] p-3 text-center shadow-sm shadow-[#60a5fa]/15 dark:from-white/10 dark:to-white/5">
-            <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[#5f6d86] dark:text-white/50">{t.aboutPage.activePlatforms}</p>
-            <p className="mt-1 text-xl font-semibold text-[#3b82f6] sm:text-2xl">{socialCount}</p>
-          </div>
-          <div className="rounded-2xl bg-gradient-to-br from-white to-[#e9fbf5] p-3 text-center shadow-sm shadow-[#87d6ba]/20 dark:from-white/10 dark:to-white/5">
-            <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-[#4c7866] dark:text-white/50">{t.aboutPage.annualPlan}</p>
-            <p className="mt-1.5 text-base font-semibold text-[#2d4f47] dark:text-white">{t.aboutPage.annualPlanDesc}</p>
-          </div>
+        <div className="col-start-2 row-start-1 self-center">
+          <h1 id="about-hero-title" className="text-[clamp(2rem,3.6vw,3.25rem)] font-bold leading-tight tracking-tight text-[#2d1f27] dark:text-white">{t.aboutPage.title}</h1>
+          <p className="mt-2 text-[11px] uppercase tracking-[0.24em] text-[#a58b99] sm:text-xs dark:text-white/50">{t.aboutPage.subtitle}</p>
         </div>
-      </div>
 
-      <div className="flex flex-col gap-[18px]">
-        <div className="space-y-3">
-          <div>
-            <h1 className="text-[28px] font-bold tracking-tight text-[#2d1f27] sm:text-[30px] lg:text-[34px] dark:text-white">{t.aboutPage.title}</h1>
-            <p className="mt-1 text-xs uppercase tracking-[0.35em] text-[#b6a3b1] dark:text-white/50">{t.aboutPage.subtitle}</p>
-          </div>
-          <p className="text-sm leading-relaxed text-[#5e4b55] sm:text-base dark:text-white/70">
-            {t.aboutPage.description}
-          </p>
-          <div className="flex flex-wrap gap-2">
+        <div className="col-span-2 min-w-0 lg:col-span-1 lg:col-start-2 lg:row-start-2">
+          <p className="text-base leading-relaxed text-[#7c6a77] dark:text-white/70">{t.aboutPage.description}</p>
+          <div className="mt-3 flex flex-wrap gap-2">
             {traitChips.map((chip) => (
-              <span
-                key={chip}
-                className="rounded-full bg-gradient-to-r from-[#fce0eb]/70 to-[#f2e7ff]/70 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[#9b5de5] shadow-sm shadow-[#9b5de5]/15 backdrop-blur-sm dark:from-white/10 dark:to-white/10 dark:text-white"
-              >
-                {chip}
-              </span>
+              <span key={chip} className="inline-flex items-center gap-2 text-xs text-[#a58b99] dark:text-white/50"><span className="h-1 w-1 rounded-full bg-[#f26f9f]" aria-hidden="true" />{chip}</span>
             ))}
           </div>
-        </div>
-
-        <div className="flex flex-wrap gap-2">
+          <div className="mt-5 flex flex-wrap items-start gap-2">
           <div
             ref={followMenuRef}
             className="relative"
@@ -213,30 +175,17 @@ export const HeroSection = ({
           >
             <button
               type="button"
-              className="inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-r from-[#E77A9A] to-[#f598b4] px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-[#E77A9A]/35 transition-all duration-300 hover:shadow-xl focus-visible:ring-2 focus-visible:ring-[#fef0f5]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent dark:focus-visible:ring-[#fbd0de]/40"
+              className="inline-flex items-center justify-center gap-1.5 min-h-11 rounded-full bg-[#f26f9f] px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:bg-[#e45688] focus-visible:ring-2 focus-visible:ring-[#f26f9f]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent dark:bg-[#f26f9f] dark:text-white dark:hover:bg-[#e45688]"
               aria-haspopup="true"
               aria-expanded={isFollowMenuOpen}
               onClick={handleFollowClick}
             >
               {t.aboutPage.followNow}
-              <svg
-                className="h-3.5 w-3.5 text-white/90 transition-transform duration-200"
-                viewBox="0 0 20 20"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M5 8l5 5 5-5"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
             </button>
             {isFollowMenuOpen ? (
               <div className="absolute left-0 top-full z-20 mt-2 w-52 rounded-2xl border border-white/80 bg-white/90 p-2 shadow-lg shadow-[#f598b4]/20 backdrop-blur-xl transition-all duration-200 dark:border-white/15 dark:bg-[#1f1a22]/95">
-                <p className="px-2 pt-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-[#b6a3b1] dark:text-white/50">
+                <p className="px-2 pt-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-[#a58b99] dark:text-white/50">
                   {t.aboutPage.followPlatform}
                 </p>
                 <MenuOption
@@ -270,31 +219,18 @@ export const HeroSection = ({
           >
             <button
               type="button"
-              className="inline-flex items-center justify-center gap-1.5 rounded-full border border-[#f6d5df] bg-white/70 px-[18px] py-2 text-sm font-semibold text-[#E77A9A] shadow-sm shadow-[#f598b4]/15 transition-all duration-300 hover:border-[#E77A9A]/50 focus-visible:ring-2 focus-visible:ring-[#f598b4]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent dark:border-white/20 dark:bg-white/10 dark:text-white"
+              className="inline-flex items-center justify-center gap-1.5 min-h-11 rounded-full border border-[#ead8df] bg-white/75 px-4 py-2.5 text-sm font-semibold text-[#6b5260] transition-colors duration-200 hover:border-[#e7a6bd] hover:bg-white focus-visible:ring-2 focus-visible:ring-[#f598b4]/50 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent dark:border-white/15 dark:bg-white/5 dark:text-white/80"
               aria-haspopup="true"
               aria-expanded={isLiveMenuOpen}
               onClick={handleLiveClick}
             >
-              <span className="h-2 w-2 rounded-full bg-[#E77A9A]" />
+              <span className="h-2 w-2 rounded-full bg-[#ff4b8b]" />
               {t.aboutPage.watchLive}
-              <svg
-                className="h-3.5 w-3.5 text-[#E77A9A] transition-transform duration-200 dark:text-white"
-                viewBox="0 0 20 20"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M5 8l5 5 5-5"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
             </button>
             {isLiveMenuOpen ? (
               <div className="absolute left-0 top-full z-20 mt-2 w-48 rounded-2xl border border-white/80 bg-white/90 p-2 shadow-lg shadow-[#f598b4]/15 backdrop-blur-xl transition-all duration-200 dark:border-white/15 dark:bg-[#1f1a22]/95">
-                <p className="px-2 pt-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-[#b6a3b1] dark:text-white/50">
+                <p className="px-2 pt-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-[#a58b99] dark:text-white/50">
                   {t.aboutPage.selectPlatform}
                 </p>
                 <MenuOption
@@ -311,81 +247,69 @@ export const HeroSection = ({
           </div>
           <button
             type="button"
-            className="inline-flex items-center justify-center gap-1.5 rounded-full border border-[#ede1ff] bg-white/70 px-[18px] py-2 text-sm font-semibold text-[#9b5de5] shadow-sm shadow-[#9b5de5]/15 transition-all duration-300 hover:-translate-y-0.5 hover:border-[#9b5de5]/40 dark:border-white/20 dark:bg-white/10 dark:text-white"
+            className="inline-flex items-center justify-center gap-1.5 min-h-11 rounded-full border border-[#12cfc9]/30 bg-[#12cfc9]/12 px-4 py-2.5 text-sm font-semibold text-[#6b5260] transition-colors duration-200 hover:border-[#12cfc9]/60 hover:bg-[#12cfc9]/20 hover:text-[#2d1f27] focus-visible:ring-2 focus-visible:ring-[#12cfc9]/50 dark:border-[#12cfc9]/30 dark:bg-[#12cfc9]/15 dark:text-white/80 dark:hover:text-white"
             onClick={handleContactClick}
           >
-            <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
-              <path d="M2.94 5.5 10 10.5l7.06-5H2.94zM2 6.65v7.35h16V6.66l-8 5.67-8-5.68z" />
-            </svg>
+            <Mail className="h-4 w-4" aria-hidden="true" />
             {t.aboutPage.contact}
           </button>
-          {isEmailVisible ? (
-            <div
-              className="inline-flex items-center gap-1 rounded-full border border-[#ede1ff]/60 bg-white/80 px-3 py-1 text-xs font-medium text-[#9b5de5] shadow-sm shadow-[#9b5de5]/15 backdrop-blur-md transition-opacity duration-300 dark:border-white/15 dark:bg-white/10 dark:text-white"
-              aria-live="polite"
-            >
-              <span>{t.businessEmail}</span>
-              <a
-                href="mailto:923755084@qq.com"
-                className="underline decoration-[#9b5de5]/60 underline-offset-2 transition-colors duration-200 hover:text-[#7c4bd6] dark:hover:text-white"
-              >
-                923755084@qq.com
-              </a>
-            </div>
-          ) : null}
-        </div>
 
-        <div className="rounded-3xl border border-white/70 bg-white/75 p-3 shadow-inner shadow-[#f598b4]/10 backdrop-blur-md dark:border-white/15 dark:bg-white/10">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#b8a0af] dark:text-white/50">{t.aboutPage.nextLive}</p>
-              <p className="text-lg font-semibold text-[#2d1f27] dark:text-white">
-                {nextEvent ? nextEvent.title : t.aboutPage.planning}
-              </p>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-[#7c6a77] dark:text-white/70">
-              <span className="flex items-center gap-1 rounded-full bg-[#fce9f1]/80 px-2 py-0.5 font-medium text-[#E77A9A] dark:bg-white/10 dark:text-white">
-                {nextEvent ? nextEvent.date : '待定'}
-              </span>
-              <span className="flex items-center gap-1 rounded-full bg-[#f2ebff]/80 px-2 py-0.5 font-medium text-[#9b5de5] dark:bg-white/10 dark:text-white">
-                {isLive ? t.aboutPage.liveWarming : t.aboutPage.advanceNotice}
-              </span>
-            </div>
-          </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <span className="rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-medium text-[#E77A9A] shadow-sm shadow-[#f598b4]/20 backdrop-blur-sm dark:bg-white/10 dark:text-white">
-              {t.aboutPage.todayInteraction}
-            </span>
-            <span className="rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-medium text-[#9b5de5] shadow-sm shadow-[#9b5de5]/20 backdrop-blur-sm dark:bg-white/10 dark:text-white">
-              {t.aboutPage.todayMood}
-            </span>
-            <span className="rounded-full bg-white/80 px-2 py-0.5 text-[11px] font-medium text-[#87d6ba] shadow-sm shadow-[#87d6ba]/20 backdrop-blur-sm dark:bg-white/10 dark:text-white">
-              {t.aboutPage.latestSingle}
-            </span>
-          </div>
         </div>
+          <div className="mt-2 min-h-6 text-xs leading-6 text-[#a58b99] dark:text-white/50" aria-live="polite">
+            {isEmailVisible ? <span>{t.businessEmail} <a href="mailto:923755084@qq.com" className="underline decoration-[#e7a6bd] underline-offset-4">923755084@qq.com</a></span> : null}
+          </div>
 
-        <div className="flex flex-wrap gap-2">
-          {heroQuickLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex min-w-[110px] flex-1 items-center justify-between rounded-2xl border border-white/70 bg-white/75 px-3 py-2 text-sm shadow-sm shadow-[#f598b4]/15 backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-[#E77A9A]/35 hover:shadow-lg dark:border-white/15 dark:bg-white/10"
-            >
-              <div>
-                <p className="font-semibold text-[#2d1f27] dark:text-white">{link.label}</p>
-                <p className="text-[11px] text-[#8f7a88] transition-colors duration-300 group-hover:text-[#E77A9A] dark:text-white/60">
-                  {link.description}
-                </p>
-              </div>
-              <span className="text-sm text-[#E77A9A] transition-transform duration-300 group-hover:translate-x-1 dark:text-[#f8a3bf]">→</span>
-            </a>
-          ))}
+          <dl className="mt-4 grid grid-cols-2 gap-y-4 border-t border-[#ead8df]/70 pt-4 sm:grid-cols-[1fr_0.85fr_1.5fr] dark:border-white/10">
+            <div className="pr-4">
+              <dt className="text-xs text-[#a58b99] dark:text-white/50">{t.aboutPage.followers}</dt>
+              <dd aria-busy={totalFollowersLoading} data-testid="total-followers" className="mt-1 flex min-h-9 items-center text-2xl font-semibold leading-9 tabular-nums text-[#f26f9f] sm:text-[28px] dark:text-[#f26f9f]">
+                {totalFollowersLoading && totalFollowers === '——' ? (
+                  <><SocialSkeleton className="h-7 w-24" /><span className="sr-only">{t.aboutPage.loading}</span></>
+                ) : (
+                  <span className="relative inline-block">
+                    {totalFollowers}
+                    {totalFollowersLoading ? <span className="absolute -right-5 top-1/2 -translate-y-1/2"><LoaderCircle className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" /><span className="sr-only">{t.aboutPage.refreshing}</span></span> : null}
+                  </span>
+                )}
+              </dd>
+            </div>
+            <div className="border-l border-[#ead8df]/70 px-4 dark:border-white/10">
+              <dt className="text-xs text-[#a58b99] dark:text-white/50">{t.aboutPage.activePlatforms}</dt>
+              <dd className="mt-1 text-2xl font-semibold tabular-nums text-[#12cfc9] sm:text-[28px] dark:text-[#12cfc9]">{socialCount}</dd>
+            </div>
+            <div className="col-span-2 border-t border-[#ead8df]/70 pt-3 sm:col-span-1 sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0 dark:border-white/10">
+              <dt className="text-xs text-[#a58b99] dark:text-white/50">{t.aboutPage.annualPlan}</dt>
+              <dd className="mt-2 text-sm font-semibold leading-6 text-[#2d1f27] dark:text-white/85">{t.aboutPage.annualPlanDesc}</dd>
+            </div>
+          </dl>
         </div>
       </div>
-    </div>
+
+      <div className="relative border-t border-[#ead8df]/60 bg-white/40 px-5 py-5 sm:px-8 lg:px-10 dark:border-white/10 dark:bg-white/[0.02]">
+        <div className="grid grid-cols-[44px_minmax(0,1fr)] items-center gap-x-5 gap-y-3 sm:grid-cols-[44px_minmax(0,1fr)_auto]">
+          <div className="row-span-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#f26f9f]/14 text-[#f26f9f] sm:row-span-1 dark:text-[#f26f9f]" aria-hidden="true"><Radio className="h-5 w-5" /></div>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs text-[#a58b99] dark:text-white/50">{t.aboutPage.nextLive}</p>
+            <p className="mt-1 text-base font-semibold text-[#2d1f27] dark:text-white">{nextEvent ? nextEvent.title : t.aboutPage.planning}</p>
+          </div>
+          <div className="col-start-2 flex flex-wrap items-center gap-2 text-xs sm:col-start-auto">
+            <span className="rounded-full bg-[#12cfc9]/20 px-3 py-1.5 font-medium text-[#6b5260] dark:text-white/80">{nextEvent ? nextEvent.date : '待定'}</span>
+            <span className="text-[#a58b99] dark:text-white/50">{isLive ? t.aboutPage.liveWarming : t.aboutPage.advanceNotice}</span>
+          </div>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-[#a58b99] sm:pl-16 dark:text-white/50">
+          <span>{t.aboutPage.todayInteraction}</span><span>{t.aboutPage.todayMood}</span><span className="font-medium text-[#12cfc9] dark:text-[#12cfc9]">{t.aboutPage.latestSingle}</span>
+        </div>
+      </div>
+
+      <div className="relative grid grid-cols-3 divide-x divide-[#ead8df]/70 px-5 py-4 sm:px-8 lg:px-10 dark:divide-white/10">
+        {heroQuickLinks.map((link, index) => (
+          <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer" className={`group flex min-w-0 items-center justify-between gap-2 py-2 sm:gap-3 text-[#2d1f27] transition-colors hover:text-[#e77a9a] focus-visible:rounded-lg focus-visible:outline-2 focus-visible:outline-[#e77a9a] sm:py-1 ${index > 0 ? 'pl-2 sm:pl-5' : ''} ${index < heroQuickLinks.length - 1 ? 'pr-2 sm:pr-5' : ''} dark:text-white/80 dark:hover:text-white`}>
+            <span className="min-w-0"><span className="block text-sm font-semibold">{link.label}</span><span className="mt-1 hidden truncate text-xs text-[#a58b99] sm:block dark:text-white/50">{link.description}</span></span>
+            <ArrowUpRight className="h-4 w-4 shrink-0" style={{ color: link.href.includes('weibo') ? '#e95a2d' : link.href.includes('bilibili') ? '#f26f9f' : '#12cfc9' }} aria-hidden="true" />
+          </a>
+        ))}
+      </div>
     </section>
   );
 };

@@ -46,3 +46,15 @@ public/
 ## 许可证
 
 私有项目（`package.json` 中 `"private": true`）。
+
+## 抖音数据容错
+
+- 成功获取的数据写入 `SOCIAL_STATS_DATA_DIR/douyin.json`；未设置时使用项目下的 `.data/`（已忽略提交）。
+- 使用 Playwright 独立游客上下文读取抖音网页自身的公开资料响应，无需登录账号或第三方 API。
+- 页面可见时每 2 分钟刷新抖音数据，返回页面时也会刷新；服务端按需每 2 分钟更新；失败后等待 5 分钟再请求。同一进程的并发请求合并处理。
+- 接口失败时保留上次成功的数字与时间，过期数据标注“历史数据”；没有成功快照时显示 `--`。直播状态只在 2 分钟缓存有效期内展示，过期后视为未知。
+- 部署脚本将数据目录设为 `/www/wwwroot/luoxueer/data/social-stats`，位于每次替换的 `standalone` 目录之外。运行进程需要对此目录有写权限。
+- 部署会将 Chromium 安装到 `PLAYWRIGHT_BROWSERS_PATH=/www/wwwroot/luoxueer/data/browsers`。Linux 首次部署前需要管理员在源码目录运行 `pnpm exec playwright install-deps chromium`，安装浏览器系统依赖；后续发布复用浏览器下载缓存。
+- 本地可运行 `pnpm exec playwright install chromium`，或用 `DOUYIN_BROWSER_EXECUTABLE` 指向现有 Chrome/Chromium 可执行文件。
+- 游客响应可能受平台验证、网络和页面变化影响，失败时沿用历史快照；不会自动登录或处理验证码。
+- 回归检查：`pnpm test:douyin`。

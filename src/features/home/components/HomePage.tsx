@@ -123,19 +123,25 @@ export default function HomePage() {
       const cleanupCallbacks: Array<() => void> = [];
 
       allTexts.forEach((text) => {
+        const isHighlight = text.classList.contains("highlight");
+
         const handleMouseEnter = () => {
           gsap.to(text, {
             scale: ANIMATION_CONFIG.HOVER.SCALE,
+            y: isHighlight ? -8 : ANIMATION_CONFIG.HOVER.TRANSLATE_Y,
             duration: ANIMATION_CONFIG.HOVER.DURATION,
             ease: ANIMATION_CONFIG.HOVER.EASE,
+            overwrite: "auto",
           });
         };
 
         const handleMouseLeave = () => {
           gsap.to(text, {
             scale: 1,
+            y: 0,
             duration: ANIMATION_CONFIG.HOVER.DURATION,
             ease: ANIMATION_CONFIG.HOVER.EASE,
+            overwrite: "auto",
           });
         };
 
@@ -175,17 +181,34 @@ export default function HomePage() {
           </div>
           
           <div ref={greetingRef} className="flex flex-col items-center gap-2 page-transition-element">
-            <span className="info-text primary">HAPPY<span>WISH</span></span>
-            <span className="info-text primary">BIRTHDAY<span>HEALTH</span></span>
+            <span className="info-text primary">
+              <span className="info-text-face">HAPPY</span>
+              <span className="info-text-float" aria-hidden="true">WISH</span>
+            </span>
+            <span className="info-text primary">
+              <span className="info-text-face">BIRTHDAY</span>
+              <span className="info-text-float" aria-hidden="true">HEALTH</span>
+            </span>
           </div>
           
           <div ref={nameRef} className="flex flex-col items-center my-4 page-transition-element">
-            <span className="info-text highlight">LUNA XUEYI<span>SUCCESS</span></span>
+            <div className="info-text-tilt">
+              <span className="info-text highlight">
+                <span className="info-text-face">LUNA XUEYI</span>
+                <span className="info-text-float" aria-hidden="true">SUCCESS</span>
+              </span>
+            </div>
           </div>
           
           <div ref={wishesRef} className="flex flex-col items-center gap-3 page-transition-element">
-            <span className="info-text secondary">BRIGHT FUTURE<span>WEALTHY</span></span>
-            <span className="info-text secondary">HAPPINESS<span>FOREVER</span></span>
+            <span className="info-text secondary">
+              <span className="info-text-face">BRIGHT FUTURE</span>
+              <span className="info-text-float" aria-hidden="true">WEALTHY</span>
+            </span>
+            <span className="info-text secondary">
+              <span className="info-text-face">HAPPINESS</span>
+              <span className="info-text-float" aria-hidden="true">FOREVER</span>
+            </span>
           </div>
         </div>
       </div>

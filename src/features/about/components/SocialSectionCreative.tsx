@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState, type CSSProperties, type MouseEvent } from 'react';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, LoaderCircle } from 'lucide-react';
+import { SocialSkeleton } from './SocialSkeleton';
 import { useLocale } from '@/shared/components/providers/LocaleProvider';
 import { RefreshIcon, WeiboCommunityIcon, BilibiliBadgeIcon, DouyinBadgeIcon } from '@/shared/components/icons';
 import { type SocialStats } from "@/features/about/constants";
@@ -65,6 +66,8 @@ const ConstellationCanvas = () => {
 
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let animationFrame = 0;
+    let isInView = false;
+    const card = canvas.closest('.social-orbit-card');
     let width = 0;
     let height = 0;
     let stars: {
@@ -106,6 +109,7 @@ const ConstellationCanvas = () => {
     };
 
     const draw = (time = 0) => {
+      animationFrame = 0;
       context.clearRect(0, 0, width, height);
 
       const gradient = context.createRadialGradient(width * 0.5, height * 0.5, 0, width * 0.5, height * 0.5, width * 0.62);
@@ -152,19 +156,39 @@ const ConstellationCanvas = () => {
         context.shadowBlur = 0;
       });
 
-      if (!reduceMotion) {
+      if (!reduceMotion && isInView && !document.hidden) {
         animationFrame = requestAnimationFrame(draw);
       }
     };
 
+    const syncAnimation = () => {
+      const active = isInView && !document.hidden;
+      if (card) card.setAttribute('data-animating', String(active));
+      if (!active) {
+        cancelAnimationFrame(animationFrame);
+        animationFrame = 0;
+      } else if (!animationFrame) {
+        draw(performance.now());
+      }
+    };
+    const intersectionObserver = new IntersectionObserver(([entry]) => {
+      isInView = entry.isIntersecting;
+      syncAnimation();
+    });
+    intersectionObserver.observe(canvas);
+    document.addEventListener('visibilitychange', syncAnimation);
     resize();
-    draw();
 
-    const observer = new ResizeObserver(resize);
+    const observer = new ResizeObserver(() => {
+      resize();
+      if (isInView && !animationFrame) draw(performance.now());
+    });
     observer.observe(canvas);
 
     return () => {
       observer.disconnect();
+      intersectionObserver.disconnect();
+      document.removeEventListener('visibilitychange', syncAnimation);
       cancelAnimationFrame(animationFrame);
     };
   }, []);
@@ -194,6 +218,7 @@ const PlatformAvatar = ({
   roundedClassName?: string;
 }) => {
   const [failedAvatar, setFailedAvatar] = useState<string | null>(null);
+  const [loadedAvatar, setLoadedAvatar] = useState<string | null>(null);
   const showAvatar = Boolean(avatar) && failedAvatar !== avatar;
 
   return (
@@ -202,14 +227,18 @@ const PlatformAvatar = ({
       style={{ background: `${accentColor}14` }}
     >
       {showAvatar ? (
-        // eslint-disable-next-line @next/next/no-img-element -- 社交平台头像来自多个外部 CDN，需原生 img 加载
+        <>
+        {loadedAvatar !== avatar ? <SocialSkeleton className="absolute inset-0 h-full w-full" /> : null}
+        {/* eslint-disable-next-line @next/next/no-img-element -- 社交平台头像来自多个外部 CDN，需原生 img 加载 */}
         <img
           src={avatar}
           alt=""
-          className="h-full w-full object-cover"
+          className={`h-full w-full object-cover ${loadedAvatar === avatar ? 'opacity-100' : 'opacity-0'}`}
+          onLoad={() => setLoadedAvatar(avatar ?? null)}
           referrerPolicy="no-referrer"
           onError={() => setFailedAvatar(avatar ?? null)}
         />
+        </>
       ) : (
         <span className="flex h-full w-full items-center justify-center" style={{ color: accentColor }}>
           {getPlatformIcon(name, iconClassName)}
@@ -237,7 +266,7 @@ const truncateText = (text: string, max = 32) =>
   text.length > max ? `${text.slice(0, max)}…` : text;
 
 const getPlatformInsights = (stat: SocialStats): PlatformInsight[] => {
-  if (stat.loading || stat.error) return [];
+  if (stat.error || (stat.loading && !stat.followers)) return [];
 
   const info = stat.extraInfo;
   if (!info) return [];
@@ -318,6 +347,7 @@ export const SocialSectionCreative = ({
   formatSyncTime,
 }: SocialSectionCreativeProps) => {
   const { t } = useLocale();
+  const isRefreshing = socialStats.some((stat) => stat.loading);
 
   if (socialStats.length === 0) return null;
 
@@ -335,12 +365,15 @@ export const SocialSectionCreative = ({
         </div>
 
         <button
+          type="button"
+          disabled={isRefreshing}
+          aria-busy={isRefreshing}
           onClick={handleRefresh}
-          className="group inline-flex shrink-0 items-center gap-2 rounded-full border border-[#ead8df] bg-white/72 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#6b5260] shadow-sm backdrop-blur transition-all hover:-translate-y-0.5 hover:border-[#e7a6bd] hover:bg-white dark:border-white/10 dark:bg-white/10 dark:text-white/70"
-          aria-label="刷新数据"
+          className="group inline-flex w-28 shrink-0 items-center justify-center gap-2 rounded-full border border-[#ead8df] bg-white/72 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#6b5260] shadow-sm backdrop-blur transition-colors disabled:cursor-wait disabled:opacity-80 hover:border-[#e7a6bd] hover:bg-white dark:border-white/10 dark:bg-white/10 dark:text-white/70"
+          aria-label={t.aboutPage.refreshData}
         >
-          <RefreshIcon className="h-3.5 w-3.5 transition-transform duration-500 group-hover:rotate-180" />
-          Sync
+          <RefreshIcon className={`h-3.5 w-3.5 ${isRefreshing ? 'animate-spin motion-reduce:animate-none' : 'transition-transform duration-500 group-hover:rotate-180'}`} />
+          <span className="normal-case tracking-normal">{isRefreshing ? (socialStats.some((stat) => stat.lastUpdated) ? t.aboutPage.refreshing : t.aboutPage.loading) : 'Sync'}</span>
         </button>
       </div>
 
@@ -443,23 +476,28 @@ export const SocialSectionCreative = ({
             const meta = ORBIT_META[stat.name] ?? ORBIT_META.Weibo;
             const platformKey = stat.name.toLowerCase() as keyof typeof t.aboutPage.platformMeta;
             const platformMeta = t.aboutPage.platformMeta[platformKey] ?? t.aboutPage.platformMeta.default;
-            const followers = stat.loading ? '...' : stat.error ? '--' : stat.followers || '0';
-            const statusLabel = getStatusLabel(stat);
+            const hasData = Boolean(stat.lastUpdated && stat.followers);
+            const initialLoading = stat.loading && !hasData;
+            const followers = stat.error ? '--' : stat.followers || '--';
+            const statusLabel = stat.loading ? (hasData ? t.aboutPage.refreshing : t.aboutPage.loading) : getStatusLabel(stat);
             const platformInsights = getPlatformInsights(stat);
 
             return (
               <article
                 key={stat.name}
+                aria-label={stat.fullName}
+                aria-busy={stat.loading}
+                data-platform={stat.name}
                 className="group relative grid grid-cols-[auto_1fr] items-start gap-3 rounded-[24px] border border-white/70 bg-white/76 p-4 shadow-sm shadow-[#f598b4]/10 backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg sm:grid-cols-[auto_1fr_auto_auto] sm:items-center sm:gap-4 dark:border-white/10 dark:bg-white/[0.06]"
               >
-                <PlatformAvatar
+                {initialLoading ? <SocialSkeleton className="h-12 w-12 shrink-0 rounded-2xl" /> : <PlatformAvatar
                   name={stat.name}
                   avatar={stat.avatar}
                   accentColor={meta.color}
                   containerClassName="h-12 w-12"
                   iconClassName="h-6 w-6"
                   roundedClassName="rounded-2xl"
-                />
+                />}
 
                 <div className="min-w-0 pr-12 sm:pr-0">
                   <div className="flex flex-wrap items-center gap-2">
@@ -475,12 +513,12 @@ export const SocialSectionCreative = ({
                       </span>
                     ) : null}
                   </div>
-                  <h3 className="mt-1 text-lg font-bold text-[#2d1f27] dark:text-white">
-                    {stat.loading && !stat.username ? '...' : stat.username}
+                  <h3 className="mt-1 flex min-h-7 items-center truncate text-lg font-bold text-[#2d1f27] dark:text-white">
+                    {initialLoading ? <SocialSkeleton className="h-5 w-24" /> : <span className="truncate">{stat.username}</span>}
                   </h3>
-                  <PlatformInsightChips insights={platformInsights} accentColor={meta.color} />
+                  {initialLoading ? <div className="mt-2"><SocialSkeleton className="h-5 w-28" /></div> : <PlatformInsightChips insights={platformInsights} accentColor={meta.color} />}
                   <p className="mt-1.5 truncate text-[0.625rem] leading-4 text-[#a58b99]/80 dark:text-white/35">
-                    {!stat.loading && stat.lastUpdated ? `${t.aboutPage.lastSync} ${formatSyncTime(stat.lastUpdated)}` : platformMeta.source}
+                    {stat.loading ? (hasData ? t.aboutPage.refreshing : t.aboutPage.loading) : stat.lastUpdated ? `${stat.isStale ? t.aboutPage.historicalData : t.aboutPage.lastSync} ${formatSyncTime(stat.lastUpdated)}` : platformMeta.source}
                   </p>
                 </div>
 
@@ -489,10 +527,10 @@ export const SocialSectionCreative = ({
                     {platformMeta.follower}
                   </p>
                   <p
-                    className="text-xl font-black leading-none sm:mt-1 sm:text-2xl"
+                    className="relative min-h-6 min-w-[6ch] text-xl font-black leading-6 tabular-nums sm:mt-1 sm:text-2xl"
                     style={{ color: meta.color }}
                   >
-                    {followers}
+                    {initialLoading ? <SocialSkeleton className="h-6 w-20" /> : <>{followers}{stat.loading ? <LoaderCircle className="absolute -right-5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 animate-spin motion-reduce:animate-none sm:-left-5 sm:right-auto" aria-hidden="true" /> : null}</>}
                   </p>
                 </div>
 
