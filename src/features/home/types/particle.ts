@@ -7,12 +7,6 @@ export interface ParticleSetter {
   setY: (value: number) => void;
 }
 
-export interface ParticleConfig {
-  duration: number;
-  ease: string;
-  multiplier: number;
-}
-
 export interface MousePosition {
   x: number;
   y: number;

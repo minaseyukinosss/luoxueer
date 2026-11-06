@@ -441,10 +441,3 @@ export interface Song {
     text: string;
   }>;
 }
-
-// 专辑接口类型定义
-export interface Album {
-  name: string;
-  desc: string;
-  img: string;
-}

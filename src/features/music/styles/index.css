@@ -1,7 +1,4 @@
 /* 样式模块统一导入文件 */
 
-/* 导入动画样式 */
-@import "../../../shared/styles/animations.css";
-
 /* 导入当前组件真实依赖的黑胶唱片样式 */
 @import './components/vinyl-disc.css';

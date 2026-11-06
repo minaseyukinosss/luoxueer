@@ -21,10 +21,6 @@ interface NavbarProps {
     connect: string;
     businessEmail: string;
     selectLanguage: string;
-    featuredProject: string;
-    latestNews: string;
-    readMore: string;
-    newsDescription: string;
     latestRelease?: string;
     listenNow?: string;
   };

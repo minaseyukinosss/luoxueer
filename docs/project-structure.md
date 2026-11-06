@@ -82,8 +82,7 @@ src/shared/
 │   ├── icons/
 │   ├── layout/
 │   ├── providers/
-│   ├── transitions/
-│   └── ui/
+│   └── transitions/
 ├── lib/
 └── styles/
 ```
@@ -92,7 +91,6 @@ src/shared/
 
 - 导航栏、页脚等应用外壳组件。
 - 全局 Provider。
-- 基础 UI 组件。
 - 公共图标。
 - 通用工具函数。
 - 跨业务复用的样式与动画。
@@ -106,7 +104,7 @@ src/shared/
 推荐：
 
 ```ts
-import { cn } from "@/shared/lib/utils";
+import { getTranslation } from "@/shared/lib/i18n";
 import MusicPage from "@/features/music/components/MusicPage";
 ```
 
@@ -124,7 +122,6 @@ import MusicPage from "../../features/music/components/MusicPage";
 - React 组件文件使用 PascalCase，例如 `MusicPlayerBar.tsx`。
 - Hook 文件使用 `useXxx.ts`，例如 `useAboutData.ts`。
 - 非组件 TypeScript 文件使用 kebab-case 或语义化短名，例如 `music-data.ts`、`social-api.ts`。
-- 基础 UI 组件沿用 shadcn 风格，使用小写文件名，例如 `button.tsx`、`card.tsx`。
 - CSS 文件使用 kebab-case，例如 `home-page.css`、`music-player.css`。
 - Next.js 约定文件保持官方命名，例如 `page.tsx`、`layout.tsx`、`route.ts`。
 - 文件名应与默认导出的组件或模块职责一致，避免 `Wrapper`、`Utils` 这类含义过宽的命名。
@@ -147,7 +144,7 @@ import MusicPage from "../../features/music/components/MusicPage";
 
 新增公共组件时：
 
-1. 基础 UI 放在 `src/shared/components/ui`。
+1. 通用 UI 组件有实际复用需求时，再建立 `src/shared/components/ui`；不预置未使用的组件。
 2. 应用外壳组件放在 `src/shared/components/layout`。
 3. Provider 放在 `src/shared/components/providers`。
 4. 公共组件中避免混入具体页面的业务文案、业务数据和专属样式。

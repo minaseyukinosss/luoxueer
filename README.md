@@ -8,15 +8,15 @@
 |------|------|
 | 框架 | [Next.js 16](https://nextjs.org/)（App Router、Turbopack） |
 | UI | React 19、TypeScript、Tailwind CSS 4 |
-| 动画 | GSAP、Lenis（平滑滚动）、Lottie |
+| 动画 | GSAP、Lenis（平滑滚动） |
 | 音频 | Howler |
-| 组件 | Radix Slot、`lucide-react` |
+| 图标 | `lucide-react` |
 
 ## 功能概览
 
 - **`/`** — 全屏生日祝福页：GSAP 粒子随鼠标偏移、点击水波纹、文字入场与悬停动。
 - **`/musicbox`** — 音乐盒：播放列表、歌词区、底部播放控制（Howler + 上下文状态）。
-- **`/about`** — 个人/社交概览：从服务端 API 拉取 B 站、抖音、微博等数据（失败时使用内置 fallback），动态与筛选展示。
+- **`/about`** — 个人/社交概览：从服务端 API 拉取 B 站、抖音、微博等数据（失败时使用内置 fallback），展示动态、图集与视频。
 
 ## 环境要求
 

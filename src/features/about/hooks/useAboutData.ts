@@ -206,8 +206,6 @@ export const useAboutData = () => {
 
   const livePlatform = socialStats.find((stat) => stat.extraInfo?.isLive);
   const isLive = Boolean(livePlatform?.extraInfo?.isLive);
-  // Published news is not an upcoming livestream schedule.
-  const nextEvent = undefined;
 
   const updateDouyinStat = useCallback(
     (updater: (prev: SocialStats) => SocialStats) => {
@@ -420,10 +418,7 @@ export const useAboutData = () => {
     updates: localizedUpdates,
     livePlatform,
     isLive,
-    nextEvent,
     handleRefresh,
     formatSyncTime,
   };
 };
-
-export type UseAboutDataReturn = ReturnType<typeof useAboutData>;

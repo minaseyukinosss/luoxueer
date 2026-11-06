@@ -82,8 +82,7 @@ src/shared/
 │   ├── icons/
 │   ├── layout/
 │   ├── providers/
-│   ├── transitions/
-│   └── ui/
+│   └── transitions/
 ├── lib/
 └── styles/
 ```
@@ -92,7 +91,6 @@ Use `shared` for:
 
 - App shell components such as navbar and footer.
 - Global providers.
-- Base UI primitives.
 - Shared icons.
 - Common utility functions.
 - Cross-feature styles and animations.
@@ -106,7 +104,7 @@ Use the `@/*` alias for source imports.
 Preferred:
 
 ```ts
-import { cn } from "@/shared/lib/utils";
+import { getTranslation } from "@/shared/lib/i18n";
 import MusicPage from "@/features/music/components/MusicPage";
 ```
 
@@ -124,7 +122,6 @@ Relative imports are fine for nearby sibling files inside the same folder.
 - React component files use PascalCase, for example `MusicPlayerBar.tsx`.
 - Hook files use `useXxx.ts`, for example `useAboutData.ts`.
 - Non-component TypeScript files use kebab-case or a short semantic name, for example `music-data.ts` and `social-api.ts`.
-- Base UI components follow the shadcn style and use lowercase filenames, for example `button.tsx` and `card.tsx`.
 - CSS files use kebab-case, for example `home-page.css` and `music-player.css`.
 - Next.js convention files keep the official names, for example `page.tsx`, `layout.tsx`, and `route.ts`.
 - Filenames should match the default export or module responsibility. Avoid broad names such as `Wrapper` or `Utils` when a clearer name exists.
@@ -147,7 +144,7 @@ When adding a new page:
 
 When adding a shared component:
 
-1. Put primitives in `src/shared/components/ui`.
+1. Create `src/shared/components/ui` when primitives have real shared consumers; do not scaffold unused components.
 2. Put shell components in `src/shared/components/layout`.
 3. Put providers in `src/shared/components/providers`.
 4. Keep feature-specific copy, data, and styles out of shared components.

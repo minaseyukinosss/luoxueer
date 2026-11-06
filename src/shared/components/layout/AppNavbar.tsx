@@ -18,10 +18,6 @@ export default function AppNavbar() {
         connect: t.connect,
         businessEmail: t.businessEmail,
         selectLanguage: t.selectLanguage,
-        featuredProject: t.featuredProject,
-        latestNews: t.latestNews,
-        readMore: t.readMore,
-        newsDescription: t.newsDescription,
         latestRelease: t.latestRelease,
         listenNow: t.listenNow,
       }}

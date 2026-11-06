@@ -6,14 +6,13 @@ import { ArrowUpRight, ChevronDown, LoaderCircle, Mail, Radio } from 'lucide-rea
 import { SocialSkeleton } from './SocialSkeleton';
 import { useLocale } from '@/shared/components/providers/LocaleProvider';
 
-import type { HeroQuickLink, Update } from "@/features/about/constants";
+import type { HeroQuickLink } from "@/features/about/constants";
 
 interface HeroSectionProps {
   totalFollowers: string;
   totalFollowersLoading: boolean;
   socialCount: number;
   isLive: boolean;
-  nextEvent?: Update;
   traitChips: string[];
   heroQuickLinks: HeroQuickLink[];
 }
@@ -42,7 +41,6 @@ export const HeroSection = ({
   totalFollowersLoading,
   socialCount,
   isLive,
-  nextEvent,
   traitChips,
   heroQuickLinks,
 }: HeroSectionProps) => {
@@ -290,10 +288,10 @@ export const HeroSection = ({
           <div className="row-span-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#f26f9f]/14 text-[#f26f9f] sm:row-span-1 dark:text-[#f26f9f]" aria-hidden="true"><Radio className="h-5 w-5" /></div>
           <div className="min-w-0 flex-1">
             <p className="text-xs text-[#a58b99] dark:text-white/50">{t.aboutPage.nextLive}</p>
-            <p className="mt-1 text-base font-semibold text-[#2d1f27] dark:text-white">{nextEvent ? nextEvent.title : t.aboutPage.planning}</p>
+            <p className="mt-1 text-base font-semibold text-[#2d1f27] dark:text-white">{t.aboutPage.planning}</p>
           </div>
           <div className="col-start-2 flex flex-wrap items-center gap-2 text-xs sm:col-start-auto">
-            <span className="rounded-full bg-[#12cfc9]/20 px-3 py-1.5 font-medium text-[#6b5260] dark:text-white/80">{nextEvent ? nextEvent.date : '待定'}</span>
+            <span className="rounded-full bg-[#12cfc9]/20 px-3 py-1.5 font-medium text-[#6b5260] dark:text-white/80">待定</span>
             <span className="text-[#a58b99] dark:text-white/50">{isLive ? t.aboutPage.liveWarming : t.aboutPage.advanceNotice}</span>
           </div>
         </div>
