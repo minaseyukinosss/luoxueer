@@ -23,7 +23,19 @@
 - Node.js 18+（建议与 Next 16 官方要求一致）
 - [pnpm](https://pnpm.io/) 9.x（仓库已指定 `packageManager`）
 
-`next.config.ts` 中已启用 `output: 'standalone'`，构建后可按 [Next.js Standalone 部署说明](https://nextjs.org/docs/app/api-reference/config/next-config-js/output) 将 `.next/standalone` 与静态资源一并部署。
+`next.config.ts` 中已启用 `output: 'standalone'`。GitHub Actions 负责校验、构建和打包，服务器只负责验证 Chromium、切换版本和重启应用。
+
+线上目录固定为：
+
+```text
+/www/wwwroot/luoxueer/
+├── current -> releases/<release>/app  # 当前版本
+├── releases/<release>/app             # 最近 3 个可运行版本
+├── data/                              # 跨版本持久数据和浏览器缓存
+└── ecosystem.config.cjs              # PM2 配置
+```
+
+发布使用临时目录解包，通过健康检查后才清理旧版和历史遗留目录；失败会恢复上一个 `current`。
 
 ## 目录结构（摘要）
 
@@ -53,8 +65,8 @@ public/
 - 使用 Playwright 独立游客上下文读取抖音网页自身的公开资料响应，无需登录账号或第三方 API。
 - 页面可见时每 2 分钟刷新抖音数据，返回页面时也会刷新；服务端按需每 2 分钟更新；失败后等待 5 分钟再请求。同一进程的并发请求合并处理。
 - 接口失败时保留上次成功的数字与时间，过期数据标注“历史数据”；没有成功快照时显示 `--`。直播状态只在 2 分钟缓存有效期内展示，过期后视为未知。
-- 部署脚本将数据目录设为 `/www/wwwroot/luoxueer/data/social-stats`，位于每次替换的 `standalone` 目录之外。运行进程需要对此目录有写权限。
-- 部署会将 Chromium 安装到 `PLAYWRIGHT_BROWSERS_PATH=/www/wwwroot/luoxueer/data/browsers`。Linux 首次部署前需要管理员在源码目录运行 `pnpm exec playwright install-deps chromium`，安装浏览器系统依赖；后续发布复用浏览器下载缓存。
+- 部署脚本将数据目录设为 `/www/wwwroot/luoxueer/data/social-stats`，位于 release 目录之外。运行进程需要对此目录有写权限。
+- 部署会将 Chromium 安装到 `PLAYWRIGHT_BROWSERS_PATH=/www/wwwroot/luoxueer/data/browsers`。Linux 首次部署前需要管理员安装浏览器系统依赖；后续发布只在 Playwright 版本变化时下载对应 Chromium，并复用已有缓存。
 - OpenCloudOS 9 需使用系统包管理器补齐依赖（本服务器缺失项为 `dnf install -y mesa-libgbm alsa-lib`）。部署脚本会在替换线上文件前验证浏览器能否启动，失败时保留当前站点。
 - 本地可运行 `pnpm exec playwright install chromium`，或用 `DOUYIN_BROWSER_EXECUTABLE` 指向现有 Chrome/Chromium 可执行文件。
 - 游客响应可能受平台验证、网络和页面变化影响，失败时沿用历史快照；不会自动登录或处理验证码。

@@ -1,52 +1,99 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-DEPLOY_DIR=/www/wwwroot/luoxueer
-export PATH="/www/server/nodejs/v24.14.1/bin:${PATH}"
+release_id=${1:?release id is required}
+archive=${2:?release archive is required}
 
-corepack enable
+[[ "$release_id" =~ ^[0-9a-f]{40}-[0-9]+-[0-9]+$ ]] || { echo "Invalid release id" >&2; exit 2; }
+[[ "$archive" == "/tmp/luoxueer-${release_id}.tar.gz" ]] || { echo "Invalid release archive" >&2; exit 2; }
 
-pnpm install --frozen-lockfile
-export PLAYWRIGHT_BROWSERS_PATH="${DEPLOY_DIR}/data/browsers"
-pnpm exec playwright install chromium
-# Fail before replacing the running site if Chromium's system libraries are missing.
-node -e 'require("playwright").chromium.launch({ headless: true }).then(browser => browser.close()).catch(error => { process.stderr.write(String(error) + "\n"); process.exit(1); })'
+deploy_root=/www/wwwroot/luoxueer
+releases_dir="${deploy_root}/releases"
+data_dir="${deploy_root}/data"
+release_dir="${releases_dir}/${release_id}"
+staging_dir="${releases_dir}/.${release_id}.tmp"
+current_link="${deploy_root}/current"
+node_bin=/www/server/nodejs/v24.14.1/bin/node
+pm2_bin=/www/server/nodejs/v24.14.1/bin/pm2
+browser_dir="${data_dir}/browsers"
+legacy_app="${deploy_root}/standalone"
 
-# Keep runtime credentials outside the directory replaced by each deployment.
-mkdir -p "${DEPLOY_DIR}/data"
-for env_file in "${DEPLOY_DIR}/data/social.env" "${DEPLOY_DIR}/standalone/.env"; do
-  if [ -z "${WEIBO_COOKIE:-}" ] && [ -f "$env_file" ]; then
-    WEIBO_COOKIE=$(env -u WEIBO_COOKIE node --env-file="$env_file" -p 'process.env.WEIBO_COOKIE || ""')
+exec 9>"/tmp/luoxueer-deploy.lock"
+flock -n 9 || { echo "Another deployment is running" >&2; exit 1; }
+
+mkdir -p "$releases_dir" "$data_dir"
+rm -rf -- "$staging_dir"
+mkdir -p "$staging_dir"
+tar -xzf "$archive" -C "$staging_dir"
+test -f "$staging_dir/app/server.js"
+test -f "$staging_dir/app/node_modules/playwright/cli.js"
+
+export PLAYWRIGHT_BROWSERS_PATH="$browser_dir"
+"$node_bin" "$staging_dir/app/node_modules/playwright/cli.js" install chromium
+(
+  cd "$staging_dir/app"
+  "$node_bin" -e 'require("playwright").chromium.launch({ headless: true }).then(browser => browser.close()).catch(error => { console.error(error); process.exit(1); })'
+)
+
+cookie=${WEIBO_COOKIE_B64:+$(printf '%s' "$WEIBO_COOKIE_B64" | base64 -d)}
+if [ -z "$cookie" ] && [ -f "$data_dir/social.env" ]; then
+  cookie=$(env -u WEIBO_COOKIE "$node_bin" --env-file="$data_dir/social.env" -p 'process.env.WEIBO_COOKIE || ""')
+fi
+if [ -n "$cookie" ]; then
+  (umask 077; printf 'WEIBO_COOKIE=%s\n' "$cookie" > "$data_dir/social.env")
+fi
+
+(umask 077; printf '%s\n' \
+  'NODE_ENV=production' \
+  'PORT=3000' \
+  'HOSTNAME=0.0.0.0' \
+  "PLAYWRIGHT_BROWSERS_PATH=${browser_dir}" \
+  "SOCIAL_STATS_DATA_DIR=${data_dir}/social-stats" \
+  "WEIBO_COOKIE=${cookie}" > "$staging_dir/app/.env")
+
+previous_app=$(readlink -f "$current_link" 2>/dev/null || true)
+if [ -z "$previous_app" ] && [ -f "$legacy_app/server.js" ]; then
+  previous_app=$legacy_app
+fi
+
+rm -rf -- "$release_dir"
+mv "$staging_dir" "$release_dir"
+ln -sfn "$release_dir/app" "${current_link}.new"
+mv -Tf "${current_link}.new" "$current_link"
+
+cat > "$deploy_root/ecosystem.config.cjs" <<'EOF'
+module.exports = {
+  apps: [{
+    name: "luoxueer",
+    script: "/www/wwwroot/luoxueer/current/server.js",
+    cwd: "/www/wwwroot/luoxueer/current",
+    env: { NODE_ENV: "production" },
+  }],
+};
+EOF
+
+if ! "$pm2_bin" startOrReload "$deploy_root/ecosystem.config.cjs" --update-env \
+  || ! curl --fail --silent --show-error --retry 5 --retry-delay 2 --retry-connrefused \
+    --connect-timeout 3 --max-time 10 http://127.0.0.1:3000/ > /dev/null; then
+  if [ -n "$previous_app" ] && [ -f "$previous_app/server.js" ]; then
+    ln -sfn "$previous_app" "${current_link}.new"
+    mv -Tf "${current_link}.new" "$current_link"
+    "$pm2_bin" startOrReload "$deploy_root/ecosystem.config.cjs" --update-env || true
   fi
-done
-if [ -n "${WEIBO_COOKIE:-}" ]; then
-  (umask 077; printf 'WEIBO_COOKIE=%s\n' "$WEIBO_COOKIE" > "${DEPLOY_DIR}/data/social.env")
-  chmod 600 "${DEPLOY_DIR}/data/social.env"
-fi
-export WEIBO_COOKIE
-pnpm build
-
-rm -rf "${DEPLOY_DIR}/standalone.new"
-mv .next/standalone "${DEPLOY_DIR}/standalone.new"
-mkdir -p "${DEPLOY_DIR}/standalone.new/.next"
-cp -r .next/static "${DEPLOY_DIR}/standalone.new/.next/static"
-cp -r public "${DEPLOY_DIR}/standalone.new/public"
-if [ -d "${DEPLOY_DIR}/standalone/public/audio" ]; then
-  cp -r "${DEPLOY_DIR}/standalone/public/audio" "${DEPLOY_DIR}/standalone.new/public/"
+  echo "Release failed health check; restored previous release" >&2
+  exit 1
 fi
 
-printf '%s\n' \
-  "NODE_ENV=production" \
-  "PORT=3000" \
-  "HOSTNAME=0.0.0.0" \
-  "PLAYWRIGHT_BROWSERS_PATH=${PLAYWRIGHT_BROWSERS_PATH}" \
-  "SOCIAL_STATS_DATA_DIR=${DEPLOY_DIR}/data/social-stats" \
-  "WEIBO_COOKIE=${WEIBO_COOKIE:-}" > "${DEPLOY_DIR}/standalone.new/.env"
-chmod 600 "${DEPLOY_DIR}/standalone.new/.env"
+"$pm2_bin" save
+rm -f -- "$archive" "/tmp/luoxueer-deploy-${release_id}.sh"
+rm -rf -- "${deploy_root}/standalone.new" "$legacy_app" /www/wwwroot/luoxueer-src
 
-rm -rf "${DEPLOY_DIR}/standalone"
-mv "${DEPLOY_DIR}/standalone.new" "${DEPLOY_DIR}/standalone"
+find "$releases_dir" -mindepth 1 -maxdepth 1 -type d -not -name '.*' -printf '%T@ %p\n' \
+  | sort -nr \
+  | tail -n +4 \
+  | cut -d' ' -f2- \
+  | while IFS= read -r old_release; do
+      [ "$old_release" = "$release_dir" ] || rm -rf -- "$old_release"
+    done
 
-pm2 restart luoxueer --update-env \
-  || pm2 start "${DEPLOY_DIR}/standalone/server.js" --name luoxueer --cwd "${DEPLOY_DIR}/standalone"
-pm2 save
+echo "Activated release ${release_id}"
