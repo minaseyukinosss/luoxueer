@@ -2,10 +2,8 @@
 set -euo pipefail
 
 release_id=${1:?release id is required}
-archive=${2:?release archive is required}
 
 [[ "$release_id" =~ ^[0-9a-f]{40}-[0-9]+-[0-9]+$ ]] || { echo "Invalid release id" >&2; exit 2; }
-[[ "$archive" == "/tmp/luoxueer-${release_id}.tar.gz" ]] || { echo "Invalid release archive" >&2; exit 2; }
 
 deploy_root=/www/wwwroot/luoxueer
 releases_dir="${deploy_root}/releases"
@@ -22,9 +20,6 @@ exec 9>"/tmp/luoxueer-deploy.lock"
 flock -n 9 || { echo "Another deployment is running" >&2; exit 1; }
 
 mkdir -p "$releases_dir" "$data_dir"
-rm -rf -- "$staging_dir"
-mkdir -p "$staging_dir"
-tar -xzf "$archive" -C "$staging_dir"
 test -f "$staging_dir/app/server.js"
 test -f "$staging_dir/app/node_modules/playwright/cli.js"
 
@@ -85,8 +80,10 @@ if ! "$pm2_bin" startOrReload "$deploy_root/ecosystem.config.cjs" --update-env \
 fi
 
 "$pm2_bin" save
-rm -f -- "$archive" "/tmp/luoxueer-deploy-${release_id}.sh"
+rm -f -- "/tmp/luoxueer-deploy-${release_id}.sh" "${deploy_root}/.rsync-base"
 rm -rf -- "${deploy_root}/standalone.new" "$legacy_app" /www/wwwroot/luoxueer-src
+find /tmp -maxdepth 1 -type f \( -name 'luoxueer-*.tar.gz' -o -name 'luoxueer-deploy-*.sh' \) -delete
+find "$releases_dir" -mindepth 1 -maxdepth 1 -type d -name '.*.tmp' -exec rm -rf -- {} +
 
 find "$releases_dir" -mindepth 1 -maxdepth 1 -type d -not -name '.*' -printf '%T@ %p\n' \
   | sort -nr \

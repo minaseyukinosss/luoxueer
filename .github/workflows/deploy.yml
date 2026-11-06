@@ -42,7 +42,6 @@ jobs:
           cp -a .next/standalone/. release/app/
           cp -a .next/static release/app/.next/static
           cp -a public release/app/public
-          tar -czf release.tar.gz -C release app
 
       - name: Configure SSH
         env:
@@ -60,26 +59,31 @@ jobs:
           done
           test -s ~/.ssh/known_hosts
 
-      - name: Upload release
+      - name: Sync release
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
         run: |
           release_id="${GITHUB_SHA}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
-          remote_archive="/tmp/luoxueer-${release_id}.tar.gz"
           remote_script="/tmp/luoxueer-deploy-${release_id}.sh"
+          remote_staging="/www/wwwroot/luoxueer/releases/.${release_id}.tmp/app"
+          ssh_options="-o ConnectTimeout=20 -o ServerAliveInterval=15 -o ServerAliveCountMax=4 -i ~/.ssh/deploy_key"
+
+          ssh $ssh_options "${SSH_USER}@${SSH_HOST}" "
+            mkdir -p '$remote_staging'
+            if [ -L /www/wwwroot/luoxueer/current ]; then
+              ln -sfn \"\$(readlink -f /www/wwwroot/luoxueer/current)\" /www/wwwroot/luoxueer/.rsync-base
+            elif [ -d /www/wwwroot/luoxueer/standalone ]; then
+              ln -sfn /www/wwwroot/luoxueer/standalone /www/wwwroot/luoxueer/.rsync-base
+            fi
+          "
+
           for attempt in 1 2 3; do
-            if scp -C \
-              -o ConnectTimeout=20 \
-              -o ServerAliveInterval=15 \
-              -o ServerAliveCountMax=4 \
-              -i ~/.ssh/deploy_key \
-              release.tar.gz "${SSH_USER}@${SSH_HOST}:${remote_archive}" \
-              && scp -C \
-                -o ConnectTimeout=20 \
-                -o ServerAliveInterval=15 \
-                -o ServerAliveCountMax=4 \
-                -i ~/.ssh/deploy_key \
+            if rsync -azc --delete --partial --timeout=60 \
+              --link-dest=/www/wwwroot/luoxueer/.rsync-base \
+              -e "ssh $ssh_options" \
+              release/app/ "${SSH_USER}@${SSH_HOST}:${remote_staging}/" \
+              && rsync -az -e "ssh $ssh_options" \
                 scripts/deploy-remote.sh "${SSH_USER}@${SSH_HOST}:${remote_script}"; then
               exit 0
             fi
@@ -94,7 +98,6 @@ jobs:
           WEIBO_COOKIE: ${{ secrets.WEIBO_COOKIE }}
         run: |
           release_id="${GITHUB_SHA}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
-          remote_archive="/tmp/luoxueer-${release_id}.tar.gz"
           remote_script="/tmp/luoxueer-deploy-${release_id}.sh"
           cookie_b64="$(printf '%s' "$WEIBO_COOKIE" | base64 -w0)"
           for attempt in 1 2 3; do
@@ -104,7 +107,7 @@ jobs:
               -o ServerAliveCountMax=4 \
               -i ~/.ssh/deploy_key \
               "${SSH_USER}@${SSH_HOST}" \
-              "WEIBO_COOKIE_B64='$cookie_b64' bash '$remote_script' '$release_id' '$remote_archive'"; then
+              "WEIBO_COOKIE_B64='$cookie_b64' bash '$remote_script' '$release_id'"; then
               exit 0
             fi
             [ "$attempt" -eq 3 ] && exit 1
