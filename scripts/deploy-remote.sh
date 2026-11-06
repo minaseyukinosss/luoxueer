@@ -67,13 +67,17 @@ module.exports = {
 };
 EOF
 
-if ! "$pm2_bin" startOrReload "$deploy_root/ecosystem.config.cjs" --update-env \
+"$pm2_bin" delete luoxueer 2>/dev/null || true
+if ! "$pm2_bin" start "$deploy_root/ecosystem.config.cjs" \
   || ! curl --fail --silent --show-error --retry 5 --retry-delay 2 --retry-connrefused \
-    --connect-timeout 3 --max-time 10 http://127.0.0.1:3000/ > /dev/null; then
+    --connect-timeout 3 --max-time 10 http://127.0.0.1:3000/ > /dev/null \
+  || ! curl --fail --silent --show-error --retry 5 --retry-delay 2 --retry-connrefused \
+    --connect-timeout 3 --max-time 10 http://127.0.0.1:3000/images/home/home-portrait.webp > /dev/null; then
   if [ -n "$previous_app" ] && [ -f "$previous_app/server.js" ]; then
     ln -sfn "$previous_app" "${current_link}.new"
     mv -Tf "${current_link}.new" "$current_link"
-    "$pm2_bin" startOrReload "$deploy_root/ecosystem.config.cjs" --update-env || true
+    "$pm2_bin" delete luoxueer 2>/dev/null || true
+    "$pm2_bin" start "$deploy_root/ecosystem.config.cjs" || true
   fi
   echo "Release failed health check; restored previous release" >&2
   exit 1
