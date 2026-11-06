@@ -10,7 +10,9 @@
     "test:douyin": "node --test tests/douyin.test.mjs",
     "test:about-scroll": "node tests/about-scroll.mjs",
     "test:about-hero": "node tests/about-hero.mjs",
-    "test:about-loading": "node tests/about-loading.mjs"
+    "test:about-loading": "node tests/about-loading.mjs",
+    "test:about-video": "node tests/about-video.mjs",
+    "test:about-gallery": "node tests/about-gallery.mjs"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.3",

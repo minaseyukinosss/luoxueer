@@ -77,21 +77,62 @@ export const translations = {
       },
       updates: [
         {
-          title: '新歌发布',
-          desc: '全新单曲《Gelato》正式发布，one two three！我想和你去遍世界每个地方在角落，一起留下我们爱最甜的模样！',
+          title: '近况影像',
+          desc: '以「Recently.」更新日常图集，把近期生活收进镜头。换个造型，记录当下的自己。',
+          category: 'vlogs'
+        },
+        {
+          title: '盛夏的我们',
+          desc: '分享互动影游《盛夏的我们》定档消息。从盛夏到金秋，新的青春故事即将开启，前往原动态查看公告。',
+          category: 'events'
+        },
+        {
+          title: '学功夫练武术！',
+          desc: '功夫主题短片上线。双丸子头与武术造型亮相，配文「同学，我看你骨骼惊奇……」，15秒感受这份俏皮。',
+          category: 'vlogs'
+        },
+        {
+          title: '面具之下',
+          desc: '公开蜘蛛侠主题造型，以「面具之下」分享角色写真，在日常之外留下另一种镜头记忆。',
+          category: 'vlogs'
+        },
+        {
+          title: '杳无音讯',
+          desc: 'B站更新16秒短片「终于 我们在彼此的生命中杳无音迅」，在咖啡馆的镜头里留下一个回眸。',
+          category: 'vlogs'
+        },
+        {
+          title: '我保证你是天使',
+          desc: '蓝色光影、白色羽翼与天使造型，一段28秒的音乐短片。去原视频看看这一次的镜头演绎。',
           category: 'music'
         },
         {
-          title: '直播预告',
-          desc: '早上10点，锁定抖音罗雪儿直播间！与大家一起分享音乐和快乐时光。',
-          category: 'events'
+          title: '半壶纱',
+          desc: '以「最后一句也太难唱了」分享《半壶纱》主题片段。古风造型与山野背景，把25秒留给音乐。',
+          category: 'music'
         },
         {
-          title: '演唱会预告',
-          desc: '巡回演唱会正在筹划中，敬请期待！说不定哪天就有了！准备好与我一起狂欢吧。',
-          category: 'events'
+          title: '恶魔未必有我坏',
+          desc: '小恶魔造型的11秒短片，红色犄角与黑色穿搭带来另一种反差感。点击原视频查看完整片段。',
+          category: 'vlogs'
+        },
+        {
+          title: '好好告个别',
+          desc: '教室、黑板与手中的麦克风，「那就好好告个别吧」。一段26秒的毕业季音乐片段，留下青春的回声。',
+          category: 'music'
         }
-      ]
+      ],
+      viewOriginal: '查看原动态',
+      viewOriginalVideo: '观看原视频',
+      playVideo: '播放视频',
+      closeVideo: '返回封面',
+      videoPlayer: '视频播放器',
+      loadingVideo: '正在加载播放器',
+      openGalleryItem: '查看图集',
+      closeGallery: '关闭图集',
+      previousMedia: '上一项',
+      nextMedia: '下一项',
+      videoUnavailable: '视频暂时无法播放，可前往原动态查看。',
     }
   },
   ja: {
@@ -172,21 +213,62 @@ export const translations = {
       },
       updates: [
         {
-          title: '新曲リリース',
-          desc: 'ニューシングル《Gelato》正式リリース、one two three！世界の隅々まであなたと一緒に行き、私たちの愛の最も甘い姿を残したい！',
+          title: '最近のフォト日記',
+          desc: '「Recently.」と題した写真を公開。最近の日常と新しいスタイルを、写真に残しています。',
+          category: 'vlogs'
+        },
+        {
+          title: '盛夏の私たち',
+          desc: '実写インタラクティブ作品『盛夏的我们』の発売予定を紹介。夏から秋へ、青春の物語がまもなく始まります。',
+          category: 'events'
+        },
+        {
+          title: 'カンフーの時間！',
+          desc: 'お団子ヘアと武術風の衣装で登場。遊び心いっぱいの15秒のカンフー短編を公開しました。',
+          category: 'vlogs'
+        },
+        {
+          title: 'マスクの下で',
+          desc: 'スパイダーマンをテーマにした写真を公開。「面具之下」という言葉とともに、いつもと違う姿を届けています。',
+          category: 'vlogs'
+        },
+        {
+          title: '便りのない日々',
+          desc: '互いの人生から便りが途絶えることを題名にした16秒の短編。カフェで振り向く一瞬を収めています。',
+          category: 'vlogs'
+        },
+        {
+          title: 'きっと天使だよ',
+          desc: '青い光と白い羽根の天使姿で届ける、28秒の音楽映像。いつもと違う表現を元の動画で。',
           category: 'music'
         },
         {
-          title: 'ライブ予告',
-          desc: '朝10時、DouyinのLuoxueerライブルームをチェック！みんなと音楽や楽しい時間を共有しましょう。',
-          category: 'events'
+          title: '半壺紗',
+          desc: '「最後の一節が難しすぎる」と添えた『半壺紗』の音楽映像。山々を背景にした25秒の短編です。',
+          category: 'music'
         },
         {
-          title: 'コンサート予告',
-          desc: 'ツアーコンサート計画中、お楽しみに！いつか開催されるかもしれません！私と一緒に盛り上がる準備をしてね。',
-          category: 'events'
+          title: '小悪魔のひととき',
+          desc: '赤い角と黒いコーディネートが印象的な11秒の短編。小悪魔スタイルの表情を届けています。',
+          category: 'vlogs'
+        },
+        {
+          title: 'ちゃんと、さよなら',
+          desc: '教室と黒板、手にしたマイク。「ちゃんとお別れをしよう」と題した26秒の卒業シーズンの音楽映像です。',
+          category: 'music'
         }
-      ]
+      ],
+      viewOriginal: '元の投稿を見る',
+      viewOriginalVideo: '元の動画を見る',
+      playVideo: '動画を再生',
+      closeVideo: '表紙に戻る',
+      videoPlayer: '動画プレーヤー',
+      loadingVideo: 'プレーヤーを読み込み中',
+      openGalleryItem: 'ギャラリーを見る',
+      closeGallery: 'ギャラリーを閉じる',
+      previousMedia: '前へ',
+      nextMedia: '次へ',
+      videoUnavailable: '動画を再生できません。元の投稿をご覧ください。',
     }
   },
   en: {
@@ -267,21 +349,62 @@ export const translations = {
       },
       updates: [
         {
-          title: 'New Song Release',
-          desc: 'New single "Gelato" officially released, one two three! I want to go to every corner of the world with you, leaving the sweetest appearance of our love!',
+          title: 'Recently, in Photos',
+          desc: 'A photo collection captioned “Recently.” captures everyday moments and a new look from her recent life.',
+          category: 'vlogs'
+        },
+        {
+          title: 'Love in Summer',
+          desc: 'She shared the release announcement for the live-action game Love in Summer. A new campus story is on its way.',
+          category: 'events'
+        },
+        {
+          title: 'Kung Fu Time!',
+          desc: 'A playful 15-second kung fu short, featuring twin buns and a martial-arts-inspired outfit.',
+          category: 'vlogs'
+        },
+        {
+          title: 'Behind the Mask',
+          desc: 'A Spider-Man-themed photo set, shared with the caption “Behind the Mask,” presents a different side of her on camera.',
+          category: 'vlogs'
+        },
+        {
+          title: 'No More Words',
+          desc: 'A 16-second short about fading from each other’s lives, capturing a glance back in a café.',
+          category: 'vlogs'
+        },
+        {
+          title: 'You Are an Angel',
+          desc: 'Blue lighting and white wings frame a 28-second music clip in an angel-inspired look.',
           category: 'music'
         },
         {
-          title: 'Live Preview',
-          desc: '10 AM, lock in Douyin Luoxueer live room! Share music and happy times with everyone.',
-          category: 'events'
+          title: 'Ban Hu Sha',
+          desc: 'A 25-second music clip of Ban Hu Sha, filmed against the hills. Her caption: the last line is hard to sing.',
+          category: 'music'
         },
         {
-          title: 'Concert Preview',
-          desc: 'Tour concert is being planned, stay tuned! Maybe one day it will happen! Get ready to party with me.',
-          category: 'events'
+          title: 'A Little Devil',
+          desc: 'Red horns and a black outfit bring a different mood to this playful 11-second short.',
+          category: 'vlogs'
+        },
+        {
+          title: 'A Proper Goodbye',
+          desc: 'A classroom, a blackboard and a microphone: a 26-second music clip for graduation season.',
+          category: 'music'
         }
-      ]
+      ],
+      viewOriginal: 'View original post',
+      viewOriginalVideo: 'Watch original video',
+      playVideo: 'Play video',
+      closeVideo: 'Back to cover',
+      videoPlayer: 'Video player',
+      loadingVideo: 'Loading player',
+      openGalleryItem: 'View gallery',
+      closeGallery: 'Close gallery',
+      previousMedia: 'Previous item',
+      nextMedia: 'Next item',
+      videoUnavailable: 'Video is unavailable. View the original post to watch it.',
     }
   },
 } as const;

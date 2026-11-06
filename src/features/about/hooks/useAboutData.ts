@@ -4,6 +4,7 @@ import { useLocale } from '@/shared/components/providers/LocaleProvider';
 import {
   INITIAL_SOCIAL_STATS,
   SOCIAL_LINKS,
+  UPDATES,
   type HeroQuickLink,
   type SocialStats,
   type Update,
@@ -195,35 +196,18 @@ export const useAboutData = () => {
     },
   ], [t]);
 
-  const localizedUpdates: Update[] = useMemo(() => [
-    {
-      date: '2025-04-23',
-      title: t.aboutPage.updates[0].title,
-      description: t.aboutPage.updates[0].desc,
-      image: '/images/album/gelato.webp',
-      category: 'music',
-    },
-    {
-      date: 'Everyday！',
-      title: t.aboutPage.updates[1].title,
-      description: t.aboutPage.updates[1].desc,
-      image: '/images/daily.webp',
-      category: 'events',
-    },
-    {
-      date: '敬请期待...', // Or translation if needed, but keeping simple for now
-      title: t.aboutPage.updates[2].title,
-      description: t.aboutPage.updates[2].desc,
-      image: '/images/live.webp',
-      category: 'events',
-    },
-  ], [t]);
+  const localizedUpdates: Update[] = useMemo(() => UPDATES.map((update, index) => ({
+    ...update,
+    title: t.aboutPage.updates[index]?.title ?? update.title,
+    description: t.aboutPage.updates[index]?.desc ?? update.description,
+  })), [t]);
 
   const isTotalFollowersLoading = socialStats.some((stat) => stat.loading);
 
   const livePlatform = socialStats.find((stat) => stat.extraInfo?.isLive);
   const isLive = Boolean(livePlatform?.extraInfo?.isLive);
-  const nextEvent = useMemo(() => localizedUpdates.find((item) => item.category === 'events'), [localizedUpdates]);
+  // Published news is not an upcoming livestream schedule.
+  const nextEvent = undefined;
 
   const updateDouyinStat = useCallback(
     (updater: (prev: SocialStats) => SocialStats) => {

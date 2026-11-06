@@ -55,6 +55,26 @@ public/
 - 接口失败时保留上次成功的数字与时间，过期数据标注“历史数据”；没有成功快照时显示 `--`。直播状态只在 2 分钟缓存有效期内展示，过期后视为未知。
 - 部署脚本将数据目录设为 `/www/wwwroot/luoxueer/data/social-stats`，位于每次替换的 `standalone` 目录之外。运行进程需要对此目录有写权限。
 - 部署会将 Chromium 安装到 `PLAYWRIGHT_BROWSERS_PATH=/www/wwwroot/luoxueer/data/browsers`。Linux 首次部署前需要管理员在源码目录运行 `pnpm exec playwright install-deps chromium`，安装浏览器系统依赖；后续发布复用浏览器下载缓存。
+- OpenCloudOS 9 需使用系统包管理器补齐依赖（本服务器缺失项为 `dnf install -y mesa-libgbm alsa-lib`）。部署脚本会在替换线上文件前验证浏览器能否启动，失败时保留当前站点。
 - 本地可运行 `pnpm exec playwright install chromium`，或用 `DOUYIN_BROWSER_EXECUTABLE` 指向现有 Chrome/Chromium 可执行文件。
 - 游客响应可能受平台验证、网络和页面变化影响，失败时沿用历史快照；不会自动登录或处理验证码。
 - 回归检查：`pnpm test:douyin`。
+
+## 微博线上配置
+
+- 服务端需要有效的 `WEIBO_COOKIE`。可通过部署环境注入，或保存在服务器 `/www/wwwroot/luoxueer/data/social.env`（仅服务端使用，权限 `600`，不要提交仓库）。
+- 部署时优先使用本次传入的非空 Cookie，否则复用持久配置或现有运行配置，避免空值覆盖；进程重启时同步更新环境。Cookie 过期后仍需重新配置。
+
+## 动态视频
+
+- B站动态会从原文链接识别 BV 号，在封面上显示“播放视频”；点击后按需加载 [B站官方站外播放器](https://player.bilibili.com/)。当前已收录的 6 条 B站投稿均支持。
+- 同时只挂载一个播放器。切换动态、返回封面或跨越桌面/手机布局时会移除播放器并停止播放，外框尺寸和切换按钮位置保持固定。
+- 使用平台播放器提供的视频流和原生控制，不保存带过期签名的视频直链；能否播放仍遵循原平台的可见性与访问限制。
+- 回归检查：`pnpm test:about-video`。
+
+## 动态图集
+
+- 第一条「近况影像」按原微博顺序展示九宫格：7 张照片和 2 段视频。素材保存在本地，视频只在打开对应格子后加载，不依赖微博临时签名链接。
+- 其余两条微博也已补齐原帖图片：「盛夏的我们」2 张，「面具之下」3 张，按数量展示双图或三联图，不留九宫格空位。
+- 点击格子打开完整媒体，支持左右按钮、键盘方向键、手机照片左右滑动和 Escape 关闭；关闭后恢复焦点与页面滚动。图集使用固定图片区域，不改变动态切换按钮位置。
+- 回归检查：`pnpm test:about-gallery`。
